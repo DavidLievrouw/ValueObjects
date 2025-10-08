@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dalion.ValueObjects", "Dalion.ValueObjects\Dalion.ValueObjects.csproj", "{92D14372-C780-4E83-AC15-1DF3D2F5C581}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dalion.ValueObjects.Tests", "Dalion.ValueObjects.Tests\Dalion.ValueObjects.Tests.csproj", "{352FAD51-5F12-4047-B083-38F8323C4B01}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{60392A05-1662-406B-8CC5-C0F8510F6E46}"
+	ProjectSection(SolutionItems) = preProject
+		..\readme.md = ..\readme.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{92D14372-C780-4E83-AC15-1DF3D2F5C581}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92D14372-C780-4E83-AC15-1DF3D2F5C581}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92D14372-C780-4E83-AC15-1DF3D2F5C581}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92D14372-C780-4E83-AC15-1DF3D2F5C581}.Release|Any CPU.Build.0 = Release|Any CPU
+		{352FAD51-5F12-4047-B083-38F8323C4B01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{352FAD51-5F12-4047-B083-38F8323C4B01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{352FAD51-5F12-4047-B083-38F8323C4B01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{352FAD51-5F12-4047-B083-38F8323C4B01}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

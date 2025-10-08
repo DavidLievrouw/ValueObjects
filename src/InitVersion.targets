@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="InitVersion" BeforeTargets="BeforeBuild">
+    <ReadLinesFromFile
+      File="$(MSBuildThisFileDirectory)../version.txt"
+      Condition="Exists('$(MSBuildThisFileDirectory)../version.txt')"
+    >
+      <Output TaskParameter="Lines" PropertyName="PackageVersion" />
+    </ReadLinesFromFile>
+    <ReadLinesFromFile
+      File="$(MSBuildThisFileDirectory)version.txt"
+      Condition="Exists('$(MSBuildThisFileDirectory)version.txt')"
+    >
+      <Output TaskParameter="Lines" PropertyName="PackageVersion" />
+    </ReadLinesFromFile>
+    <PropertyGroup>
+      <BuildCounter Condition="'$(BuildCounter)'==''">0</BuildCounter>
+      <ProductVersion Condition="'$(ProductVersion)'=='' And $(PackageVersion.IndexOf('-')) &gt; -1"
+        >$(PackageVersion.Substring(0, $(PackageVersion.IndexOf('-')))).$(BuildCounter)</ProductVersion
+      >
+      <ProductVersion Condition="'$(ProductVersion)'=='' And $(PackageVersion.IndexOf('-')) &lt; 0"
+        >$(PackageVersion).$(BuildCounter)</ProductVersion
+      >
+      <Version>$(PackageVersion)</Version>
+      <AssemblyVersion>$(ProductVersion)</AssemblyVersion>
+      <FileVersion>$(ProductVersion)</FileVersion>
+      <InformationalVersion>$(ProductVersion)</InformationalVersion>
+    </PropertyGroup>
+    <Message
+      Text="The $(Product) package version for $(TargetFramework) is '$(PackageVersion)'."
+      Importance="High"
+    />
+    <Message
+      Text="The $(Product) product version for $(TargetFramework) is '$(ProductVersion)'."
+      Importance="High"
+    />
+  </Target>
+</Project>

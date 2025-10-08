@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DocumentationFile>.\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>Dalion.ValueObjects</PackageId>
+    <Product>Dalion.ValueObjects</Product>
+    <Title>Dalion.ValueObjects</Title>
+    <Description>Code-generator to fix your Primitive Obsession.</Description>
+    <Company>Dalion</Company>
+    <Authors>Dalion</Authors>
+    <Owners>Dalion</Owners>
+    <PackageTags>value objects valueobjects dalion</PackageTags>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/DavidLievrouw/ValueObjects</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/DavidLievrouw/ValueObjects</RepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateNuspecDependsOn>InitVersion</GenerateNuspecDependsOn>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Copyright>Copyright (c) $([System.DateTime]::Now.ToString(yyyy)), David Lievrouw</Copyright>
+    <ContinuousIntegrationBuild Condition="'$(CIBuild)'=='true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+  <Import Project="..\InitVersion.targets" Condition="Exists('..\InitVersion.targets')" />
+  <ItemGroup>
+    <PackageReference
+      Include="Microsoft.SourceLink.GitHub"
+      Version="[8.0.0,)"
+      PrivateAssets="All"
+    />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+</Project>
