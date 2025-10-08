@@ -6,6 +6,23 @@ namespace Dalion.ValueObjects;
 
 internal static partial class Extensions
 {
+    public static string[]? GetTypeArguments(this ISymbol symbol)
+    {
+        if (symbol is INamedTypeSymbol nts)
+        {
+            if (nts.Arity > 0)
+            {
+                var arr = nts.TypeArguments
+                    .Select(GetEscapedFullNameForTypeArgument).Where(n => n != null)
+                    .ToArray();
+
+                return arr.All(string.IsNullOrEmpty) ? null : arr.Select(a => a!).ToArray();
+            }
+        }
+
+        return null;
+    }
+
     public static string EscapedFullName(this ISymbol symbol)
     {
         var prefix = FullNamespace(symbol);
@@ -26,25 +43,12 @@ internal static partial class Extensions
         }
 
         return EscapeKeywordsIfRequired(symbol.Name) + suffix;
-
-        static string? GetEscapedFullNameForTypeArgument(ITypeSymbol a)
-        {
-            if (!a.CanBeReferencedByName)
-            {
-                return null;
-            }
-            if (a is not ITypeSymbol nts)
-            {
-                return null;
-            }
-            return EscapedFullName(nts);
-        }
     }
 
     public static string FullNamespace(this ISymbol symbol)
     {
         var parts = new Stack<string>();
-        INamespaceSymbol? iterator = symbol as INamespaceSymbol ?? symbol.ContainingNamespace;
+        var iterator = symbol as INamespaceSymbol ?? symbol.ContainingNamespace;
 
         while (iterator is not null)
         {
@@ -57,5 +61,20 @@ internal static partial class Extensions
         }
 
         return string.Join(".", parts);
+    }
+
+    private static string? GetEscapedFullNameForTypeArgument(ITypeSymbol a)
+    {
+        if (!a.CanBeReferencedByName)
+        {
+            return null;
+        }
+
+        if (a is not ITypeSymbol nts)
+        {
+            return null;
+        }
+
+        return EscapedFullName(nts);
     }
 }

@@ -134,7 +134,7 @@ public class ResourceGroupNameTests
         public void WhenValuesAreEqual_AreEqual()
         {
             var first = ResourceGroupName.From("abc123");
-            var second = ResourceGroupName.From(first);
+            var second = ResourceGroupName.From(first.Value);
 
             Assert.True(first.Equals(second));
             Assert.True(first == second);
@@ -355,9 +355,22 @@ public class ResourceGroupNameTests
         }
 
         [Fact]
-        public void DeserializesMissingToEmpty()
+        public void DeserializesEmptyToEmpty()
         {
             var serialized = "{\"Id\":\"one\",\"Data\":\"\"}";
+
+            var deserialized = JsonSerializer.Deserialize<Container>(serialized);
+
+            Assert.NotNull(deserialized);
+            Assert.Equal("one", deserialized.Id);
+            Assert.Equal(ResourceGroupName.Empty, deserialized.Data);
+            Assert.Equal(default, deserialized.Data);
+        }
+
+        [Fact]
+        public void DeserializesMissingToEmpty()
+        {
+            var serialized = "{\"Id\":\"one\"}";
 
             var deserialized = JsonSerializer.Deserialize<Container>(serialized);
 
@@ -370,7 +383,7 @@ public class ResourceGroupNameTests
         internal class Container
         {
             public required string Id { get; set; }
-            public Password Data { get; set; }
+            public ResourceGroupName Data { get; set; }
         }
     }
 }

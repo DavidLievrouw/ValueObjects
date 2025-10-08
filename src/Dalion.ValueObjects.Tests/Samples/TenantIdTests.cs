@@ -3,106 +3,75 @@ using Xunit;
 
 namespace Dalion.ValueObjects.Samples;
 
-public class PasswordTests
+public class TenantIdTests
 {
-    public class From : PasswordTests
+    public class From : TenantIdTests
     {
         [Fact]
-        public void From_CreatesPasswordWithValue()
+        public void From_CreatesTenantIdWithValue()
         {
-            var actual = Password.From("theValue");
-            Assert.Equal("theValue", actual.Value);
+            var backingValue = Guid.NewGuid();
+            var actual = TenantId.From(backingValue);
+            Assert.Equal(backingValue, actual.Value);
         }
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("   ")]
-        [InlineData(" \t  ")]
-        public void CanCreateEmpty(string? invalid)
+        [Fact]
+        public void CanCreateEmpty()
         {
-            var empty = Password.Empty;
+            var empty = TenantId.Empty;
             
-            var actual = Password.From(invalid);
+            var actual = TenantId.From(Guid.Empty);
 
             Assert.True(actual.Equals(empty));
             Assert.True(actual == empty);
             Assert.False(actual != empty);
             Assert.Equal(actual.GetHashCode(), empty.GetHashCode());
         }
-
-        [Theory]
-        [InlineData("a")] // too short
-        [InlineData("ab")] // too short
-        [InlineData("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl")] // too long
-        [InlineData("-abc")] // starts with invalid character
-        [InlineData(".abc")] // starts with invalid character
-        [InlineData("_abc")] // starts with invalid character
-        [InlineData("abc-")] // ends with invalid character
-        [InlineData("abc.")] // ends with invalid character
-        [InlineData("abc_")] // ends with invalid character
-        public void CannotCreateInvalidPassword(string invalid)
-        {
-            Action act = () => Password.From(invalid);
-
-            Assert.Throws<ArgumentException>(act);
-        }
     } 
     
-    public class TryFrom : PasswordTests
+    public class TryFrom : TenantIdTests
     {
         [Fact]
-        public void TryFrom_CreatesPasswordWithValue()
+        public void TryFrom_CreatesTenantIdWithValue()
         {
-            var success = Password.TryFrom("theValue", out var actual);
+            var backingValue = Guid.NewGuid();
+            
+            var success = TenantId.TryFrom(backingValue, out var actual);
             
             Assert.True(success);
-            Assert.Equal("theValue", actual.Value);
+            Assert.Equal(backingValue, actual.Value);
         }
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("   ")]
-        [InlineData(" \t  ")]
-        public void CannotCreateNullEmptyOrWhitespace(string? invalid)
+        [Fact]
+        public void CannotCreateEmpty()
         {
-            var success = Password.TryFrom(invalid, out _);
+            var success = TenantId.TryFrom(Guid.Empty, out _);
             
-            Assert.False(success);
-        }
-
-        [Theory]
-        [InlineData("a")] // too short
-        [InlineData("ab")] // too short
-        public void CannotCreateInvalidPassword(string invalid)
-        {
-            var success = Password.TryFrom(invalid, out _);
-
             Assert.False(success);
         }
     }
 
-    public class Value : PasswordTests
+    public class Value : TenantIdTests
     {
         [Fact]
         public void ReturnsUnderlyingValue()
         {
-            var expected = "theValue";
+            var expected = Guid.NewGuid();
             
-            var actual = Password.From(expected);
+            var actual = TenantId.From(expected);
             
             Assert.Equal(expected, actual.Value);
         }
     }
 
-    public class Equality : PasswordTests
+    public class Equality : TenantIdTests
     {
         [Fact]
         public void WhenValuesAreEqual_AreEqual()
         {
-            var first = Password.From("abc123");
-            var second = Password.From(first.Value);
+            var backingValue = Guid.NewGuid();
+            var first = TenantId.From(backingValue);
+            var second = TenantId.From(first.Value);
 
             Assert.True(first.Equals(second));
             Assert.True(first == second);
@@ -113,19 +82,9 @@ public class PasswordTests
         [Fact]
         public void WhenValuesAreDifferent_AreNotEqual()
         {
-            var first = Password.From("abc123");
-            var second = Password.From("xyz123");
-
-            Assert.False(first.Equals(second));
-            Assert.False(first == second);
-            Assert.True(first != second);
-        }
-
-        [Fact]
-        public void WhenValuesAreDifferentlyCased_AreNotEqual()
-        {
-            var first = Password.From("abc123");
-            var second = Password.From("aBc123");
+            var backingValue = Guid.NewGuid();
+            var first = TenantId.From(backingValue);
+            var second = TenantId.From(backingValue);
 
             Assert.False(first.Equals(second));
             Assert.False(first == second);
@@ -135,8 +94,8 @@ public class PasswordTests
         [Fact]
         public void WhenValueIsDefault_IsEqualToDefault()
         {
-            Password first = default;
-            Password second = default;
+            TenantId first = default;
+            TenantId second = default;
 
             Assert.True(first.Equals(second));
             Assert.True(first == second);
@@ -147,8 +106,8 @@ public class PasswordTests
         [Fact]
         public void WhenValueIsDefault_IsEqualToEmpty()
         {
-            Password first = default;
-            Password second = Password.Empty;
+            TenantId first = default;
+            TenantId second = TenantId.Empty;
 
             Assert.True(first.Equals(second));
             Assert.True(first == second);
@@ -159,8 +118,9 @@ public class PasswordTests
         [Fact]
         public void WhenValueIsNotDefault_IsNotEqualToDefault()
         {
-            Password first = Password.From("abc123");
-            Password second = default;
+            var backingValue = Guid.NewGuid();
+            TenantId first = TenantId.From(backingValue);
+            TenantId second = default;
             
             Assert.False(first.Equals(second));
             Assert.False(first == second);
@@ -168,21 +128,23 @@ public class PasswordTests
         }
 
         [Fact]
-        public void GivenOtherObjectIsNotPassword_AreNotEqual()
+        public void GivenOtherObjectIsNotTenantId_AreNotEqual()
         {
-            var first = Password.From("abc123");
+            var backingValue = Guid.NewGuid();
+            var first = TenantId.From(backingValue);
             var second = new object();
 
             Assert.False(first.Equals(second));
         }
     }
     
-    public class IsInitialized : PasswordTests
+    public class IsInitialized : TenantIdTests
     {
         [Fact]
         public void WhenValueIsNotDefault_IsTrue()
         {
-            var sut = Password.From("abc123");
+            var backingValue = Guid.NewGuid();
+            var sut = TenantId.From(backingValue);
             
             Assert.True(sut.IsInitialized());
         }
@@ -190,7 +152,7 @@ public class PasswordTests
         [Fact]
         public void WhenValueIsDefault_IsFalse()
         {
-            Password sut = default;
+            TenantId sut = default;
             
             Assert.False(sut.IsInitialized());
         }
@@ -198,48 +160,49 @@ public class PasswordTests
         [Fact]
         public void WhenValueIsEmpty_IsFalse()
         {
-            Password sut = Password.Empty;
+            TenantId sut = TenantId.Empty;
             
             Assert.False(sut.IsInitialized());
         }
     }
 
-    public class ToStringRepresentation : PasswordTests
+    public class ToStringRepresentation : TenantIdTests
     {
         [Fact]
         public void ReturnsValue()
         {
-            var value = Guid.NewGuid().ToString();
+            var value = Guid.NewGuid();
             
-            var actual = Password.From(value).ToString();
+            var actual = TenantId.From(value).ToString();
             
-            Assert.Equal(value, actual);
+            Assert.Equal(value.ToString(), actual);
         }
     }
 
-    public class ConversionOperatorsForString : PasswordTests
+    public class ConversionOperatorsForGuid : TenantIdTests
     {
         [Fact]
-        public void IsExplicitlyConvertibleToString()
+        public void IsExplicitlyConvertibleFromString()
         {
-            var value = Guid.NewGuid().ToString();
-            var obj = Password.From(value);
+            var value = Guid.NewGuid();
             
-            var actual = (string)obj;
+            var actual = (TenantId)value;
             
-            Assert.Equal(value, actual);
+            var expected = TenantId.From(value);
+            Assert.Equal(expected, actual);
         }
     }
 
-    public class Serialization : PasswordTests
+    public class Serialization : TenantIdTests
     {
         [Fact]
         public void CanRoundTrip()
         {
-            var original = Password.From("test-pwd");
+            var backingValue = Guid.NewGuid();
+            var original = TenantId.From(backingValue);
 
             var serialized = JsonSerializer.Serialize(original);
-            var deserialized = JsonSerializer.Deserialize<Password>(serialized);
+            var deserialized = JsonSerializer.Deserialize<TenantId>(serialized);
 
             Assert.Equal(original, deserialized);
         }
@@ -247,23 +210,24 @@ public class PasswordTests
         [Fact]
         public void SerializesToCorrectJson()
         {
-            var sut = Password.From("test-pwd");
+            var backingValue = Guid.NewGuid();
+            var sut = TenantId.From(backingValue);
 
             var serialized = JsonSerializer.Serialize(sut);
 
-            Assert.Equal("\"test-pwd\"", serialized);
+            Assert.Equal("\"test-resource-group-name\"", serialized);
         }
 
         [Fact]
         public void CanRoundTripDefault()
         {
-            Password original = default;
+            TenantId original = default;
 
             var serialized = JsonSerializer.Serialize(original);
 
             Assert.Equal("\"\"", serialized);
 
-            var deserialized = JsonSerializer.Deserialize<Password>(serialized);
+            var deserialized = JsonSerializer.Deserialize<TenantId>(serialized);
 
             Assert.Equal(original, deserialized);
         }
@@ -271,13 +235,13 @@ public class PasswordTests
         [Fact]
         public void CanRoundTripEmpty()
         {
-            var original = Password.Empty;
+            var original = TenantId.Empty;
 
             var serialized = JsonSerializer.Serialize(original);
 
             Assert.Equal("\"\"", serialized);
 
-            var deserialized = JsonSerializer.Deserialize<Password>(serialized);
+            var deserialized = JsonSerializer.Deserialize<TenantId>(serialized);
 
             Assert.Equal(original, deserialized);
         }
@@ -302,7 +266,7 @@ public class PasswordTests
             var container = new Container
             {
                 Id = "one",
-                Data = Password.Empty
+                Data = TenantId.Empty
             };
             
             var serialized = JsonSerializer.Serialize(container);
@@ -319,7 +283,7 @@ public class PasswordTests
 
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
-            Assert.Equal(Password.Empty, deserialized.Data);
+            Assert.Equal(TenantId.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
         }
 
@@ -332,14 +296,14 @@ public class PasswordTests
 
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
-            Assert.Equal(Password.Empty, deserialized.Data);
+            Assert.Equal(TenantId.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
         }
         
         internal class Container
         {
             public required string Id { get; set; }
-            public Password Data { get; set; }
+            public TenantId Data { get; set; }
         }
     }
 }

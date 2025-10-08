@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -60,7 +61,54 @@ public class ValueObjectGenerator : IIncrementalGenerator
 
     private void Execute(GenerationTarget target, SourceProductionContext context)
     {
-        var members = target.SyntaxInformation.Members;
+        var className = target.SymbolInformation.Name;
+        var namespaceName = target.SymbolInformation.ContainingNamespace.ToDisplayString();
+
+        var attrs = TryGetValueObjectAttributes(target.SymbolInformation);
+        var valueType = attrs.FirstOrDefault(a => a.AttributeClass != null)?.AttributeClass?.GetTypeArguments()
+            ?.FirstOrDefault() ?? "object";
+
+        var initCheck = Type.GetType(valueType) == typeof(string)
+            ? "!string.IsNullOrEmpty(_value)"
+            : "_value != default";
+
+        var defaultValue = Type.GetType(valueType) == typeof(string) ? "System.String.Empty" : "default";
+        
+        /*
+         *     : IEquatable<string>,
+        IComparable<JobDefinitionId>,
+        IComparable,
+        Equals x4
+        GetHashCode
+        Validation on creation, allowing Empty
+        
+         */
+        var generatedClass =
+            $@"
+        namespace {namespaceName} {{
+            public readonly partial record struct {className} {{
+                private readonly {valueType} _value;
+
+                public {valueType} Value => _value;
+
+                public static {className} From({valueType} value) => new {className}(value);
+
+                public static bool TryFrom({valueType} value, out {className} result) {{
+                    // ToDo: Incorrect!
+                    result = new {className}(value);
+                    return result.IsInitialized();
+                }}
+
+                private {className}({valueType} value) {{ _value = value; }}
+
+                public static {className} Empty => new {className}({defaultValue});
+
+                public bool IsInitialized() => {initCheck};
+            }}
+        }}
+        ";
+
+        context.AddSource($"{className}.g.cs", generatedClass);
 
         /*//check if the methods we want to add exist already
         var addMethod = calculatorClassMembers.FirstOrDefault(member =>
@@ -186,12 +234,15 @@ public class ValueObjectGenerator : IIncrementalGenerator
             (spc, tuple) =>
             {
                 var (ns, exitingType) = tuple;
-                
-                if (exitingType.GetTypeByMetadataName(ns + "." + nameof(ValueObjectAttribute)) is not null)
+
+                if (
+                    exitingType.GetTypeByMetadataName(ns + "." + nameof(ValueObjectAttribute))
+                    is not null
+                )
                 {
                     return;
                 }
-                
+
                 spc.AddSource(
                     $"{nameof(ValueObjectAttribute)}.g.cs",
                     $@"
@@ -249,19 +300,31 @@ namespace {ns} {{
     }
 
     private static IEnumerable<AttributeData> TryGetValueObjectAttributes(
-        INamedTypeSymbol voSymbolInformation
+        INamedTypeSymbol symbolInformation
     )
     {
-        var attrs = voSymbolInformation.GetAttributes();
+        var attrs = symbolInformation.GetAttributes();
 
         return attrs.Where(a =>
+        {
+            var ns = a.AttributeClass?.ContainingNamespace?.ToDisplayString();
+            var fullName = string.IsNullOrEmpty(ns) || ns == "<global namespace>"
+                ? nameof(ValueObjectAttribute)
+                : ns + "." + nameof(ValueObjectAttribute);
+            if (fullName.EndsWith("Attribute"))
             {
-                var fullName = a.AttributeClass?.ContainingNamespace + "." + nameof(ValueObjectAttribute);
-
-                return a.AttributeClass?.EscapedFullName() == fullName
-                       || a.AttributeClass?.BaseType?.EscapedFullName() == fullName
-                       || a.AttributeClass?.BaseType?.BaseType?.EscapedFullName() == fullName;
+                fullName = fullName.Substring(0, fullName.Length - "Attribute".Length);
             }
-        );
+
+            var typeArg = a.AttributeClass?.GetTypeArguments()?.FirstOrDefault();
+            if (typeArg != null)
+            {
+                fullName += $"<{typeArg}>";
+            }
+
+            return a.AttributeClass?.EscapedFullName() == fullName
+                   || a.AttributeClass?.BaseType?.EscapedFullName() == fullName
+                   || a.AttributeClass?.BaseType?.BaseType?.EscapedFullName() == fullName;
+        });
     }
 }
