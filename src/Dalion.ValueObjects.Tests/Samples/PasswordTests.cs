@@ -1,16 +1,16 @@
 ﻿using System.Text.Json;
 using Xunit;
 
-namespace Dalion.ValueObjects;
+namespace Dalion.ValueObjects.Samples;
 
-public class ResourceGroupNameTests
+public class PasswordTests
 {
-    public class From : ResourceGroupNameTests
+    public class From : PasswordTests
     {
         [Fact]
-        public void From_CreatesResourceGroupNameWithValue()
+        public void From_CreatesPasswordWithValue()
         {
-            var actual = ResourceGroupName.From("theValue");
+            var actual = Password.From("theValue");
             Assert.Equal("theValue", actual.Value);
         }
 
@@ -21,9 +21,9 @@ public class ResourceGroupNameTests
         [InlineData(" \t  ")]
         public void CanCreateEmpty(string? invalid)
         {
-            var empty = ResourceGroupName.Empty;
+            var empty = Password.Empty;
             
-            var actual = ResourceGroupName.From(invalid);
+            var actual = Password.From(invalid);
 
             Assert.True(actual.Equals(empty));
             Assert.True(actual == empty);
@@ -41,20 +41,20 @@ public class ResourceGroupNameTests
         [InlineData("abc-")] // ends with invalid character
         [InlineData("abc.")] // ends with invalid character
         [InlineData("abc_")] // ends with invalid character
-        public void CannotCreateInvalidResourceGroupName(string invalid)
+        public void CannotCreateInvalidPassword(string invalid)
         {
-            Action act = () => ResourceGroupName.From(invalid);
+            Action act = () => Password.From(invalid);
 
             Assert.Throws<ArgumentException>(act);
         }
     } 
     
-    public class TryFrom : ResourceGroupNameTests
+    public class TryFrom : PasswordTests
     {
         [Fact]
-        public void TryFrom_CreatesResourceGroupNameWithValue()
+        public void TryFrom_CreatesPasswordWithValue()
         {
-            var success = ResourceGroupName.TryFrom("theValue", out var actual);
+            var success = Password.TryFrom("theValue", out var actual);
             
             Assert.True(success);
             Assert.Equal("theValue", actual.Value);
@@ -67,7 +67,7 @@ public class ResourceGroupNameTests
         [InlineData(" \t  ")]
         public void CannotCreateNullEmptyOrWhitespace(string? invalid)
         {
-            var success = ResourceGroupName.TryFrom(invalid, out _);
+            var success = Password.TryFrom(invalid, out _);
             
             Assert.False(success);
         }
@@ -75,66 +75,34 @@ public class ResourceGroupNameTests
         [Theory]
         [InlineData("a")] // too short
         [InlineData("ab")] // too short
-        [InlineData("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl")] // too long
-        [InlineData("-abc")] // starts with invalid character
-        [InlineData(".abc")] // starts with invalid character
-        [InlineData("_abc")] // starts with invalid character
-        [InlineData("abc-")] // ends with invalid character
-        [InlineData("abc.")] // ends with invalid character
-        [InlineData("abc_")] // ends with invalid character
-        public void CannotCreateInvalidResourceGroupName(string invalid)
+        public void CannotCreateInvalidPassword(string invalid)
         {
-            var success = ResourceGroupName.TryFrom(invalid, out _);
+            var success = Password.TryFrom(invalid, out _);
 
             Assert.False(success);
         }
     }
 
-    public class Value : ResourceGroupNameTests
+    public class Value : PasswordTests
     {
         [Fact]
         public void ReturnsUnderlyingValue()
         {
             var expected = "theValue";
             
-            var actual = ResourceGroupName.From(expected);
+            var actual = Password.From(expected);
             
             Assert.Equal(expected, actual.Value);
         }
     }
 
-    public class Comparison : ResourceGroupNameTests
-    {
-        [Fact]
-        public void CompareTo_WorksAsExpected()
-        {
-            var a = ResourceGroupName.From("aaa");
-            var b = ResourceGroupName.From("bbb");
-            var a2 = ResourceGroupName.From("aaa");
-
-            Assert.True(a.CompareTo(b) < 0);
-            Assert.True(b.CompareTo(a) > 0);
-            Assert.True(a.CompareTo(a2) == 0);
-        }
-
-        [Fact]
-        public void CompareTo_IsCaseSensitive()
-        {
-            var a = ResourceGroupName.From("aaa");
-            var A = ResourceGroupName.From("AAA");
-
-            Assert.True(a.CompareTo(A) < 0);
-            Assert.True(A.CompareTo(a) > 0);
-        }
-    }
-
-    public class Equality : ResourceGroupNameTests
+    public class Equality : PasswordTests
     {
         [Fact]
         public void WhenValuesAreEqual_AreEqual()
         {
-            var first = ResourceGroupName.From("abc123");
-            var second = ResourceGroupName.From(first);
+            var first = Password.From("abc123");
+            var second = Password.From(first);
 
             Assert.True(first.Equals(second));
             Assert.True(first == second);
@@ -145,8 +113,8 @@ public class ResourceGroupNameTests
         [Fact]
         public void WhenValuesAreDifferent_AreNotEqual()
         {
-            var first = ResourceGroupName.From("abc123");
-            var second = ResourceGroupName.From("xyz123");
+            var first = Password.From("abc123");
+            var second = Password.From("xyz123");
 
             Assert.False(first.Equals(second));
             Assert.False(first == second);
@@ -156,8 +124,8 @@ public class ResourceGroupNameTests
         [Fact]
         public void WhenValuesAreDifferentlyCased_AreNotEqual()
         {
-            var first = ResourceGroupName.From("abc123");
-            var second = ResourceGroupName.From("aBc123");
+            var first = Password.From("abc123");
+            var second = Password.From("aBc123");
 
             Assert.False(first.Equals(second));
             Assert.False(first == second);
@@ -167,8 +135,8 @@ public class ResourceGroupNameTests
         [Fact]
         public void WhenValueIsDefault_IsEqualToDefault()
         {
-            ResourceGroupName first = default;
-            ResourceGroupName second = default;
+            Password first = default;
+            Password second = default;
 
             Assert.True(first.Equals(second));
             Assert.True(first == second);
@@ -179,8 +147,8 @@ public class ResourceGroupNameTests
         [Fact]
         public void WhenValueIsDefault_IsEqualToEmpty()
         {
-            ResourceGroupName first = default;
-            ResourceGroupName second = ResourceGroupName.Empty;
+            Password first = default;
+            Password second = Password.Empty;
 
             Assert.True(first.Equals(second));
             Assert.True(first == second);
@@ -191,8 +159,8 @@ public class ResourceGroupNameTests
         [Fact]
         public void WhenValueIsNotDefault_IsNotEqualToDefault()
         {
-            ResourceGroupName first = ResourceGroupName.From("abc123");
-            ResourceGroupName second = default;
+            Password first = Password.From("abc123");
+            Password second = default;
             
             Assert.False(first.Equals(second));
             Assert.False(first == second);
@@ -200,21 +168,21 @@ public class ResourceGroupNameTests
         }
 
         [Fact]
-        public void GivenOtherObjectIsNotResourceGroupName_AreNotEqual()
+        public void GivenOtherObjectIsNotPassword_AreNotEqual()
         {
-            var first = ResourceGroupName.From("abc123");
+            var first = Password.From("abc123");
             var second = new object();
 
             Assert.False(first.Equals(second));
         }
     }
     
-    public class IsInitialized : ResourceGroupNameTests
+    public class IsInitialized : PasswordTests
     {
         [Fact]
         public void WhenValueIsNotDefault_IsTrue()
         {
-            var sut = ResourceGroupName.From("abc123");
+            var sut = Password.From("abc123");
             
             Assert.True(sut.IsInitialized());
         }
@@ -222,7 +190,7 @@ public class ResourceGroupNameTests
         [Fact]
         public void WhenValueIsDefault_IsFalse()
         {
-            ResourceGroupName sut = default;
+            Password sut = default;
             
             Assert.False(sut.IsInitialized());
         }
@@ -230,60 +198,48 @@ public class ResourceGroupNameTests
         [Fact]
         public void WhenValueIsEmpty_IsFalse()
         {
-            ResourceGroupName sut = ResourceGroupName.Empty;
+            Password sut = Password.Empty;
             
             Assert.False(sut.IsInitialized());
         }
     }
 
-    public class ToStringRepresentation : ResourceGroupNameTests
+    public class ToStringRepresentation : PasswordTests
     {
         [Fact]
         public void ReturnsValue()
         {
             var value = Guid.NewGuid().ToString();
             
-            var actual = ResourceGroupName.From(value).ToString();
+            var actual = Password.From(value).ToString();
             
             Assert.Equal(value, actual);
         }
     }
 
-    public class ConversionOperatorsForString : ResourceGroupNameTests
+    public class ConversionOperatorsForString : PasswordTests
     {
         [Fact]
-        public void IsImplicitlyConvertibleToString()
+        public void IsExplicitlyConvertibleToString()
         {
             var value = Guid.NewGuid().ToString();
-            var obj = ResourceGroupName.From(value);
+            var obj = Password.From(value);
             
-            string actual = obj;
+            var actual = (string)obj;
             
             Assert.Equal(value, actual);
         }
-
-        [Fact]
-        public void IsExplicitlyConvertibleFromString()
-        {
-            var value = Guid.NewGuid().ToString();
-            var str = value;
-            
-            var actual = (ResourceGroupName)str;
-            
-            var expected = ResourceGroupName.From(value);
-            Assert.Equal(expected, actual);
-        }
     }
 
-    public class Serialization : ResourceGroupNameTests
+    public class Serialization : PasswordTests
     {
         [Fact]
         public void CanRoundTrip()
         {
-            var original = ResourceGroupName.From("test-resource-group-name");
+            var original = Password.From("test-pwd");
 
             var serialized = JsonSerializer.Serialize(original);
-            var deserialized = JsonSerializer.Deserialize<ResourceGroupName>(serialized);
+            var deserialized = JsonSerializer.Deserialize<Password>(serialized);
 
             Assert.Equal(original, deserialized);
         }
@@ -291,25 +247,86 @@ public class ResourceGroupNameTests
         [Fact]
         public void SerializesToCorrectJson()
         {
-            var sut = ResourceGroupName.From("test-resource-group-name");
+            var sut = Password.From("test-pwd");
 
             var serialized = JsonSerializer.Serialize(sut);
 
-            Assert.Equal("\"test-resource-group-name\"", serialized);
+            Assert.Equal("\"test-pwd\"", serialized);
         }
 
         [Fact]
-        public void CanRoundTripEmpty()
+        public void CanRoundTripDefault()
         {
-            ResourceGroupName original = default;
+            Password original = default;
 
             var serialized = JsonSerializer.Serialize(original);
 
             Assert.Equal("\"\"", serialized);
 
-            var deserialized = JsonSerializer.Deserialize<ResourceGroupName>(serialized);
+            var deserialized = JsonSerializer.Deserialize<Password>(serialized);
 
             Assert.Equal(original, deserialized);
+        }
+
+        [Fact]
+        public void CanRoundTripEmpty()
+        {
+            var original = Password.Empty;
+
+            var serialized = JsonSerializer.Serialize(original);
+
+            Assert.Equal("\"\"", serialized);
+
+            var deserialized = JsonSerializer.Deserialize<Password>(serialized);
+
+            Assert.Equal(original, deserialized);
+        }
+
+        [Fact]
+        public void SerializesUninitializedToEmpty()
+        {
+            var container = new Container
+            {
+                Id = "one",
+                Data = default
+            };
+            
+            var serialized = JsonSerializer.Serialize(container);
+
+            Assert.Equal("{\"Id\":\"one\",\"Data\":\"\"}", serialized);
+        }
+
+        [Fact]
+        public void SerializesEmptyToEmpty()
+        {
+            var container = new Container
+            {
+                Id = "one",
+                Data = Password.Empty
+            };
+            
+            var serialized = JsonSerializer.Serialize(container);
+
+            Assert.Equal("{\"Id\":\"one\",\"Data\":\"\"}", serialized);
+        }
+
+        [Fact]
+        public void DeserializesMissingToEmpty()
+        {
+            var serialized = "{\"Id\":\"one\",\"Data\":\"\"}";
+
+            var deserialized = JsonSerializer.Deserialize<Container>(serialized);
+
+            Assert.NotNull(deserialized);
+            Assert.Equal("one", deserialized.Id);
+            Assert.Equal(Password.Empty, deserialized.Data);
+            Assert.Equal(default, deserialized.Data);
+        }
+        
+        internal class Container
+        {
+            public required string Id { get; set; }
+            public Password Data { get; set; }
         }
     }
 }

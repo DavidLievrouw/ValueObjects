@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{60392A
 		..\readme.md = ..\readme.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dalion.ValueObjects.Samples", "Dalion.ValueObjects.Samples\Dalion.ValueObjects.Samples.csproj", "{BBD5CDEF-8F9A-4EBE-A147-12F7B57CF980}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,5 +25,9 @@ Global
 		{352FAD51-5F12-4047-B083-38F8323C4B01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{352FAD51-5F12-4047-B083-38F8323C4B01}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{352FAD51-5F12-4047-B083-38F8323C4B01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBD5CDEF-8F9A-4EBE-A147-12F7B57CF980}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBD5CDEF-8F9A-4EBE-A147-12F7B57CF980}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBD5CDEF-8F9A-4EBE-A147-12F7B57CF980}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBD5CDEF-8F9A-4EBE-A147-12F7B57CF980}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

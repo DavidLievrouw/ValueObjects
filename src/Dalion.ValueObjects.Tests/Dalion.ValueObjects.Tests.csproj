@@ -18,6 +18,6 @@
         <PackageReference Include="xunit.v3" Version="3.0.1" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\Dalion.ValueObjects\Dalion.ValueObjects.csproj" />
+      <ProjectReference Include="..\Dalion.ValueObjects.Samples\Dalion.ValueObjects.Samples.csproj" />
     </ItemGroup>
 </Project>

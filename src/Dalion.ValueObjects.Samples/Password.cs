@@ -1,4 +1,4 @@
-﻿namespace Dalion.ValueObjects;
+﻿namespace Dalion.ValueObjects.Samples;
 
 /// <summary>
 ///     A secure password.

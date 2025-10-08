@@ -1,4 +1,4 @@
-﻿namespace Dalion.ValueObjects;
+﻿namespace Dalion.ValueObjects.Samples;
 
 /// <summary>
 ///     The name of an Azure Resource Group.
