@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Dalion.ValueObjects;
@@ -80,13 +81,31 @@ public class ValueObjectGenerator : IIncrementalGenerator
             Type.GetType(valueType) == typeof(string) ? "System.String.Empty" : "default";
 
         /*
-         *
-        Conversion operators
-        ToString override + DebuggerDisplay
+        Use params from attribute
         Validation on creation, allowing Empty
 
          */
-
+        
+        var validateMethod = target.SyntaxInformation.Members
+            .OfType<MethodDeclarationSyntax>()
+            .FirstOrDefault(member =>
+                member.Identifier.Text == "Validate" &&
+                member.Modifiers.Any(SyntaxKind.PrivateKeyword) &&
+                member.Modifiers.Any(SyntaxKind.StaticKeyword)
+            );
+        
+        var ctorValidation = validateMethod == null 
+            ? "" 
+            : @"
+                  var validationResult = Validate(value);
+                  if (!validationResult.IsSuccess) {
+                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
+                  }";
+        
+        var tryFromValidation = validateMethod == null 
+            ? "return result.IsInitialized();" 
+            : "return result.IsInitialized() && Validate(result._value).IsSuccess;";
+        
         var equality =
             Type.GetType(valueType) == typeof(string)
                 ? $@"
@@ -209,7 +228,10 @@ public class ValueObjectGenerator : IIncrementalGenerator
 var creation =
             Type.GetType(valueType) == typeof(string)
                 ? $@"
-                private {className}({valueType} value) {{ 
+                private {className}({valueType} value, bool validation = true) {{
+                    if (validation) {{
+                        {ctorValidation}
+                    }}
                     _value = value ?? {valueType}.Empty;
                 }}
 
@@ -222,12 +244,15 @@ var creation =
                 }}
 
                 public static bool TryFrom({valueType}? value, out {className} result) {{
-                    result = string.IsNullOrWhiteSpace(value) ? Empty : new {className}(value);
-                    return result.IsInitialized();
+                    result = string.IsNullOrWhiteSpace(value) ? Empty : new {className}(value, validation: false);
+                    {tryFromValidation}
                 }}
 "
                 : $@"
-                private {className}({valueType} value) {{ 
+                private {className}({valueType} value, bool validation = true) {{
+                    if (validation) {{
+                        {ctorValidation}
+                    }}
                     _value = value;
                 }}
 
@@ -240,8 +265,8 @@ var creation =
                 }}
 
                 public static bool TryFrom({valueType} value, out {className} result) {{
-                    result = value == default ? Empty : new {className}(value);
-                    return result.IsInitialized();
+                    result = value == default ? Empty : new {className}(value, validation: false);
+                    {tryFromValidation}
                 }}
 ";
 
@@ -307,6 +332,55 @@ var creation =
                 {{
                     return {className}.From(value);
                 }}";
+
+        var validationClasses = @"
+private class Validation
+{
+    public static readonly Validation Ok = new(string.Empty);
+
+    private Validation(string reason)
+    {
+        ErrorMessage = reason;
+    }
+
+    public string ErrorMessage { get; }
+    public bool IsSuccess => string.IsNullOrEmpty(ErrorMessage);
+
+    public Dictionary<object, object>? Data { get; private set; }
+
+    public static Validation Invalid(string reason = """")
+    {
+        if (string.IsNullOrEmpty(reason))
+        {
+            return new Validation(""[none provided]"");
+        }
+
+        return new Validation(reason);
+    }
+
+    public Validation WithData(object key, object value)
+    {
+        Data ??= new Dictionary<object, object>();
+        Data[key] = value;
+        return this;
+    }
+}
+private class ValueObjectValidationException : Exception
+{
+    private const string DefaultMessage = ""Validation of the value object failed."";
+
+    public ValueObjectValidationException()
+        : base(DefaultMessage) { }
+
+    public ValueObjectValidationException(string message)
+        : base(message) { }
+
+    public ValueObjectValidationException(Exception innerException)
+        : base(DefaultMessage, innerException) { }
+
+    public ValueObjectValidationException(string message, Exception innerException)
+        : base(message, innerException) { }
+}";
         
         var generatedClass =
             $@"
@@ -324,7 +398,7 @@ var creation =
 
                 {creation}
 
-                public static {className} Empty => new {className}({defaultValue});
+                public static {className} Empty => new {className}({defaultValue}, validation: false);
 
                 public bool IsInitialized() => {initCheck};
 
@@ -339,6 +413,8 @@ var creation =
                 {{
                     return Value.ToString();
                 }}
+
+                {validationClasses}
             }}
         }}
         ";

@@ -5,6 +5,16 @@ namespace Dalion.ValueObjects.Samples;
 
 public class TenantIdTests
 {
+    public class Construction : PasswordTests
+    {
+        [Fact]
+        public void NotAllowedToNewUp()
+        {
+            var actual = new TenantId();
+            Assert.Fail("Should not be allowed to new up, but got: " + actual);
+        }
+    }
+    
     public class From : TenantIdTests
     {
         [Fact]
@@ -82,9 +92,10 @@ public class TenantIdTests
         [Fact]
         public void WhenValuesAreDifferent_AreNotEqual()
         {
-            var backingValue = Guid.NewGuid();
-            var first = TenantId.From(backingValue);
-            var second = TenantId.From(backingValue);
+            var backingValue1 = Guid.NewGuid();
+            var first = TenantId.From(backingValue1);
+            var backingValue2 = Guid.NewGuid();
+            var second = TenantId.From(backingValue2);
 
             Assert.False(first.Equals(second));
             Assert.False(first == second);

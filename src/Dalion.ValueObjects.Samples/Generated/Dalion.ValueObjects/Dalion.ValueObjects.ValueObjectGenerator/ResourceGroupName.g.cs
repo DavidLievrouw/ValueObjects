@@ -12,7 +12,14 @@
                 public System.String Value => _value;
 
                 
-                private ResourceGroupName(System.String value) { 
+                private ResourceGroupName(System.String value, bool validation = true) {
+                    if (validation) {
+                        
+                  var validationResult = Validate(value);
+                  if (!validationResult.IsSuccess) {
+                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
+                  }
+                    }
                     _value = value ?? System.String.Empty;
                 }
 
@@ -25,12 +32,12 @@
                 }
 
                 public static bool TryFrom(System.String? value, out ResourceGroupName result) {
-                    result = string.IsNullOrWhiteSpace(value) ? Empty : new ResourceGroupName(value);
-                    return result.IsInitialized();
+                    result = string.IsNullOrWhiteSpace(value) ? Empty : new ResourceGroupName(value, validation: false);
+                    return result.IsInitialized() && Validate(result._value).IsSuccess;
                 }
 
 
-                public static ResourceGroupName Empty => new ResourceGroupName(System.String.Empty);
+                public static ResourceGroupName Empty => new ResourceGroupName(System.String.Empty, validation: false);
 
                 public bool IsInitialized() => !string.IsNullOrWhiteSpace(_value);
 
@@ -144,6 +151,55 @@
                 {
                     return Value.ToString();
                 }
+
+                
+private class Validation
+{
+    public static readonly Validation Ok = new(string.Empty);
+
+    private Validation(string reason)
+    {
+        ErrorMessage = reason;
+    }
+
+    public string ErrorMessage { get; }
+    public bool IsSuccess => string.IsNullOrEmpty(ErrorMessage);
+
+    public Dictionary<object, object>? Data { get; private set; }
+
+    public static Validation Invalid(string reason = "")
+    {
+        if (string.IsNullOrEmpty(reason))
+        {
+            return new Validation("[none provided]");
+        }
+
+        return new Validation(reason);
+    }
+
+    public Validation WithData(object key, object value)
+    {
+        Data ??= new Dictionary<object, object>();
+        Data[key] = value;
+        return this;
+    }
+}
+private class ValueObjectValidationException : Exception
+{
+    private const string DefaultMessage = "Validation of the value object failed.";
+
+    public ValueObjectValidationException()
+        : base(DefaultMessage) { }
+
+    public ValueObjectValidationException(string message)
+        : base(message) { }
+
+    public ValueObjectValidationException(Exception innerException)
+        : base(DefaultMessage, innerException) { }
+
+    public ValueObjectValidationException(string message, Exception innerException)
+        : base(message, innerException) { }
+}
             }
         }
         

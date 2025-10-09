@@ -12,7 +12,10 @@
                 public System.Guid Value => _value;
 
                 
-                private TenantId(System.Guid value) { 
+                private TenantId(System.Guid value, bool validation = true) {
+                    if (validation) {
+                        
+                    }
                     _value = value;
                 }
 
@@ -25,12 +28,12 @@
                 }
 
                 public static bool TryFrom(System.Guid value, out TenantId result) {
-                    result = value == default ? Empty : new TenantId(value);
+                    result = value == default ? Empty : new TenantId(value, validation: false);
                     return result.IsInitialized();
                 }
 
 
-                public static TenantId Empty => new TenantId(default);
+                public static TenantId Empty => new TenantId(default, validation: false);
 
                 public bool IsInitialized() => _value != default;
 
@@ -133,6 +136,55 @@
                 {
                     return Value.ToString();
                 }
+
+                
+private class Validation
+{
+    public static readonly Validation Ok = new(string.Empty);
+
+    private Validation(string reason)
+    {
+        ErrorMessage = reason;
+    }
+
+    public string ErrorMessage { get; }
+    public bool IsSuccess => string.IsNullOrEmpty(ErrorMessage);
+
+    public Dictionary<object, object>? Data { get; private set; }
+
+    public static Validation Invalid(string reason = "")
+    {
+        if (string.IsNullOrEmpty(reason))
+        {
+            return new Validation("[none provided]");
+        }
+
+        return new Validation(reason);
+    }
+
+    public Validation WithData(object key, object value)
+    {
+        Data ??= new Dictionary<object, object>();
+        Data[key] = value;
+        return this;
+    }
+}
+private class ValueObjectValidationException : Exception
+{
+    private const string DefaultMessage = "Validation of the value object failed.";
+
+    public ValueObjectValidationException()
+        : base(DefaultMessage) { }
+
+    public ValueObjectValidationException(string message)
+        : base(message) { }
+
+    public ValueObjectValidationException(Exception innerException)
+        : base(DefaultMessage, innerException) { }
+
+    public ValueObjectValidationException(string message, Exception innerException)
+        : base(message, innerException) { }
+}
             }
         }
         

@@ -5,13 +5,23 @@ namespace Dalion.ValueObjects.Samples;
 
 public class PasswordTests
 {
+    public class Construction : PasswordTests
+    {
+        [Fact]
+        public void NotAllowedToNewUp()
+        {
+            var actual = new Password();
+            Assert.Fail("Should not be allowed to new up, but got: " + actual);
+        }
+    }
+    
     public class From : PasswordTests
     {
         [Fact]
         public void From_CreatesPasswordWithValue()
         {
-            var actual = Password.From("theValue");
-            Assert.Equal("theValue", actual.Value);
+            var actual = Password.From("test-Pwd2");
+            Assert.Equal("test-Pwd2", actual.Value);
         }
 
         [Theory]
@@ -32,20 +42,18 @@ public class PasswordTests
         }
 
         [Theory]
-        [InlineData("a")] // too short
-        [InlineData("ab")] // too short
-        [InlineData("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl")] // too long
-        [InlineData("-abc")] // starts with invalid character
-        [InlineData(".abc")] // starts with invalid character
-        [InlineData("_abc")] // starts with invalid character
-        [InlineData("abc-")] // ends with invalid character
-        [InlineData("abc.")] // ends with invalid character
-        [InlineData("abc_")] // ends with invalid character
+        [InlineData("shoRt1!")]          // Too short
+        [InlineData("alllowercase1!")]   // No uppercase
+        [InlineData("ALLUPPERCASE1!")]   // No lowercase
+        [InlineData("NoDigits!")]        // No digit
+        [InlineData("NoSpecial1")]       // No special character
+        [InlineData("Password1")]        // No special character
+        [InlineData("Password!")]        // No digit
         public void CannotCreateInvalidPassword(string invalid)
         {
             Action act = () => Password.From(invalid);
 
-            Assert.Throws<ArgumentException>(act);
+            Assert.Throws<InvalidOperationException>(act);
         }
     } 
     
@@ -54,10 +62,10 @@ public class PasswordTests
         [Fact]
         public void TryFrom_CreatesPasswordWithValue()
         {
-            var success = Password.TryFrom("theValue", out var actual);
+            var success = Password.TryFrom("test-Pwd2", out var actual);
             
             Assert.True(success);
-            Assert.Equal("theValue", actual.Value);
+            Assert.Equal("test-Pwd2", actual.Value);
         }
 
         [Theory]
@@ -73,8 +81,13 @@ public class PasswordTests
         }
 
         [Theory]
-        [InlineData("a")] // too short
-        [InlineData("ab")] // too short
+        [InlineData("shoRt1!")]          // Too short
+        [InlineData("alllowercase1!")]   // No uppercase
+        [InlineData("ALLUPPERCASE1!")]   // No lowercase
+        [InlineData("NoDigits!")]        // No digit
+        [InlineData("NoSpecial1")]       // No special character
+        [InlineData("Password1")]        // No special character
+        [InlineData("Password!")]        // No digit
         public void CannotCreateInvalidPassword(string invalid)
         {
             var success = Password.TryFrom(invalid, out _);
@@ -88,7 +101,7 @@ public class PasswordTests
         [Fact]
         public void ReturnsUnderlyingValue()
         {
-            var expected = "theValue";
+            var expected = "test-Pwd2";
             
             var actual = Password.From(expected);
             
@@ -101,7 +114,7 @@ public class PasswordTests
         [Fact]
         public void WhenValuesAreEqual_AreEqual()
         {
-            var first = Password.From("abc123");
+            var first = Password.From("test-Pwd2");
             var second = Password.From(first.Value);
 
             Assert.True(first.Equals(second));
@@ -113,8 +126,8 @@ public class PasswordTests
         [Fact]
         public void WhenValuesAreDifferent_AreNotEqual()
         {
-            var first = Password.From("abc123");
-            var second = Password.From("xyz123");
+            var first = Password.From("test-Pwd2");
+            var second = Password.From("other-Pwd4");
 
             Assert.False(first.Equals(second));
             Assert.False(first == second);
@@ -124,8 +137,8 @@ public class PasswordTests
         [Fact]
         public void WhenValuesAreDifferentlyCased_AreNotEqual()
         {
-            var first = Password.From("abc123");
-            var second = Password.From("aBc123");
+            var first = Password.From("test-Pwd2");
+            var second = Password.From("test-PWD2");
 
             Assert.False(first.Equals(second));
             Assert.False(first == second);
@@ -159,7 +172,7 @@ public class PasswordTests
         [Fact]
         public void WhenValueIsNotDefault_IsNotEqualToDefault()
         {
-            Password first = Password.From("abc123");
+            Password first = Password.From("test-Pwd2");
             Password second = default;
             
             Assert.False(first.Equals(second));
@@ -170,7 +183,7 @@ public class PasswordTests
         [Fact]
         public void GivenOtherObjectIsNotPassword_AreNotEqual()
         {
-            var first = Password.From("abc123");
+            var first = Password.From("test-Pwd2");
             var second = new object();
 
             Assert.False(first.Equals(second));
@@ -182,7 +195,7 @@ public class PasswordTests
         [Fact]
         public void WhenValueIsNotDefault_IsTrue()
         {
-            var sut = Password.From("abc123");
+            var sut = Password.From("test-Pwd2");
             
             Assert.True(sut.IsInitialized());
         }
@@ -209,7 +222,7 @@ public class PasswordTests
         [Fact]
         public void ReturnsValue()
         {
-            var value = Guid.NewGuid().ToString();
+            var value = "test-Pwd2";
             
             var actual = Password.From(value).ToString();
             
@@ -222,7 +235,7 @@ public class PasswordTests
         [Fact]
         public void IsExplicitlyConvertibleToString()
         {
-            var value = Guid.NewGuid().ToString();
+            var value = "test-Pwd2";
             var obj = Password.From(value);
             
             var actual = (string)obj;
@@ -236,7 +249,7 @@ public class PasswordTests
         [Fact]
         public void CanRoundTrip()
         {
-            var original = Password.From("test-pwd");
+            var original = Password.From("test-Pwd2");
 
             var serialized = JsonSerializer.Serialize(original);
             var deserialized = JsonSerializer.Deserialize<Password>(serialized);
@@ -247,11 +260,11 @@ public class PasswordTests
         [Fact]
         public void SerializesToCorrectJson()
         {
-            var sut = Password.From("test-pwd");
+            var sut = Password.From("test-Pwd2");
 
             var serialized = JsonSerializer.Serialize(sut);
 
-            Assert.Equal("\"test-pwd\"", serialized);
+            Assert.Equal("\"test-Pwd2\"", serialized);
         }
 
         [Fact]

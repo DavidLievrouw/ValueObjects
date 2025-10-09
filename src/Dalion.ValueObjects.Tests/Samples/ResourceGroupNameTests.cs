@@ -7,6 +7,16 @@ public class ResourceGroupNameTests
 {
     public class From : ResourceGroupNameTests
     {
+        public class Construction : PasswordTests
+        {
+            [Fact]
+            public void NotAllowedToNewUp()
+            {
+                var actual = new ResourceGroupName();
+                Assert.Fail("Should not be allowed to new up, but got: " + actual);
+            }
+        }
+        
         [Fact]
         public void From_CreatesResourceGroupNameWithValue()
         {
@@ -45,7 +55,7 @@ public class ResourceGroupNameTests
         {
             Action act = () => ResourceGroupName.From(invalid);
 
-            Assert.Throws<ArgumentException>(act);
+            Assert.Throws<InvalidOperationException>(act);
         }
     } 
     
