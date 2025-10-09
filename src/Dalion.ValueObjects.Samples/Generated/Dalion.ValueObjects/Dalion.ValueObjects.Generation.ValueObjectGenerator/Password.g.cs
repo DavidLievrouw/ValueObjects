@@ -5,7 +5,7 @@
             [System.Diagnostics.DebuggerDisplay("Password {Value}")]
             [System.Text.Json.Serialization.JsonConverter(typeof(PasswordSystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof(PasswordTypeConverter))]
-            public readonly partial record struct Password : IEquatable<Password>
+            public partial record struct Password : IEquatable<Password>
  {
                 private readonly System.String _value;
                 private static readonly Type UnderlyingType = typeof(System.String);

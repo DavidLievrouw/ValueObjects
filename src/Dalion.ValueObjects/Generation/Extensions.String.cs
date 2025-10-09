@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
 
-namespace Dalion.ValueObjects;
+namespace Dalion.ValueObjects.Generation;
 
 internal static partial class Extensions
 {

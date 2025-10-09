@@ -1,6 +1,6 @@
 using System;
 
-namespace Dalion.ValueObjects;
+namespace Dalion.ValueObjects.Generation;
 
 internal class AttributeConfiguration
 {

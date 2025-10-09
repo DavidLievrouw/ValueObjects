@@ -7,12 +7,13 @@ public class PasswordTests
 {
     public class Construction : PasswordTests
     {
-        [Fact]
+        // Does not compile, as intended, when the analyzer works correctly.
+        /*[Fact]
         public void NotAllowedToNewUp()
         {
             var actual = new Password();
             Assert.Fail("Should not be allowed to new up, but got: " + actual);
-        }
+        }*/
     }
 
     public class From : PasswordTests

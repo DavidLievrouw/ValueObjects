@@ -47,9 +47,7 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
             fromPrimitiveCasting,
             stringCaseSensitivity,
             primitiveEqualityGeneration
-        )
-    {
-    }
+        ) { }
 }
 
 /// <summary>
@@ -92,7 +90,5 @@ public class ValueObjectAttribute : Attribute
         StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
         PrimitiveEqualityGeneration primitiveEqualityGeneration =
             PrimitiveEqualityGeneration.GenerateOperatorsAndMethods
-    )
-    {
-    }
+    ) { }
 }

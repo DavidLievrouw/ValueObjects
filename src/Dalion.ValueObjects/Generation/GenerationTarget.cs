@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Dalion.ValueObjects;
+namespace Dalion.ValueObjects.Generation;
 
 internal class GenerationTarget
 {

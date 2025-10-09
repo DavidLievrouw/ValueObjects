@@ -2,57 +2,52 @@
         #nullable enable
 
         namespace Dalion.ValueObjects.Samples {
-            [System.Diagnostics.DebuggerDisplay("ResourceGroupName {Value}")]
-            [System.Text.Json.Serialization.JsonConverter(typeof(ResourceGroupNameSystemTextJsonConverter))]
-            [System.ComponentModel.TypeConverter(typeof(ResourceGroupNameTypeConverter))]
-            public readonly partial record struct ResourceGroupName : IEquatable<ResourceGroupName>
-, IEquatable<System.String>, IComparable<ResourceGroupName>, IComparable {
-                private readonly System.String _value;
-                private static readonly Type UnderlyingType = typeof(System.String);
+            [System.Diagnostics.DebuggerDisplay("TenantId {Value}")]
+            [System.Text.Json.Serialization.JsonConverter(typeof(TenantIdSystemTextJsonConverter))]
+            [System.ComponentModel.TypeConverter(typeof(TenantIdTypeConverter))]
+            public partial record struct TenantId : IEquatable<TenantId>
+, IEquatable<System.Guid> {
+                private readonly System.Guid _value;
+                private static readonly Type UnderlyingType = typeof(System.Guid);
 
-                public System.String Value => _value;
+                public System.Guid Value => _value;
 
                 
                 [System.Diagnostics.DebuggerStepThrough]
                 [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-                public ResourceGroupName()
+                public TenantId()
                 {
-                    _value = System.String.Empty;
+                    _value = default;
                 }
 
-                [System.Diagnostics.DebuggerStepThrough]
-                private ResourceGroupName(System.String value, bool validation = true) {
+                private TenantId(System.Guid value, bool validation = true) {
                     if (validation) {
                         
-                  var validationResult = Validate(value);
-                  if (!validationResult.IsSuccess) {
-                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
-                  }
                     }
-                    _value = value ?? System.String.Empty;
+                    _value = value;
                 }
 
-                public static ResourceGroupName From(System.String? value) {
-                    if (string.IsNullOrWhiteSpace(value)) {
+                public static TenantId From(System.Guid value) {
+                    if (value == default) {
                         return Empty;
                     }
 
-                    return new ResourceGroupName(value);
+                    return new TenantId(value);
                 }
 
-                public static bool TryFrom(System.String? value, out ResourceGroupName result) {
-                    result = string.IsNullOrWhiteSpace(value) ? Empty : new ResourceGroupName(value, validation: false);
-                    return result.IsInitialized() && Validate(result._value).IsSuccess;
+                public static bool TryFrom(System.Guid value, out TenantId result) {
+                    result = value == default ? Empty : new TenantId(value, validation: false);
+                    return result.IsInitialized();
                 }
 
 
-                public static ResourceGroupName Empty => new ResourceGroupName(System.String.Empty, validation: false);
+                public static TenantId Empty => new TenantId(default, validation: false);
 
-                public bool IsInitialized() => !System.String.IsNullOrWhiteSpace(_value);
+                public bool IsInitialized() => _value != default;
 
                 
                 /// <inheritdoc />
-                public bool Equals(ResourceGroupName? other)
+                public bool Equals(TenantId? other)
                 {
                     if (other == null) return false;
 
@@ -66,13 +61,11 @@
                         return false;
                     }
             
-                    return System.String.IsNullOrWhiteSpace(other.Value.Value)
-                        ? System.String.IsNullOrWhiteSpace(this._value)
-                        : System.String.Equals(this._value, other.Value.Value, System.StringComparison.OrdinalIgnoreCase);
+                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other.Value.Value);
                 }
 
                 /// <inheritdoc />
-                public bool Equals(ResourceGroupName other)
+                public bool Equals(TenantId other)
                 {
                     if (!other.IsInitialized())
                     {
@@ -84,12 +77,10 @@
                         return false;
                     }
             
-                    return System.String.IsNullOrWhiteSpace(other.Value)
-                        ? System.String.IsNullOrWhiteSpace(this._value)
-                        : System.String.Equals(this._value, other.Value, System.StringComparison.OrdinalIgnoreCase);
+                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other.Value);
                 }
             
-                public bool Equals(ResourceGroupName? other, IEqualityComparer<ResourceGroupName> comparer)
+                public bool Equals(TenantId? other, IEqualityComparer<TenantId> comparer)
                 {
                     if (other == null) return false;
                     return comparer.Equals(this, other.Value);
@@ -98,87 +89,45 @@
                 /// <inheritdoc />
                 public override int GetHashCode() {
                     if (!IsInitialized()) return 0;
-                    return StringComparer.OrdinalIgnoreCase.GetHashCode(this._value);
+                    return EqualityComparer<System.Guid>.Default.GetHashCode(this._value);
                 }
 
                 
                 /// <inheritdoc />
-                public bool Equals(System.String? other)
+                public bool Equals(System.Guid other)
                 {
-                    return System.String.IsNullOrWhiteSpace(other)
-                        ? System.String.IsNullOrWhiteSpace(this._value)
-                        : System.String.Equals(this._value, other, System.StringComparison.OrdinalIgnoreCase);
-                }
-            
-                public bool Equals(System.String? primitive, StringComparer comparer)
-                {
-                    return comparer.Equals(this.Value, primitive);
+                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other);
                 }
 
                 
-    public static bool operator ==(ResourceGroupName left, System.String? right) => left.Value.Equals(right);
-
-    public static bool operator ==(System.String? left, ResourceGroupName right) => right.Value.Equals(left);
-
-    public static bool operator !=(System.String? left, ResourceGroupName right) => !(left == right);
-
-    public static bool operator !=(ResourceGroupName left, System.String? right) => !(left == right);
-
 
                 
-                public int CompareTo(ResourceGroupName other) => this.Value.CompareTo(other.Value);
 
-                public int CompareTo(System.String? other) => this.Value.CompareTo(other);
-            
-                public int CompareTo(object? other)
-                {
-                    if (other == null)
-                        return 1;
-                    if (other is ResourceGroupName other1)
-                        return this.CompareTo(other1);
-                    if (other is System.String v)
-                        return this.CompareTo(v);
-                    throw new System.ArgumentException(
-                        "Cannot compare to object as it is not of type ResourceGroupName",
-                        nameof(other)
-                    );
-                }
-
+                
 
                 
                 /// <summary>
-                ///     An implicit conversion from <see cref="ResourceGroupName" /> to <see cref="System.String" />.
-                /// </summary>
-                /// <param name="id">The value to convert.</param>
-                /// <returns>The System.String representation of the value object.</returns>
-                public static implicit operator System.String(ResourceGroupName id)
-                {
-                    return id.Value;
-                }
-
-                
-                /// <summary>
-                ///     An explicit conversion from <see cref="System.String" /> to <see cref="ResourceGroupName" />.
+                ///     An explicit conversion from <see cref="System.Guid" /> to <see cref="TenantId" />.
                 /// </summary>
                 /// <param name="value">The value to convert.</param>
-                /// <returns>The <see cref="ResourceGroupName" /> instance created from the input value.</returns>
-                public static explicit operator ResourceGroupName(System.String value)
+                /// <returns>The <see cref="TenantId" /> instance created from the input value.</returns>
+                public static explicit operator TenantId(System.Guid value)
                 {
-                    return ResourceGroupName.From(value);
+                    return TenantId.From(value);
                 }
 
                 
                 /// <inheritdoc />
                 public override string ToString()
-                {{
+                {
                     return Value.ToString() ?? "";
-                }}
+                }
 
                 /// <inheritdoc cref="M:System.String.ToString(System.IFormatProvider)" />
                 public string ToString(IFormatProvider? provider)
-                {{
-                    return Value.ToString(provider: provider) ?? "";
-                }}
+                {
+                    return Value.ToString(format: null, provider: provider) ?? "";
+                }
 
 
                 
@@ -231,31 +180,31 @@ private class ValueObjectValidationException : Exception
 }
 
                 
-private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<ResourceGroupName>
+private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<TenantId>
 {
-    public override ResourceGroupName Read(
+    public override TenantId Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
         System.Text.Json.JsonSerializerOptions options
     )
     {
-        var underlyingType = ResourceGroupName.UnderlyingType;
+        var underlyingType = TenantId.UnderlyingType;
         object? underlyingValue;
     
         switch (Type.GetTypeCode(underlyingType)) {
             case TypeCode.Boolean:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.True && reader.TokenType != System.Text.Json.JsonTokenType.False)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                 underlyingValue = reader.GetBoolean();
                 break;
             case TypeCode.Byte:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                 underlyingValue = reader.GetByte();
                 break;
             case TypeCode.Char:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                 var charStr = reader.GetString();
                 if (string.IsNullOrEmpty(charStr) || charStr.Length != 1)
                     throw new System.Text.Json.JsonException($"Cannot convert '{charStr}' to char.");
@@ -263,100 +212,100 @@ private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serial
                 break;
             case TypeCode.Decimal:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                 underlyingValue = reader.GetDecimal();
                 break;
             case TypeCode.Double:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                 underlyingValue = reader.GetDouble();
                 break;
             case TypeCode.Single:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                 underlyingValue = reader.GetSingle();
                 break;
             case TypeCode.Int16:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                 underlyingValue = reader.GetInt16();
                 break;
             case TypeCode.Int32:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                 underlyingValue = reader.GetInt32();
                 break;
             case TypeCode.Int64:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                 underlyingValue = reader.GetInt64();
                 break;
             case TypeCode.String:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                 underlyingValue = reader.GetString();
                 break;
             case TypeCode.DateTime:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                 underlyingValue = reader.GetDateTime();
                 break;
             default:
                 if (underlyingType == typeof(Guid)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                     var guidStr = reader.GetString();
                     if (!Guid.TryParse(guidStr, out var guidValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{guidStr}' to Guid.");
                     underlyingValue = guidValue;
                 } else if (underlyingType == typeof(DateTimeOffset)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                     underlyingValue = reader.GetDateTimeOffset();
                 } else if (underlyingType == typeof(TimeSpan)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                     var tsStr = reader.GetString();
                     if (!TimeSpan.TryParse(tsStr, out var tsValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{tsStr}' to TimeSpan.");
                     underlyingValue = tsValue;
                 } else if (underlyingType == typeof(TimeOnly)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                     var timeStr = reader.GetString();
                     if (!TimeOnly.TryParse(timeStr, out var timeValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{timeStr}' to TimeOnly.");
                     underlyingValue = timeValue;
                 } else if (underlyingType == typeof(Uri)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for ResourceGroupName.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
                     var uriStr = reader.GetString();
                     if (!Uri.TryCreate(uriStr, UriKind.RelativeOrAbsolute, out var uriValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{uriStr}' to Uri.");
                     underlyingValue = uriValue;
                 } else {
-                    throw new System.Text.Json.JsonException($"Unsupported underlying type for ResourceGroupName.");
+                    throw new System.Text.Json.JsonException($"Unsupported underlying type for TenantId.");
                 }
                 break;
         }
     
         try {
-            return ResourceGroupName.From((System.String)underlyingValue!);
+            return TenantId.From((System.Guid)underlyingValue!);
         } catch (System.Exception e) {
-            throw new System.Text.Json.JsonException("Could not create an initialized instance of ResourceGroupName.", e);
+            throw new System.Text.Json.JsonException("Could not create an initialized instance of TenantId.", e);
         }
     }
     
     public override void Write(
         System.Text.Json.Utf8JsonWriter writer,
-        ResourceGroupName value,
+        TenantId value,
         System.Text.Json.JsonSerializerOptions options
     )
     {
-        var underlyingType = ResourceGroupName.UnderlyingType;
+        var underlyingType = TenantId.UnderlyingType;
         object underlyingValue = value.IsInitialized()
             ? value.Value
-            : ResourceGroupName.Empty.Value;
+            : TenantId.Empty.Value;
     
         switch (Type.GetTypeCode(underlyingType)) {
             case TypeCode.Boolean:
@@ -404,7 +353,7 @@ private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serial
                 } else if (underlyingType == typeof(Uri)) {
                     writer.WriteStringValue(((Uri)underlyingValue).ToString());
                 } else {
-                    throw new System.Text.Json.JsonException($"Unsupported underlying type for ResourceGroupName.");
+                    throw new System.Text.Json.JsonException($"Unsupported underlying type for TenantId.");
                 }
                 break;
         }
@@ -412,7 +361,7 @@ private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serial
 }
 
                 
-private class ResourceGroupNameTypeConverter : System.ComponentModel.TypeConverter
+private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
 {
     public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
     {
@@ -428,23 +377,23 @@ private class ResourceGroupNameTypeConverter : System.ComponentModel.TypeConvert
 
         var underlyingValue = GetUnderlyingValue(value);
 
-        return underlyingValue == default ? Empty : From((System.String)underlyingValue);
+        return underlyingValue == default ? Empty : From((System.Guid)underlyingValue);
     }
 
     private object? GetUnderlyingValue(object? value) {{
         if (value == null) {{
-            return default(System.String);
+            return default(System.Guid);
         }}
 
-        if (value is System.String v) {
+        if (value is System.Guid v) {
             return v;
         }
         
-        if (Type.GetTypeCode(typeof(System.String)) == TypeCode.Object) {
-            throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'System.String'.");
+        if (Type.GetTypeCode(typeof(System.Guid)) == TypeCode.Object) {
+            throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'System.Guid'.");
         }
         
-        return Convert.ChangeType(value, typeof(System.String));
+        return Convert.ChangeType(value, typeof(System.Guid));
     }}
     
     public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
@@ -459,7 +408,7 @@ private class ResourceGroupNameTypeConverter : System.ComponentModel.TypeConvert
             throw new NotSupportedException($"Cannot convert to type '{destinationType}'.");
         }
 
-        if (value is ResourceGroupName vo)
+        if (value is TenantId vo)
         {
             return vo.Value;
         }

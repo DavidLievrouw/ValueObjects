@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Dalion.ValueObjects;
+namespace Dalion.ValueObjects.Generation;
 
 /// <inheritdoc />
 [Generator]
@@ -29,7 +29,7 @@ public class ValueObjectGenerator : IIncrementalGenerator
 
                 var symbolInformation = (INamedTypeSymbol)declaredSymbol;
 
-                var attributeData = TryGetValueObjectAttributes(symbolInformation)
+                var attributeData = symbolInformation.TryGetValueObjectAttributes()
                     .ToImmutableArray();
 
                 if (attributeData.Length > 0)
@@ -59,11 +59,7 @@ public class ValueObjectGenerator : IIncrementalGenerator
             }
         );
     }
-
-    /*
-     * JsonConverter: bool, byte, char, decimal, single, double, float, int, long, short, string, datetime, datetimeoffset, guid, timespan, timeonly, uri, others
-     * TypeConverter: bool, byte, char, decimal, single, double, float, int, long, short, string, datetime, datetimeoffset, guid, timespan, timeonly, uri, others
-     */
+    
     private void Execute(GenerationTarget target, SourceProductionContext context)
     {
         var className = target.SymbolInformation.Name;
@@ -499,7 +495,7 @@ private class ValueObjectValidationException : Exception
             [System.Diagnostics.DebuggerDisplay(""{className} {{Value}}"")]
             [System.Text.Json.Serialization.JsonConverter(typeof({className}SystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof({className}TypeConverter))]
-            public readonly partial record struct {className} {interfaceDefs} {{
+            public partial record struct {className} {interfaceDefs} {{
                 private readonly {valueTypeName} _value;
                 private static readonly Type UnderlyingType = typeof({valueTypeName});
 
@@ -631,36 +627,6 @@ namespace {ns} {{
                 );
             }
         );
-    }
-
-    private static IEnumerable<AttributeData> TryGetValueObjectAttributes(
-        INamedTypeSymbol symbolInformation
-    )
-    {
-        var attrs = symbolInformation.GetAttributes();
-
-        return attrs.Where(a =>
-        {
-            var ns = a.AttributeClass?.ContainingNamespace?.ToDisplayString();
-            var fullName =
-                string.IsNullOrEmpty(ns) || ns == "<global namespace>"
-                    ? nameof(ValueObjectAttribute)
-                    : ns + "." + nameof(ValueObjectAttribute);
-            if (fullName.EndsWith("Attribute"))
-            {
-                fullName = fullName.Substring(0, fullName.Length - "Attribute".Length);
-            }
-
-            var typeArg = a.AttributeClass?.GetTypeArguments()?.FirstOrDefault();
-            if (typeArg != null)
-            {
-                fullName += $"<{typeArg}>";
-            }
-
-            return a.AttributeClass?.EscapedFullName() == fullName
-                || a.AttributeClass?.BaseType?.EscapedFullName() == fullName
-                || a.AttributeClass?.BaseType?.BaseType?.EscapedFullName() == fullName;
-        });
     }
 
     private const string TypeConverterTemplate =

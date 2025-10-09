@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
-namespace Dalion.ValueObjects;
+namespace Dalion.ValueObjects.Generation;
 
 internal static partial class Extensions
 {

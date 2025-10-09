@@ -9,12 +9,13 @@ public class ResourceGroupNameTests
     {
         public class Construction : PasswordTests
         {
-            [Fact]
+            // Does not compile, as intended, when the analyzer works correctly.
+            /*[Fact]
             public void NotAllowedToNewUp()
             {
                 var actual = new ResourceGroupName();
                 Assert.Fail("Should not be allowed to new up, but got: " + actual);
-            }
+            }*/
         }
         
         [Fact]
