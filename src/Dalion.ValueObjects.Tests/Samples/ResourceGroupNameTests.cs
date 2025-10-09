@@ -443,4 +443,53 @@ public class ResourceGroupNameTests
             public ResourceGroupName Data { get; set; }
         }
     }
+    
+    public class TypeConversion : ResourceGroupNameTests
+    {
+        [Fact]
+        public void CanConvertFromPrimitive()
+        {
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(ResourceGroupName));
+            Assert.True(converter.CanConvertFrom(typeof(string)));
+
+            var actual = converter.ConvertFrom("test-resource-group-name");
+
+            Assert.Equal(ResourceGroupName.From("test-resource-group-name"), actual);
+        }
+
+        [Fact]
+        public void CannotConvertFromUnsupportedType()
+        {
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(ResourceGroupName));
+            Assert.False(converter.CanConvertFrom(typeof(int)));
+
+            Action act = () => converter.ConvertFrom(5);
+
+            Assert.Throws<NotSupportedException>(act);
+        }
+
+        [Fact]
+        public void CanConvertToPrimitive()
+        {
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(ResourceGroupName));
+            Assert.True(converter.CanConvertTo(typeof(string)));
+
+            var sut = ResourceGroupName.From("test-resource-group-name");
+            var actual = converter.ConvertTo(sut, typeof(string));
+
+            Assert.Equal("test-resource-group-name", actual);
+        }
+
+        [Fact]
+        public void CannotConvertToUnsupportedType()
+        {
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(ResourceGroupName));
+            Assert.False(converter.CanConvertTo(typeof(int)));
+
+            var sut = ResourceGroupName.From("test-resource-group-name");
+            Action act = () => converter.ConvertTo(sut, typeof(int));
+
+            Assert.Throws<NotSupportedException>(act);
+        }
+    }
 }

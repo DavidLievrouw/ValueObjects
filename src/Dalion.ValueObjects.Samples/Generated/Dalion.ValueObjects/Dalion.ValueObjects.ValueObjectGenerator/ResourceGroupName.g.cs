@@ -4,6 +4,7 @@
         namespace Dalion.ValueObjects.Samples {
             [System.Diagnostics.DebuggerDisplay("ResourceGroupName {Value}")]
             [System.Text.Json.Serialization.JsonConverter(typeof(ResourceGroupNameSystemTextJsonConverter))]
+            [System.ComponentModel.TypeConverter(typeof(ResourceGroupNameTypeConverter))]
             public readonly partial record struct ResourceGroupName : IEquatable<ResourceGroupName>
 , IEquatable<System.String>, IComparable<ResourceGroupName>, IComparable {
                 private readonly System.String _value;
@@ -407,6 +408,63 @@ private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serial
                 }
                 break;
         }
+    }
+}
+
+                
+private class ResourceGroupNameTypeConverter : System.ComponentModel.TypeConverter
+{
+    public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
+    {
+        return sourceType == UnderlyingType;
+    }
+    
+    public override object? ConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object value)
+    {
+        if (value != null && !CanConvertFrom(context, value.GetType()))
+        {
+            throw new NotSupportedException($"Cannot convert from type '{value?.GetType()}'.");
+        }
+
+        var underlyingValue = GetUnderlyingValue(value);
+
+        return underlyingValue == default ? Empty : From((System.String)underlyingValue);
+    }
+
+    private object? GetUnderlyingValue(object? value) {{
+        if (value == null) {{
+            return default(System.String);
+        }}
+
+        if (value is System.String v) {
+            return v;
+        }
+        
+        if (Type.GetTypeCode(typeof(System.String)) == TypeCode.Object) {
+            throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'System.String'.");
+        }
+        
+        return Convert.ChangeType(value, typeof(System.String));
+    }}
+    
+    public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
+    {
+        return destinationType == UnderlyingType;
+    }
+    
+    public override object? ConvertTo(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object? value, Type destinationType)
+    {
+        if (!CanConvertTo(context, destinationType))
+        {
+            throw new NotSupportedException($"Cannot convert to type '{destinationType}'.");
+        }
+
+        if (value is ResourceGroupName vo)
+        {
+            return vo.Value;
+        }
+
+        return base.ConvertTo(context, culture, value, destinationType);
     }
 }
 

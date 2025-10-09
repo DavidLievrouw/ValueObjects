@@ -346,4 +346,56 @@ public class TenantIdTests
             public TenantId Data { get; set; }
         }
     }
+    
+    public class TypeConversion : TenantIdTests
+    {
+        [Fact]
+        public void CanConvertFromPrimitive()
+        {
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(TenantId));
+            Assert.True(converter.CanConvertFrom(typeof(Guid)));
+
+            var backingValue = Guid.NewGuid();
+            var actual = converter.ConvertFrom(backingValue);
+
+            Assert.Equal(TenantId.From(backingValue), actual);
+        }
+
+        [Fact]
+        public void CannotConvertFromUnsupportedType()
+        {
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(TenantId));
+            Assert.False(converter.CanConvertFrom(typeof(int)));
+
+            Action act = () => converter.ConvertFrom(5);
+
+            Assert.Throws<NotSupportedException>(act);
+        }
+
+        [Fact]
+        public void CanConvertToPrimitive()
+        {
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(TenantId));
+            Assert.True(converter.CanConvertTo(typeof(Guid)));
+
+            var backingValue = Guid.NewGuid();
+            var sut = TenantId.From(backingValue);
+            var actual = converter.ConvertTo(sut, typeof(Guid));
+
+            Assert.Equal(backingValue, actual);
+        }
+
+        [Fact]
+        public void CannotConvertToUnsupportedType()
+        {
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(TenantId));
+            Assert.False(converter.CanConvertTo(typeof(int)));
+
+            var backingValue = Guid.NewGuid();
+            var sut = TenantId.From(backingValue);
+            Action act = () => converter.ConvertTo(sut, typeof(int));
+
+            Assert.Throws<NotSupportedException>(act);
+        }
+    }
 }

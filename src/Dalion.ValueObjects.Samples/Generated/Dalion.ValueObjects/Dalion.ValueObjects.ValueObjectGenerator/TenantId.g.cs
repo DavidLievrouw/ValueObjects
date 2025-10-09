@@ -4,6 +4,7 @@
         namespace Dalion.ValueObjects.Samples {
             [System.Diagnostics.DebuggerDisplay("TenantId {Value}")]
             [System.Text.Json.Serialization.JsonConverter(typeof(TenantIdSystemTextJsonConverter))]
+            [System.ComponentModel.TypeConverter(typeof(TenantIdTypeConverter))]
             public readonly partial record struct TenantId : IEquatable<TenantId>
 , IEquatable<System.Guid> {
                 private readonly System.Guid _value;
@@ -356,6 +357,63 @@ private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.J
                 }
                 break;
         }
+    }
+}
+
+                
+private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
+{
+    public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
+    {
+        return sourceType == UnderlyingType;
+    }
+    
+    public override object? ConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object value)
+    {
+        if (value != null && !CanConvertFrom(context, value.GetType()))
+        {
+            throw new NotSupportedException($"Cannot convert from type '{value?.GetType()}'.");
+        }
+
+        var underlyingValue = GetUnderlyingValue(value);
+
+        return underlyingValue == default ? Empty : From((System.Guid)underlyingValue);
+    }
+
+    private object? GetUnderlyingValue(object? value) {{
+        if (value == null) {{
+            return default(System.Guid);
+        }}
+
+        if (value is System.Guid v) {
+            return v;
+        }
+        
+        if (Type.GetTypeCode(typeof(System.Guid)) == TypeCode.Object) {
+            throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'System.Guid'.");
+        }
+        
+        return Convert.ChangeType(value, typeof(System.Guid));
+    }}
+    
+    public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
+    {
+        return destinationType == UnderlyingType;
+    }
+    
+    public override object? ConvertTo(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object? value, Type destinationType)
+    {
+        if (!CanConvertTo(context, destinationType))
+        {
+            throw new NotSupportedException($"Cannot convert to type '{destinationType}'.");
+        }
+
+        if (value is TenantId vo)
+        {
+            return vo.Value;
+        }
+
+        return base.ConvertTo(context, culture, value, destinationType);
     }
 }
 

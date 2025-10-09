@@ -363,4 +363,53 @@ public class PasswordTests
             public Password Data { get; set; }
         }
     }
+
+    public class TypeConversion : PasswordTests
+    {
+        [Fact]
+        public void CanConvertFromPrimitive()
+        {
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Password));
+            Assert.True(converter.CanConvertFrom(typeof(string)));
+
+            var actual = converter.ConvertFrom("test-Pwd2");
+
+            Assert.Equal(Password.From("test-Pwd2"), actual);
+        }
+
+        [Fact]
+        public void CannotConvertFromUnsupportedType()
+        {
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Password));
+            Assert.False(converter.CanConvertFrom(typeof(int)));
+
+            Action act = () => converter.ConvertFrom(5);
+
+            Assert.Throws<NotSupportedException>(act);
+        }
+
+        [Fact]
+        public void CanConvertToPrimitive()
+        {
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Password));
+            Assert.True(converter.CanConvertTo(typeof(string)));
+
+            var sut = Password.From("test-Pwd2");
+            var actual = converter.ConvertTo(sut, typeof(string));
+
+            Assert.Equal("test-Pwd2", actual);
+        }
+
+        [Fact]
+        public void CannotConvertToUnsupportedType()
+        {
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Password));
+            Assert.False(converter.CanConvertTo(typeof(int)));
+
+            var sut = Password.From("test-Pwd2");
+            Action act = () => converter.ConvertTo(sut, typeof(int));
+
+            Assert.Throws<NotSupportedException>(act);
+        }
+    }
 }

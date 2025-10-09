@@ -487,6 +487,10 @@ private class ValueObjectValidationException : Exception
             .Replace("{{className}}", className)
             .Replace("{{valueTypeName}}", valueTypeName);
 
+        var typeConverter = TypeConverterTemplate
+            .Replace("{{className}}", className)
+            .Replace("{{valueTypeName}}", valueTypeName);
+
         var generatedClass =
             $@"
         #nullable enable
@@ -494,6 +498,7 @@ private class ValueObjectValidationException : Exception
         namespace {namespaceName} {{
             [System.Diagnostics.DebuggerDisplay(""{className} {{Value}}"")]
             [System.Text.Json.Serialization.JsonConverter(typeof({className}SystemTextJsonConverter))]
+            [System.ComponentModel.TypeConverter(typeof({className}TypeConverter))]
             public readonly partial record struct {className} {interfaceDefs} {{
                 private readonly {valueTypeName} _value;
                 private static readonly Type UnderlyingType = typeof({valueTypeName});
@@ -523,6 +528,7 @@ private class ValueObjectValidationException : Exception
                 {validationClasses}
 
                 {jsonConverter}
+                {typeConverter}
             }}
         }}
         ";
@@ -656,6 +662,65 @@ namespace {ns} {{
                 || a.AttributeClass?.BaseType?.BaseType?.EscapedFullName() == fullName;
         });
     }
+
+    private const string TypeConverterTemplate =
+        @"
+private class {{className}}TypeConverter : System.ComponentModel.TypeConverter
+{
+    public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
+    {
+        return sourceType == UnderlyingType;
+    }
+    
+    public override object? ConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object value)
+    {
+        if (value != null && !CanConvertFrom(context, value.GetType()))
+        {
+            throw new NotSupportedException($""Cannot convert from type '{value?.GetType()}'."");
+        }
+
+        var underlyingValue = GetUnderlyingValue(value);
+
+        return underlyingValue == default ? Empty : From(({{valueTypeName}})underlyingValue);
+    }
+
+    private object? GetUnderlyingValue(object? value) {{
+        if (value == null) {{
+            return default({{valueTypeName}});
+        }}
+
+        if (value is {{valueTypeName}} v) {
+            return v;
+        }
+        
+        if (Type.GetTypeCode(typeof({{valueTypeName}})) == TypeCode.Object) {
+            throw new NotSupportedException($""Cannot convert value of type '{value?.GetType()}' to '{{valueTypeName}}'."");
+        }
+        
+        return Convert.ChangeType(value, typeof({{valueTypeName}}));
+    }}
+    
+    public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
+    {
+        return destinationType == UnderlyingType;
+    }
+    
+    public override object? ConvertTo(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object? value, Type destinationType)
+    {
+        if (!CanConvertTo(context, destinationType))
+        {
+            throw new NotSupportedException($""Cannot convert to type '{destinationType}'."");
+        }
+
+        if (value is {{className}} vo)
+        {
+            return vo.Value;
+        }
+
+        return base.ConvertTo(context, culture, value, destinationType);
+    }
+}
+";
 
     private const string JsonConverterTemplate =
         @"
