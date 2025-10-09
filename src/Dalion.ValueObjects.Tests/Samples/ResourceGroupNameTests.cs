@@ -319,6 +319,22 @@ public class ResourceGroupNameTests
     public class Serialization : ResourceGroupNameTests
     {
         [Fact]
+        public void WhenNonsense_ThrowsJsonException()
+        {
+            var nonsense = "\"{}\"";
+
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<ResourceGroupName>(nonsense));
+        }
+        
+        [Fact]
+        public void WhenEmptyString_ThrowsJsonException()
+        {
+            var nonsense = "\"\"";
+
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<ResourceGroupName>(nonsense));
+        }
+        
+        [Fact]
         public void CanRoundTrip()
         {
             var original = ResourceGroupName.From("test-resource-group-name");

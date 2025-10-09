@@ -220,6 +220,22 @@ public class TenantIdTests
     public class Serialization : TenantIdTests
     {
         [Fact]
+        public void WhenNonsense_ThrowsJsonException()
+        {
+            var nonsense = "\"nonsense\"";
+
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<TenantId>(nonsense));
+        }
+        
+        [Fact]
+        public void WhenEmptyString_ThrowsJsonException()
+        {
+            var nonsense = "\"\"";
+
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<TenantId>(nonsense));
+        }
+
+        [Fact]
         public void CanRoundTrip()
         {
             var backingValue = Guid.NewGuid();
@@ -239,7 +255,7 @@ public class TenantIdTests
 
             var serialized = JsonSerializer.Serialize(sut);
 
-            Assert.Equal("\"test-resource-group-name\"", serialized);
+            Assert.Equal($"\"{backingValue.ToString()}\"", serialized);
         }
 
         [Fact]
@@ -249,7 +265,7 @@ public class TenantIdTests
 
             var serialized = JsonSerializer.Serialize(original);
 
-            Assert.Equal("\"\"", serialized);
+            Assert.Equal("\"00000000-0000-0000-0000-000000000000\"", serialized);
 
             var deserialized = JsonSerializer.Deserialize<TenantId>(serialized);
 
@@ -263,7 +279,7 @@ public class TenantIdTests
 
             var serialized = JsonSerializer.Serialize(original);
 
-            Assert.Equal("\"\"", serialized);
+            Assert.Equal("\"00000000-0000-0000-0000-000000000000\"", serialized);
 
             var deserialized = JsonSerializer.Deserialize<TenantId>(serialized);
 
@@ -281,7 +297,7 @@ public class TenantIdTests
             
             var serialized = JsonSerializer.Serialize(container);
 
-            Assert.Equal("{\"Id\":\"one\",\"Data\":\"\"}", serialized);
+            Assert.Equal("{\"Id\":\"one\",\"Data\":\"00000000-0000-0000-0000-000000000000\"}", serialized);
         }
 
         [Fact]
@@ -295,13 +311,13 @@ public class TenantIdTests
             
             var serialized = JsonSerializer.Serialize(container);
 
-            Assert.Equal("{\"Id\":\"one\",\"Data\":\"\"}", serialized);
+            Assert.Equal("{\"Id\":\"one\",\"Data\":\"00000000-0000-0000-0000-000000000000\"}", serialized);
         }
 
         [Fact]
         public void DeserializesEmptyToEmpty()
         {
-            var serialized = "{\"Id\":\"one\",\"Data\":\"\"}";
+            var serialized = "{\"Id\":\"one\",\"Data\":\"00000000-0000-0000-0000-000000000000\"}";
 
             var deserialized = JsonSerializer.Deserialize<Container>(serialized);
 

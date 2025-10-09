@@ -14,7 +14,7 @@ public class PasswordTests
             Assert.Fail("Should not be allowed to new up, but got: " + actual);
         }
     }
-    
+
     public class From : PasswordTests
     {
         [Fact]
@@ -32,7 +32,7 @@ public class PasswordTests
         public void CanCreateEmpty(string? invalid)
         {
             var empty = Password.Empty;
-            
+
             var actual = Password.From(invalid);
 
             Assert.True(actual.Equals(empty));
@@ -42,28 +42,28 @@ public class PasswordTests
         }
 
         [Theory]
-        [InlineData("shoRt1!")]          // Too short
-        [InlineData("alllowercase1!")]   // No uppercase
-        [InlineData("ALLUPPERCASE1!")]   // No lowercase
-        [InlineData("NoDigits!")]        // No digit
-        [InlineData("NoSpecial1")]       // No special character
-        [InlineData("Password1")]        // No special character
-        [InlineData("Password!")]        // No digit
+        [InlineData("shoRt1!")] // Too short
+        [InlineData("alllowercase1!")] // No uppercase
+        [InlineData("ALLUPPERCASE1!")] // No lowercase
+        [InlineData("NoDigits!")] // No digit
+        [InlineData("NoSpecial1")] // No special character
+        [InlineData("Password1")] // No special character
+        [InlineData("Password!")] // No digit
         public void CannotCreateInvalidPassword(string invalid)
         {
             Action act = () => Password.From(invalid);
 
             Assert.Throws<InvalidOperationException>(act);
         }
-    } 
-    
+    }
+
     public class TryFrom : PasswordTests
     {
         [Fact]
         public void TryFrom_CreatesPasswordWithValue()
         {
             var success = Password.TryFrom("test-Pwd2", out var actual);
-            
+
             Assert.True(success);
             Assert.Equal("test-Pwd2", actual.Value);
         }
@@ -76,18 +76,18 @@ public class PasswordTests
         public void CannotCreateNullEmptyOrWhitespace(string? invalid)
         {
             var success = Password.TryFrom(invalid, out _);
-            
+
             Assert.False(success);
         }
 
         [Theory]
-        [InlineData("shoRt1!")]          // Too short
-        [InlineData("alllowercase1!")]   // No uppercase
-        [InlineData("ALLUPPERCASE1!")]   // No lowercase
-        [InlineData("NoDigits!")]        // No digit
-        [InlineData("NoSpecial1")]       // No special character
-        [InlineData("Password1")]        // No special character
-        [InlineData("Password!")]        // No digit
+        [InlineData("shoRt1!")] // Too short
+        [InlineData("alllowercase1!")] // No uppercase
+        [InlineData("ALLUPPERCASE1!")] // No lowercase
+        [InlineData("NoDigits!")] // No digit
+        [InlineData("NoSpecial1")] // No special character
+        [InlineData("Password1")] // No special character
+        [InlineData("Password!")] // No digit
         public void CannotCreateInvalidPassword(string invalid)
         {
             var success = Password.TryFrom(invalid, out _);
@@ -102,9 +102,9 @@ public class PasswordTests
         public void ReturnsUnderlyingValue()
         {
             var expected = "test-Pwd2";
-            
+
             var actual = Password.From(expected);
-            
+
             Assert.Equal(expected, actual.Value);
         }
     }
@@ -174,7 +174,7 @@ public class PasswordTests
         {
             Password first = Password.From("test-Pwd2");
             Password second = default;
-            
+
             Assert.False(first.Equals(second));
             Assert.False(first == second);
             Assert.True(first != second);
@@ -189,14 +189,14 @@ public class PasswordTests
             Assert.False(first.Equals(second));
         }
     }
-    
+
     public class IsInitialized : PasswordTests
     {
         [Fact]
         public void WhenValueIsNotDefault_IsTrue()
         {
             var sut = Password.From("test-Pwd2");
-            
+
             Assert.True(sut.IsInitialized());
         }
 
@@ -204,7 +204,7 @@ public class PasswordTests
         public void WhenValueIsDefault_IsFalse()
         {
             Password sut = default;
-            
+
             Assert.False(sut.IsInitialized());
         }
 
@@ -212,7 +212,7 @@ public class PasswordTests
         public void WhenValueIsEmpty_IsFalse()
         {
             Password sut = Password.Empty;
-            
+
             Assert.False(sut.IsInitialized());
         }
     }
@@ -223,9 +223,9 @@ public class PasswordTests
         public void ReturnsValue()
         {
             var value = "test-Pwd2";
-            
+
             var actual = Password.From(value).ToString();
-            
+
             Assert.Equal(value, actual);
         }
     }
@@ -237,15 +237,31 @@ public class PasswordTests
         {
             var value = "test-Pwd2";
             var obj = Password.From(value);
-            
+
             var actual = (string)obj;
-            
+
             Assert.Equal(value, actual);
         }
     }
 
     public class Serialization : PasswordTests
     {
+        [Fact]
+        public void WhenNonsense_ThrowsJsonException()
+        {
+            var nonsense = "\"{}\"";
+
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Password>(nonsense));
+        }
+
+        [Fact]
+        public void WhenEmptyString_ThrowsJsonException()
+        {
+            var nonsense = "\"\"";
+
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Password>(nonsense));
+        }
+
         [Fact]
         public void CanRoundTrip()
         {
@@ -298,12 +314,8 @@ public class PasswordTests
         [Fact]
         public void SerializesUninitializedToEmpty()
         {
-            var container = new Container
-            {
-                Id = "one",
-                Data = default
-            };
-            
+            var container = new Container { Id = "one", Data = default };
+
             var serialized = JsonSerializer.Serialize(container);
 
             Assert.Equal("{\"Id\":\"one\",\"Data\":\"\"}", serialized);
@@ -312,12 +324,8 @@ public class PasswordTests
         [Fact]
         public void SerializesEmptyToEmpty()
         {
-            var container = new Container
-            {
-                Id = "one",
-                Data = Password.Empty
-            };
-            
+            var container = new Container { Id = "one", Data = Password.Empty };
+
             var serialized = JsonSerializer.Serialize(container);
 
             Assert.Equal("{\"Id\":\"one\",\"Data\":\"\"}", serialized);
@@ -348,7 +356,7 @@ public class PasswordTests
             Assert.Equal(Password.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
         }
-        
+
         internal class Container
         {
             public required string Id { get; set; }

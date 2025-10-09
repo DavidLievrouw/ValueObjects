@@ -20,9 +20,7 @@ public readonly partial record struct Password
     {
         if (string.IsNullOrWhiteSpace(input))
         {
-            return Validation.Invalid(
-                $"{nameof(Password)} cannot be null, empty, or whitespace."
-            );
+            return Validation.Invalid($"{nameof(Password)} cannot be null, empty, or whitespace.");
         }
 
         if (!ValidPassword().IsMatch(input))

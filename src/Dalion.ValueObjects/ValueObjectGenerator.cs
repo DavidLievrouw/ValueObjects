@@ -61,8 +61,8 @@ public class ValueObjectGenerator : IIncrementalGenerator
     }
 
     /*
-     * JsonConverter
-     * TypeConverter
+     * JsonConverter: bool, byte, char, decimal, single, double, float, int, long, short, string, datetime, datetimeoffset, guid, timespan, timeonly, uri, others
+     * TypeConverter: bool, byte, char, decimal, single, double, float, int, long, short, string, datetime, datetimeoffset, guid, timespan, timeonly, uri, others
      */
     private void Execute(GenerationTarget target, SourceProductionContext context)
     {
