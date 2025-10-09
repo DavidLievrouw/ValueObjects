@@ -12,6 +12,14 @@
                 public System.String Value => _value;
 
                 
+                [System.Diagnostics.DebuggerStepThrough]
+                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+                public ResourceGroupName()
+                {
+                    _value = System.String.Empty;
+                }
+
+                [System.Diagnostics.DebuggerStepThrough]
                 private ResourceGroupName(System.String value, bool validation = true) {
                     if (validation) {
                         
@@ -135,7 +143,8 @@
                 {
                     return id.Value;
                 }
-            
+
+                
                 /// <summary>
                 ///     An explicit conversion from <see cref="System.String" /> to <see cref="ResourceGroupName" />.
                 /// </summary>
@@ -146,11 +155,19 @@
                     return ResourceGroupName.From(value);
                 }
 
+                
                 /// <inheritdoc />
                 public override string ToString()
-                {
-                    return Value.ToString();
-                }
+                {{
+                    return Value.ToString() ?? "";
+                }}
+
+                /// <inheritdoc cref="M:System.String.ToString(System.IFormatProvider)" />
+                public string ToString(IFormatProvider? provider)
+                {{
+                    return Value.ToString(provider: provider) ?? "";
+                }}
+
 
                 
 private class Validation

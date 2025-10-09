@@ -12,6 +12,14 @@
                 public System.String Value => _value;
 
                 
+                [System.Diagnostics.DebuggerStepThrough]
+                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+                public Password()
+                {
+                    _value = System.String.Empty;
+                }
+
+                [System.Diagnostics.DebuggerStepThrough]
                 private Password(System.String value, bool validation = true) {
                     if (validation) {
                         
@@ -131,26 +139,26 @@
                 /// </summary>
                 /// <param name="id">The value to convert.</param>
                 /// <returns>The System.String representation of the value object.</returns>
-                public static implicit operator System.String(Password id)
+                public static explicit operator System.String(Password id)
                 {
                     return id.Value;
                 }
-            
-                /// <summary>
-                ///     An explicit conversion from <see cref="System.String" /> to <see cref="Password" />.
-                /// </summary>
-                /// <param name="value">The value to convert.</param>
-                /// <returns>The <see cref="Password" /> instance created from the input value.</returns>
-                public static explicit operator Password(System.String value)
-                {
-                    return Password.From(value);
-                }
 
+                
+
+                
                 /// <inheritdoc />
                 public override string ToString()
-                {
-                    return Value.ToString();
-                }
+                {{
+                    return Value.ToString() ?? "";
+                }}
+
+                /// <inheritdoc cref="M:System.String.ToString(System.IFormatProvider)" />
+                public string ToString(IFormatProvider? provider)
+                {{
+                    return Value.ToString(provider: provider) ?? "";
+                }}
+
 
                 
 private class Validation

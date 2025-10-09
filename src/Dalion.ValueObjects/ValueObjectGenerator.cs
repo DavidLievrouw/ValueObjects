@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -60,6 +59,12 @@ public class ValueObjectGenerator : IIncrementalGenerator
         );
     }
 
+    /*
+     * Comparison attribute argument
+     * EqualityOperator add attribute option and generate
+     * JsonConverter
+     * TypeConverter
+     */
     private void Execute(GenerationTarget target, SourceProductionContext context)
     {
         var className = target.SymbolInformation.Name;
@@ -223,6 +228,14 @@ public class ValueObjectGenerator : IIncrementalGenerator
         var creation =
             valueType == typeof(string)
                 ? $@"
+                [System.Diagnostics.DebuggerStepThrough]
+                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+                public {className}()
+                {{
+                    _value = {valueTypeName}.Empty;
+                }}
+
+                [System.Diagnostics.DebuggerStepThrough]
                 private {className}({valueTypeName} value, bool validation = true) {{
                     if (validation) {{
                         {ctorValidation}
@@ -244,6 +257,13 @@ public class ValueObjectGenerator : IIncrementalGenerator
                 }}
 "
                 : $@"
+                [System.Diagnostics.DebuggerStepThrough]
+                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+                public {className}()
+                {{
+                    _value = default;
+                }}
+
                 private {className}({valueTypeName} value, bool validation = true) {{
                     if (validation) {{
                         {ctorValidation}
@@ -306,24 +326,34 @@ public class ValueObjectGenerator : IIncrementalGenerator
                 }}
 ";
 
-        var conversion =
-            $@"
+        var conversionToPrimitiveModifier = config.ToPrimitiveCasting == CastOperator.Implicit
+            ? "implicit"
+            : "explicit";
+        var conversionToPrimitive = config.ToPrimitiveCasting == CastOperator.None
+            ? ""
+            : $@"
                 /// <summary>
                 ///     An implicit conversion from <see cref=""{className}"" /> to <see cref=""{valueTypeName}"" />.
                 /// </summary>
                 /// <param name=""id"">The value to convert.</param>
                 /// <returns>The {valueTypeName} representation of the value object.</returns>
-                public static implicit operator {valueTypeName}({className} id)
+                public static {conversionToPrimitiveModifier} operator {valueTypeName}({className} id)
                 {{
                     return id.Value;
-                }}
-            
+                }}";
+        
+        var conversionFromPrimitiveModifier = config.FromPrimitiveCasting == CastOperator.Implicit
+            ? "implicit"
+            : "explicit";
+        var conversionFromPrimitive = config.FromPrimitiveCasting == CastOperator.None
+            ? ""
+            : $@"
                 /// <summary>
                 ///     An explicit conversion from <see cref=""{valueTypeName}"" /> to <see cref=""{className}"" />.
                 /// </summary>
                 /// <param name=""value"">The value to convert.</param>
                 /// <returns>The <see cref=""{className}"" /> instance created from the input value.</returns>
-                public static explicit operator {className}({valueTypeName} value)
+                public static {conversionFromPrimitiveModifier} operator {className}({valueTypeName} value)
                 {{
                     return {className}.From(value);
                 }}";
@@ -378,6 +408,35 @@ private class ValueObjectValidationException : Exception
         : base(message, innerException) { }
 }";
 
+        var toStringOverrides = 
+            valueType == typeof(string)
+                ? @"
+                /// <inheritdoc />
+                public override string ToString()
+                {{
+                    return Value.ToString() ?? """";
+                }}
+
+                /// <inheritdoc cref=""M:System.String.ToString(System.IFormatProvider)"" />
+                public string ToString(IFormatProvider? provider)
+                {{
+                    return Value.ToString(provider: provider) ?? """";
+                }}
+"
+                : @"
+                /// <inheritdoc />
+                public override string ToString()
+                {
+                    return Value.ToString() ?? """";
+                }
+
+                /// <inheritdoc cref=""M:System.String.ToString(System.IFormatProvider)"" />
+                public string ToString(IFormatProvider? provider)
+                {
+                    return Value.ToString(format: null, provider: provider) ?? """";
+                }
+";
+
         var generatedClass =
             $@"
         #nullable enable
@@ -402,13 +461,11 @@ private class ValueObjectValidationException : Exception
 
                 {comparison}
 
-                {conversion}
+                {conversionToPrimitive}
 
-                /// <inheritdoc />
-                public override string ToString()
-                {{
-                    return Value.ToString();
-                }}
+                {conversionFromPrimitive}
+
+                {toStringOverrides}
 
                 {validationClasses}
             }}
@@ -416,108 +473,6 @@ private class ValueObjectValidationException : Exception
         ";
 
         context.AddSource($"{className}.g.cs", generatedClass);
-
-        /*//check if the methods we want to add exist already
-        var addMethod = calculatorClassMembers.FirstOrDefault(member =>
-            member is MethodDeclarationSyntax method && method.Identifier.Text == "Add"
-        );
-        var subtractMethod = calculatorClassMembers.FirstOrDefault(member =>
-            member is MethodDeclarationSyntax method && method.Identifier.Text == "Subtract"
-        );
-        var multiplyMethod = calculatorClassMembers.FirstOrDefault(member =>
-            member is MethodDeclarationSyntax method && method.Identifier.Text == "Multiply"
-        );
-        var divideMethod = calculatorClassMembers.FirstOrDefault(member =>
-            member is MethodDeclarationSyntax method && method.Identifier.Text == "Divide"
-        );
-
-        //this string builder will hold our source code for the methods we want to add
-        StringBuilder calcGeneratedClassBuilder = new StringBuilder();
-        //This will now correctly parse the Root of the tree for any using statements to add
-        foreach (var usingStatement in calculatorClass.SyntaxTree.GetCompilationUnitRoot().Usings)
-        {
-            calcGeneratedClassBuilder.AppendLine(usingStatement.ToString());
-        }
-        calcGeneratedClassBuilder.AppendLine();
-        //NOTE: This is not the correct way to do this and is used to help produce an error while logging
-        SyntaxNode calcClassNamespace = calculatorClass.Parent;
-        while (calcClassNamespace is not NamespaceDeclarationSyntax)
-        {
-            calcClassNamespace = calcClassNamespace.Parent;
-        }
-
-        calcGeneratedClassBuilder.AppendLine(
-            $"namespace {((NamespaceDeclarationSyntax)calcClassNamespace).Name};"
-        );
-        calcGeneratedClassBuilder.AppendLine(
-            $"public {calculatorClass.Modifiers} class {calculatorClass.Identifier}"
-        );
-        calcGeneratedClassBuilder.AppendLine("{");
-
-        //if the methods do not exist, we will add them
-        if (addMethod is null)
-        {
-            //when using a raw string, the first " is the far left margin in the file, so if you want the proper indentation on the methods, you will want to tab the string content at least once
-            calcGeneratedClassBuilder.AppendLine(
-                """
-                public int Add(int a, int b)
-                {
-                var result = a + b;
-                Console.WriteLine($"The result of adding {a} and {b} is {result}");
-                return result;
-                }
-                """
-            );
-        }
-        if (subtractMethod is null)
-        {
-            calcGeneratedClassBuilder.AppendLine(
-                """
-                public int Subtract(int a, int b)
-                {
-                var result = a - b;
-                if(result < 0)
-                {
-                Console.WriteLine("Result of subtraction is negative");
-                }
-                return result;
-                }
-                """
-            );
-        }
-        if (multiplyMethod is null)
-        {
-            calcGeneratedClassBuilder.AppendLine(
-                """
-                public int Multiply(int a, int b)
-                {
-                return a * b;
-                }
-                """
-            );
-        }
-        if (divideMethod is null)
-        {
-            calcGeneratedClassBuilder.AppendLine(
-                """
-                public int Divide(int a, int b)
-                {
-                if(b == 0)
-                {
-                throw new DivideByZeroException();
-                }
-                return a / b;
-                }
-                """
-            );
-        }
-        calcGeneratedClassBuilder.AppendLine("}");
-
-        //while a bit crude, it is a simple way to add the methods to the class
-
-        //to write our source file we can use the context object that was passed in
-        //this will automatically use the path we provided in the target projects csproj file
-        context.AddSource("Calculator.Generated.cs", calcGeneratedClassBuilder.ToString());*/
     }
 
     private static void EnsureValueObjectAttribute(
