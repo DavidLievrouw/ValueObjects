@@ -112,6 +112,16 @@
                 }
 
                 
+    public static bool operator ==(Password left, System.String? right) => left.Value.Equals(right);
+
+    public static bool operator ==(System.String? left, Password right) => right.Value.Equals(left);
+
+    public static bool operator !=(System.String? left, Password right) => !(left == right);
+
+    public static bool operator !=(Password left, System.String? right) => !(left == right);
+
+
+                
 
                 
                 /// <summary>

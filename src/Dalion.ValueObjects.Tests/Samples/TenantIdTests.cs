@@ -147,6 +147,25 @@ public class TenantIdTests
 
             Assert.False(first.Equals(second));
         }
+
+        [Fact]
+        public void HasEqualityOperatorsForUnderlyingType()
+        {
+            var backingValue = Guid.NewGuid();
+            var first = TenantId.From(backingValue);
+            var second = backingValue;
+
+            Assert.True(first == second);
+            Assert.True(second == first);
+            Assert.False(first != second);
+            Assert.False(second != first);
+            
+            var third = Guid.NewGuid();
+            Assert.False(first == third);
+            Assert.False(third == first);
+            Assert.True(first != third);
+            Assert.True(third != first);
+        }
     }
     
     public class IsInitialized : TenantIdTests

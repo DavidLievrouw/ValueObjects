@@ -114,6 +114,16 @@
                 }
 
                 
+    public static bool operator ==(ResourceGroupName left, System.String? right) => left.Value.Equals(right);
+
+    public static bool operator ==(System.String? left, ResourceGroupName right) => right.Value.Equals(left);
+
+    public static bool operator !=(System.String? left, ResourceGroupName right) => !(left == right);
+
+    public static bool operator !=(ResourceGroupName left, System.String? right) => !(left == right);
+
+
+                
                 public int CompareTo(ResourceGroupName other) => this.Value.CompareTo(other.Value);
 
                 public int CompareTo(System.String? other) => this.Value.CompareTo(other);

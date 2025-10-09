@@ -96,6 +96,16 @@
                 }
 
                 
+    public static bool operator ==(TenantId left, System.Guid right) => left.Value.Equals(right);
+
+    public static bool operator ==(System.Guid left, TenantId right) => right.Value.Equals(left);
+
+    public static bool operator !=(System.Guid left, TenantId right) => !(left == right);
+
+    public static bool operator !=(TenantId left, System.Guid right) => !(left == right);
+
+
+                
 
                 
 

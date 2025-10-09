@@ -218,6 +218,24 @@ public class ResourceGroupNameTests
 
             Assert.False(first.Equals(second));
         }
+
+        [Fact]
+        public void HasEqualityOperatorsForUnderlyingType()
+        {
+            var first = ResourceGroupName.From("abc123");
+            var second = "abc123";
+
+            Assert.True(first == second);
+            Assert.True(second == first);
+            Assert.False(first != second);
+            Assert.False(second != first);
+            
+            var third = "xyz789";
+            Assert.False(first == third);
+            Assert.False(third == first);
+            Assert.True(first != third);
+            Assert.True(third != first);
+        }
     }
     
     public class IsInitialized : ResourceGroupNameTests

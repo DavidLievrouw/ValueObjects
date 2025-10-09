@@ -188,6 +188,24 @@ public class PasswordTests
 
             Assert.False(first.Equals(second));
         }
+
+        [Fact]
+        public void HasEqualityOperatorsForUnderlyingType()
+        {
+            var first = Password.From("test-Pwd2");
+            var second = "test-Pwd2";
+
+            Assert.True(first == second);
+            Assert.True(second == first);
+            Assert.False(first != second);
+            Assert.False(second != first);
+            
+            var third = "other-Pwd4";
+            Assert.False(first == third);
+            Assert.False(third == first);
+            Assert.True(first != third);
+            Assert.True(third != first);
+        }
     }
     
     public class IsInitialized : PasswordTests

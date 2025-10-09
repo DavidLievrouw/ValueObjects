@@ -60,8 +60,6 @@ public class ValueObjectGenerator : IIncrementalGenerator
     }
 
     /*
-     * Comparison attribute argument
-     * EqualityOperator add attribute option and generate
      * JsonConverter
      * TypeConverter
      */
@@ -225,6 +223,27 @@ public class ValueObjectGenerator : IIncrementalGenerator
                     if (!IsInitialized()) return 0;
                     return EqualityComparer<{valueTypeName}>.Default.GetHashCode(this._value);
                 }}";
+
+        var equalityOperators =
+            valueType == typeof(string)
+                ? $@"
+    public static bool operator ==({className} left, {valueTypeName}? right) => left.Value.Equals(right);
+
+    public static bool operator ==({valueTypeName}? left, {className} right) => right.Value.Equals(left);
+
+    public static bool operator !=({valueTypeName}? left, {className} right) => !(left == right);
+
+    public static bool operator !=({className} left, {valueTypeName}? right) => !(left == right);
+"
+                : $@"
+    public static bool operator ==({className} left, {valueTypeName} right) => left.Value.Equals(right);
+
+    public static bool operator ==({valueTypeName} left, {className} right) => right.Value.Equals(left);
+
+    public static bool operator !=({valueTypeName} left, {className} right) => !(left == right);
+
+    public static bool operator !=({className} left, {valueTypeName} right) => !(left == right);
+";
 
         var creation =
             valueType == typeof(string)
@@ -466,6 +485,8 @@ private class ValueObjectValidationException : Exception
                 public bool IsInitialized() => {initCheck};
 
                 {equality}
+
+                {equalityOperators}
 
                 {comparison}
 
