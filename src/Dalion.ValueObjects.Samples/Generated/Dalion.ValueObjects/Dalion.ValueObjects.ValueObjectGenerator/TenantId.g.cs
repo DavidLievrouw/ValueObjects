@@ -4,9 +4,7 @@
         namespace Dalion.ValueObjects.Samples {
             [System.Diagnostics.DebuggerDisplay("TenantId {Value}")]
             public readonly partial record struct TenantId : IEquatable<TenantId>,
-                                                                IEquatable<System.Guid>,
-                                                                IComparable<TenantId>,
-                                                                IComparable {
+               IEquatable<System.Guid> {
                 private readonly System.Guid _value;
 
                 public System.Guid Value => _value;
@@ -98,24 +96,6 @@
                 }
 
                 
-                public int CompareTo(TenantId other) => this.Value.CompareTo(other.Value);
-
-                public int CompareTo(System.Guid other) => this.Value.CompareTo(other);
-            
-                public int CompareTo(object? other)
-                {
-                    if (other == null)
-                        return 1;
-                    if (other is TenantId other1)
-                        return this.CompareTo(other1);
-                    if (other is System.Guid v)
-                        return this.CompareTo(v);
-                    throw new System.ArgumentException(
-                        "Cannot compare to object as it is not of type TenantId",
-                        nameof(other)
-                    );
-                }
-
 
                 
 

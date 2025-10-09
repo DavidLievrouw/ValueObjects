@@ -4,9 +4,7 @@
         namespace Dalion.ValueObjects.Samples {
             [System.Diagnostics.DebuggerDisplay("Password {Value}")]
             public readonly partial record struct Password : IEquatable<Password>,
-                                                                IEquatable<System.String>,
-                                                                IComparable<Password>,
-                                                                IComparable {
+               IEquatable<System.String> {
                 private readonly System.String _value;
 
                 public System.String Value => _value;
@@ -114,24 +112,6 @@
                 }
 
                 
-                public int CompareTo(Password other) => this.Value.CompareTo(other.Value);
-
-                public int CompareTo(System.String? other) => this.Value.CompareTo(other);
-            
-                public int CompareTo(object? other)
-                {
-                    if (other == null)
-                        return 1;
-                    if (other is Password other1)
-                        return this.CompareTo(other1);
-                    if (other is System.String v)
-                        return this.CompareTo(v);
-                    throw new System.ArgumentException(
-                        "Cannot compare to object as it is not of type Password",
-                        nameof(other)
-                    );
-                }
-
 
                 
                 /// <summary>

@@ -4,9 +4,9 @@
         namespace Dalion.ValueObjects.Samples {
             [System.Diagnostics.DebuggerDisplay("ResourceGroupName {Value}")]
             public readonly partial record struct ResourceGroupName : IEquatable<ResourceGroupName>,
-                                                                IEquatable<System.String>,
-                                                                IComparable<ResourceGroupName>,
-                                                                IComparable {
+               IEquatable<System.String>,
+               IComparable<ResourceGroupName>,
+               IComparable {
                 private readonly System.String _value;
 
                 public System.String Value => _value;

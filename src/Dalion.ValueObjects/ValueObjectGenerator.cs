@@ -103,10 +103,11 @@ public class ValueObjectGenerator : IIncrementalGenerator
                 ? "return result.IsInitialized();"
                 : "return result.IsInitialized() && Validate(result._value).IsSuccess;";
 
-        var stringComparison = config.CaseSensitivity == StringCaseSensitivity.CaseInsensitive
-            ? "OrdinalIgnoreCase"
-            : "Ordinal";
-        
+        var stringComparison =
+            config.CaseSensitivity == StringCaseSensitivity.CaseInsensitive
+                ? "OrdinalIgnoreCase"
+                : "Ordinal";
+
         var equality =
             valueType == typeof(string)
                 ? $@"
@@ -286,7 +287,8 @@ public class ValueObjectGenerator : IIncrementalGenerator
 ";
 
         var comparison =
-            valueType == typeof(string)
+            config.Comparison == ComparisonGeneration.Omit ? ""
+            : valueType == typeof(string)
                 ? $@"
                 public int CompareTo({className} other) => this.Value.CompareTo(other.Value);
 
@@ -306,7 +308,7 @@ public class ValueObjectGenerator : IIncrementalGenerator
                     );
                 }}
 "
-                : $@"
+            : $@"
                 public int CompareTo({className} other) => this.Value.CompareTo(other.Value);
 
                 public int CompareTo({valueTypeName} other) => this.Value.CompareTo(other);
@@ -326,12 +328,12 @@ public class ValueObjectGenerator : IIncrementalGenerator
                 }}
 ";
 
-        var conversionToPrimitiveModifier = config.ToPrimitiveCasting == CastOperator.Implicit
-            ? "implicit"
-            : "explicit";
-        var conversionToPrimitive = config.ToPrimitiveCasting == CastOperator.None
-            ? ""
-            : $@"
+        var conversionToPrimitiveModifier =
+            config.ToPrimitiveCasting == CastOperator.Implicit ? "implicit" : "explicit";
+        var conversionToPrimitive =
+            config.ToPrimitiveCasting == CastOperator.None
+                ? ""
+                : $@"
                 /// <summary>
                 ///     An implicit conversion from <see cref=""{className}"" /> to <see cref=""{valueTypeName}"" />.
                 /// </summary>
@@ -341,13 +343,13 @@ public class ValueObjectGenerator : IIncrementalGenerator
                 {{
                     return id.Value;
                 }}";
-        
-        var conversionFromPrimitiveModifier = config.FromPrimitiveCasting == CastOperator.Implicit
-            ? "implicit"
-            : "explicit";
-        var conversionFromPrimitive = config.FromPrimitiveCasting == CastOperator.None
-            ? ""
-            : $@"
+
+        var conversionFromPrimitiveModifier =
+            config.FromPrimitiveCasting == CastOperator.Implicit ? "implicit" : "explicit";
+        var conversionFromPrimitive =
+            config.FromPrimitiveCasting == CastOperator.None
+                ? ""
+                : $@"
                 /// <summary>
                 ///     An explicit conversion from <see cref=""{valueTypeName}"" /> to <see cref=""{className}"" />.
                 /// </summary>
@@ -408,7 +410,7 @@ private class ValueObjectValidationException : Exception
         : base(message, innerException) { }
 }";
 
-        var toStringOverrides = 
+        var toStringOverrides =
             valueType == typeof(string)
                 ? @"
                 /// <inheritdoc />
@@ -437,16 +439,22 @@ private class ValueObjectValidationException : Exception
                 }
 ";
 
+        var interfaceDefs =
+            config.Comparison == ComparisonGeneration.Omit
+                ? $@"IEquatable<{className}>,
+               IEquatable<{valueTypeName}>"
+                : $@"IEquatable<{className}>,
+               IEquatable<{valueTypeName}>,
+               IComparable<{className}>,
+               IComparable";
+
         var generatedClass =
             $@"
         #nullable enable
 
         namespace {namespaceName} {{
             [System.Diagnostics.DebuggerDisplay(""{className} {{Value}}"")]
-            public readonly partial record struct {className} : IEquatable<{className}>,
-                                                                IEquatable<{valueTypeName}>,
-                                                                IComparable<{className}>,
-                                                                IComparable {{
+            public readonly partial record struct {className} : {interfaceDefs} {{
                 private readonly {valueTypeName} _value;
 
                 public {valueTypeName} Value => _value;
