@@ -363,6 +363,3 @@ FodyWeavers.xsd
 
 # Rider
 .idea
-
-# Source generated files
-src/**/Generated/**/*
