@@ -39,7 +39,7 @@
 
                 public static ResourceGroupName Empty => new ResourceGroupName(System.String.Empty, validation: false);
 
-                public bool IsInitialized() => !string.IsNullOrWhiteSpace(_value);
+                public bool IsInitialized() => !System.String.IsNullOrWhiteSpace(_value);
 
                 
                 /// <inheritdoc />
@@ -59,7 +59,7 @@
             
                     return System.String.IsNullOrWhiteSpace(other.Value.Value)
                         ? System.String.IsNullOrWhiteSpace(this._value)
-                        : System.String.Equals(this._value, other.Value.Value, StringComparison.Ordinal);
+                        : System.String.Equals(this._value, other.Value.Value, System.StringComparison.OrdinalIgnoreCase);
                 }
 
                 /// <inheritdoc />
@@ -77,7 +77,7 @@
             
                     return System.String.IsNullOrWhiteSpace(other.Value)
                         ? System.String.IsNullOrWhiteSpace(this._value)
-                        : System.String.Equals(this._value, other.Value, StringComparison.Ordinal);
+                        : System.String.Equals(this._value, other.Value, System.StringComparison.OrdinalIgnoreCase);
                 }
             
                 /// <inheritdoc />
@@ -85,7 +85,7 @@
                 {
                     return System.String.IsNullOrWhiteSpace(other)
                         ? System.String.IsNullOrWhiteSpace(this._value)
-                        : System.String.Equals(this._value, other, StringComparison.Ordinal);
+                        : System.String.Equals(this._value, other, System.StringComparison.OrdinalIgnoreCase);
                 }
             
                 public bool Equals(ResourceGroupName? other, IEqualityComparer<ResourceGroupName> comparer)
@@ -102,7 +102,7 @@
                 /// <inheritdoc />
                 public override int GetHashCode() {
                     if (!IsInitialized()) return 0;
-                    return EqualityComparer<System.String>.Default.GetHashCode(this._value);
+                    return StringComparer.OrdinalIgnoreCase.GetHashCode(this._value);
                 }
 
                 

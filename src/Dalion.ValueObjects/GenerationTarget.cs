@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+﻿using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -10,13 +10,13 @@ internal class GenerationTarget
         SemanticModel semanticModel,
         TypeDeclarationSyntax typeToAugment,
         INamedTypeSymbol symbolForType,
-        ImmutableArray<AttributeData> dataForAttributes
+        AttributeData attributeData
     )
     {
         SemanticModel = semanticModel;
         SyntaxInformation = typeToAugment;
         SymbolInformation = symbolForType;
-        DataForAttributes = dataForAttributes;
+        AttributeData = attributeData;
     }
 
     public SemanticModel SemanticModel { get; }
@@ -25,5 +25,51 @@ internal class GenerationTarget
 
     public INamedTypeSymbol SymbolInformation { get; set; }
 
-    public ImmutableArray<AttributeData> DataForAttributes { get; }
+    public AttributeData AttributeData { get; }
+
+    public AttributeConfiguration GetAttributeConfiguration()
+    {
+        var syntaxRef = AttributeData.ApplicationSyntaxReference!;
+        var attributeSyntax = (AttributeSyntax)syntaxRef.GetSyntax();
+        var argumentExpressions = attributeSyntax.ArgumentList?.Arguments!;
+
+        var typeSymbol = AttributeData.AttributeClass!.TypeArguments[0];
+        var underlyingType = Type.GetType(typeSymbol.ToDisplayString()) ?? typeof(string);
+
+        var comparison = ComparisonGeneration.UseUnderlying;
+        var toPrimitiveCasting = CastOperator.None;
+        var fromPrimitiveCasting = CastOperator.None;
+        var stringCaseSensitivity = StringCaseSensitivity.CaseSensitive;
+        foreach (var arg in argumentExpressions.Value)
+        {
+            var name = arg.GetFirstToken().ValueText;
+            var value = arg.GetLastToken().ValueText;
+
+            switch (name)
+            {
+                case "comparison":
+                    comparison = (ComparisonGeneration)
+                        Enum.Parse(typeof(ComparisonGeneration), value);
+                    break;
+                case "toPrimitiveCasting":
+                    toPrimitiveCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
+                    break;
+                case "fromPrimitiveCasting":
+                    fromPrimitiveCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
+                    break;
+                case "stringCaseSensitivity":
+                    stringCaseSensitivity = (StringCaseSensitivity)
+                        Enum.Parse(typeof(StringCaseSensitivity), value);
+                    break;
+            }
+        }
+
+        return new AttributeConfiguration(
+            underlyingType,
+            comparison,
+            toPrimitiveCasting,
+            fromPrimitiveCasting,
+            stringCaseSensitivity
+        );
+    }
 }

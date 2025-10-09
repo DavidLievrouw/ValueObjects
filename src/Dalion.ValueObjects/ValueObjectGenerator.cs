@@ -38,7 +38,7 @@ public class ValueObjectGenerator : IIncrementalGenerator
                         semanticModel,
                         syntaxInformation,
                         symbolInformation,
-                        attributeData
+                        attributeData.First()
                     );
                 }
 
@@ -65,49 +65,45 @@ public class ValueObjectGenerator : IIncrementalGenerator
         var className = target.SymbolInformation.Name;
         var namespaceName = target.SymbolInformation.ContainingNamespace.ToDisplayString();
 
-        var attrs = TryGetValueObjectAttributes(target.SymbolInformation);
-        var valueType =
-            attrs
-                .FirstOrDefault(a => a.AttributeClass != null)
-                ?.AttributeClass?.GetTypeArguments()
-                ?.FirstOrDefault() ?? "object";
+        var config = target.GetAttributeConfiguration();
+        var valueType = config.UnderlyingType;
+        var valueTypeName = valueType.FullName;
 
         var initCheck =
-            Type.GetType(valueType) == typeof(string)
-                ? "!string.IsNullOrWhiteSpace(_value)"
+            valueType == typeof(string)
+                ? "!System.String.IsNullOrWhiteSpace(_value)"
                 : "_value != default";
 
-        var defaultValue =
-            Type.GetType(valueType) == typeof(string) ? "System.String.Empty" : "default";
+        var defaultValue = valueType == typeof(string) ? "System.String.Empty" : "default";
 
-        /*
-        Use params from attribute
-        Validation on creation, allowing Empty
-
-         */
-        
-        var validateMethod = target.SyntaxInformation.Members
-            .OfType<MethodDeclarationSyntax>()
+        var validateMethod = target
+            .SyntaxInformation.Members.OfType<MethodDeclarationSyntax>()
             .FirstOrDefault(member =>
-                member.Identifier.Text == "Validate" &&
-                member.Modifiers.Any(SyntaxKind.PrivateKeyword) &&
-                member.Modifiers.Any(SyntaxKind.StaticKeyword)
+                member.Identifier.Text == "Validate"
+                && member.Modifiers.Any(SyntaxKind.PrivateKeyword)
+                && member.Modifiers.Any(SyntaxKind.StaticKeyword)
             );
-        
-        var ctorValidation = validateMethod == null 
-            ? "" 
-            : @"
+
+        var ctorValidation =
+            validateMethod == null
+                ? ""
+                : @"
                   var validationResult = Validate(value);
                   if (!validationResult.IsSuccess) {
                       throw new System.InvalidOperationException(validationResult.ErrorMessage);
                   }";
-        
-        var tryFromValidation = validateMethod == null 
-            ? "return result.IsInitialized();" 
-            : "return result.IsInitialized() && Validate(result._value).IsSuccess;";
+
+        var tryFromValidation =
+            validateMethod == null
+                ? "return result.IsInitialized();"
+                : "return result.IsInitialized() && Validate(result._value).IsSuccess;";
+
+        var stringComparison = config.CaseSensitivity == StringCaseSensitivity.CaseInsensitive
+            ? "OrdinalIgnoreCase"
+            : "Ordinal";
         
         var equality =
-            Type.GetType(valueType) == typeof(string)
+            valueType == typeof(string)
                 ? $@"
                 /// <inheritdoc />
                 public bool Equals({className}? other)
@@ -124,9 +120,9 @@ public class ValueObjectGenerator : IIncrementalGenerator
                         return false;
                     }}
             
-                    return {valueType}.IsNullOrWhiteSpace(other.Value.Value)
-                        ? {valueType}.IsNullOrWhiteSpace(this._value)
-                        : {valueType}.Equals(this._value, other.Value.Value, StringComparison.Ordinal);
+                    return {valueTypeName}.IsNullOrWhiteSpace(other.Value.Value)
+                        ? {valueTypeName}.IsNullOrWhiteSpace(this._value)
+                        : {valueTypeName}.Equals(this._value, other.Value.Value, System.StringComparison.{stringComparison});
                 }}
 
                 /// <inheritdoc />
@@ -142,17 +138,17 @@ public class ValueObjectGenerator : IIncrementalGenerator
                         return false;
                     }}
             
-                    return {valueType}.IsNullOrWhiteSpace(other.Value)
-                        ? {valueType}.IsNullOrWhiteSpace(this._value)
-                        : {valueType}.Equals(this._value, other.Value, StringComparison.Ordinal);
+                    return {valueTypeName}.IsNullOrWhiteSpace(other.Value)
+                        ? {valueTypeName}.IsNullOrWhiteSpace(this._value)
+                        : {valueTypeName}.Equals(this._value, other.Value, System.StringComparison.{stringComparison});
                 }}
             
                 /// <inheritdoc />
-                public bool Equals({valueType}? other)
+                public bool Equals({valueTypeName}? other)
                 {{
-                    return {valueType}.IsNullOrWhiteSpace(other)
-                        ? {valueType}.IsNullOrWhiteSpace(this._value)
-                        : {valueType}.Equals(this._value, other, StringComparison.Ordinal);
+                    return {valueTypeName}.IsNullOrWhiteSpace(other)
+                        ? {valueTypeName}.IsNullOrWhiteSpace(this._value)
+                        : {valueTypeName}.Equals(this._value, other, System.StringComparison.{stringComparison});
                 }}
             
                 public bool Equals({className}? other, IEqualityComparer<{className}> comparer)
@@ -161,7 +157,7 @@ public class ValueObjectGenerator : IIncrementalGenerator
                     return comparer.Equals(this, other.Value);
                 }}
             
-                public bool Equals({valueType}? primitive, StringComparer comparer)
+                public bool Equals({valueTypeName}? primitive, StringComparer comparer)
                 {{
                     return comparer.Equals(this.Value, primitive);
                 }}
@@ -169,7 +165,7 @@ public class ValueObjectGenerator : IIncrementalGenerator
                 /// <inheritdoc />
                 public override int GetHashCode() {{
                     if (!IsInitialized()) return 0;
-                    return EqualityComparer<{valueType}>.Default.GetHashCode(this._value);
+                    return StringComparer.{stringComparison}.GetHashCode(this._value);
                 }}"
                 : $@"
                 /// <inheritdoc />
@@ -187,7 +183,7 @@ public class ValueObjectGenerator : IIncrementalGenerator
                         return false;
                     }}
             
-                    return EqualityComparer<{valueType}>.Default.Equals(this._value, other.Value.Value);
+                    return EqualityComparer<{valueTypeName}>.Default.Equals(this._value, other.Value.Value);
                 }}
 
                 /// <inheritdoc />
@@ -203,13 +199,13 @@ public class ValueObjectGenerator : IIncrementalGenerator
                         return false;
                     }}
             
-                    return EqualityComparer<{valueType}>.Default.Equals(this._value, other.Value);
+                    return EqualityComparer<{valueTypeName}>.Default.Equals(this._value, other.Value);
                 }}
             
                 /// <inheritdoc />
-                public bool Equals({valueType} other)
+                public bool Equals({valueTypeName} other)
                 {{
-                    return EqualityComparer<{valueType}>.Default.Equals(this._value, other);
+                    return EqualityComparer<{valueTypeName}>.Default.Equals(this._value, other);
                 }}
             
                 public bool Equals({className}? other, IEqualityComparer<{className}> comparer)
@@ -221,21 +217,20 @@ public class ValueObjectGenerator : IIncrementalGenerator
                 /// <inheritdoc />
                 public override int GetHashCode() {{
                     if (!IsInitialized()) return 0;
-                    return EqualityComparer<{valueType}>.Default.GetHashCode(this._value);
-                }}"
-            ;
+                    return EqualityComparer<{valueTypeName}>.Default.GetHashCode(this._value);
+                }}";
 
-var creation =
-            Type.GetType(valueType) == typeof(string)
+        var creation =
+            valueType == typeof(string)
                 ? $@"
-                private {className}({valueType} value, bool validation = true) {{
+                private {className}({valueTypeName} value, bool validation = true) {{
                     if (validation) {{
                         {ctorValidation}
                     }}
-                    _value = value ?? {valueType}.Empty;
+                    _value = value ?? {valueTypeName}.Empty;
                 }}
 
-                public static {className} From({valueType}? value) {{
+                public static {className} From({valueTypeName}? value) {{
                     if (string.IsNullOrWhiteSpace(value)) {{
                         return Empty;
                     }}
@@ -243,20 +238,20 @@ var creation =
                     return new {className}(value);
                 }}
 
-                public static bool TryFrom({valueType}? value, out {className} result) {{
+                public static bool TryFrom({valueTypeName}? value, out {className} result) {{
                     result = string.IsNullOrWhiteSpace(value) ? Empty : new {className}(value, validation: false);
                     {tryFromValidation}
                 }}
 "
                 : $@"
-                private {className}({valueType} value, bool validation = true) {{
+                private {className}({valueTypeName} value, bool validation = true) {{
                     if (validation) {{
                         {ctorValidation}
                     }}
                     _value = value;
                 }}
 
-                public static {className} From({valueType} value) {{
+                public static {className} From({valueTypeName} value) {{
                     if (value == default) {{
                         return Empty;
                     }}
@@ -264,18 +259,18 @@ var creation =
                     return new {className}(value);
                 }}
 
-                public static bool TryFrom({valueType} value, out {className} result) {{
+                public static bool TryFrom({valueTypeName} value, out {className} result) {{
                     result = value == default ? Empty : new {className}(value, validation: false);
                     {tryFromValidation}
                 }}
 ";
 
         var comparison =
-            Type.GetType(valueType) == typeof(string)
+            valueType == typeof(string)
                 ? $@"
                 public int CompareTo({className} other) => this.Value.CompareTo(other.Value);
 
-                public int CompareTo({valueType}? other) => this.Value.CompareTo(other);
+                public int CompareTo({valueTypeName}? other) => this.Value.CompareTo(other);
             
                 public int CompareTo(object? other)
                 {{
@@ -283,7 +278,7 @@ var creation =
                         return 1;
                     if (other is {className} other1)
                         return this.CompareTo(other1);
-                    if (other is {valueType} v)
+                    if (other is {valueTypeName} v)
                         return this.CompareTo(v);
                     throw new System.ArgumentException(
                         ""Cannot compare to object as it is not of type {className}"",
@@ -294,7 +289,7 @@ var creation =
                 : $@"
                 public int CompareTo({className} other) => this.Value.CompareTo(other.Value);
 
-                public int CompareTo({valueType} other) => this.Value.CompareTo(other);
+                public int CompareTo({valueTypeName} other) => this.Value.CompareTo(other);
             
                 public int CompareTo(object? other)
                 {{
@@ -302,7 +297,7 @@ var creation =
                         return 1;
                     if (other is {className} other1)
                         return this.CompareTo(other1);
-                    if (other is {valueType} v)
+                    if (other is {valueTypeName} v)
                         return this.CompareTo(v);
                     throw new System.ArgumentException(
                         ""Cannot compare to object as it is not of type {className}"",
@@ -314,26 +309,27 @@ var creation =
         var conversion =
             $@"
                 /// <summary>
-                ///     An implicit conversion from <see cref=""{className}"" /> to <see cref=""{valueType}"" />.
+                ///     An implicit conversion from <see cref=""{className}"" /> to <see cref=""{valueTypeName}"" />.
                 /// </summary>
                 /// <param name=""id"">The value to convert.</param>
-                /// <returns>The {valueType} representation of the value object.</returns>
-                public static implicit operator {valueType}({className} id)
+                /// <returns>The {valueTypeName} representation of the value object.</returns>
+                public static implicit operator {valueTypeName}({className} id)
                 {{
                     return id.Value;
                 }}
             
                 /// <summary>
-                ///     An explicit conversion from <see cref=""{valueType}"" /> to <see cref=""{className}"" />.
+                ///     An explicit conversion from <see cref=""{valueTypeName}"" /> to <see cref=""{className}"" />.
                 /// </summary>
                 /// <param name=""value"">The value to convert.</param>
                 /// <returns>The <see cref=""{className}"" /> instance created from the input value.</returns>
-                public static explicit operator {className}({valueType} value)
+                public static explicit operator {className}({valueTypeName} value)
                 {{
                     return {className}.From(value);
                 }}";
 
-        var validationClasses = @"
+        var validationClasses =
+            @"
 private class Validation
 {
     public static readonly Validation Ok = new(string.Empty);
@@ -381,7 +377,7 @@ private class ValueObjectValidationException : Exception
     public ValueObjectValidationException(string message, Exception innerException)
         : base(message, innerException) { }
 }";
-        
+
         var generatedClass =
             $@"
         #nullable enable
@@ -389,12 +385,12 @@ private class ValueObjectValidationException : Exception
         namespace {namespaceName} {{
             [System.Diagnostics.DebuggerDisplay(""{className} {{Value}}"")]
             public readonly partial record struct {className} : IEquatable<{className}>,
-                                                                IEquatable<{valueType}>,
+                                                                IEquatable<{valueTypeName}>,
                                                                 IComparable<{className}>,
                                                                 IComparable {{
-                private readonly {valueType} _value;
+                private readonly {valueTypeName} _value;
 
-                public {valueType} Value => _value;
+                public {valueTypeName} Value => _value;
 
                 {creation}
 

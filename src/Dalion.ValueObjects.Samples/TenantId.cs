@@ -3,7 +3,6 @@
 /// <summary>
 ///     An identifier of a tenant.
 /// </summary>
-
 [ValueObject<Guid>(
     fromPrimitiveCasting: CastOperator.Explicit,
     toPrimitiveCasting: CastOperator.None,
