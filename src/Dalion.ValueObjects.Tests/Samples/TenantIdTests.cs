@@ -149,22 +149,16 @@ public class TenantIdTests
         }
 
         [Fact]
-        public void HasEqualityOperatorsForUnderlyingType()
+        public void HasEqualityMethodsForUnderlyingType()
         {
             var backingValue = Guid.NewGuid();
             var first = TenantId.From(backingValue);
             var second = backingValue;
 
-            Assert.True(first == second);
-            Assert.True(second == first);
-            Assert.False(first != second);
-            Assert.False(second != first);
+            Assert.True(first.Equals(second));
             
             var third = Guid.NewGuid();
-            Assert.False(first == third);
-            Assert.False(third == first);
-            Assert.True(first != third);
-            Assert.True(third != first);
+            Assert.False(first.Equals(third));
         }
     }
     

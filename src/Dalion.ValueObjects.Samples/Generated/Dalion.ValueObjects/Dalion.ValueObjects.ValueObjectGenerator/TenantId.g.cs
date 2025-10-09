@@ -3,8 +3,8 @@
 
         namespace Dalion.ValueObjects.Samples {
             [System.Diagnostics.DebuggerDisplay("TenantId {Value}")]
-            public readonly partial record struct TenantId : IEquatable<TenantId>,
-               IEquatable<System.Guid> {
+            public readonly partial record struct TenantId : IEquatable<TenantId>
+, IEquatable<System.Guid> {
                 private readonly System.Guid _value;
 
                 public System.Guid Value => _value;
@@ -77,12 +77,6 @@
                     return EqualityComparer<System.Guid>.Default.Equals(this._value, other.Value);
                 }
             
-                /// <inheritdoc />
-                public bool Equals(System.Guid other)
-                {
-                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other);
-                }
-            
                 public bool Equals(TenantId? other, IEqualityComparer<TenantId> comparer)
                 {
                     if (other == null) return false;
@@ -96,14 +90,13 @@
                 }
 
                 
-    public static bool operator ==(TenantId left, System.Guid right) => left.Value.Equals(right);
+                /// <inheritdoc />
+                public bool Equals(System.Guid other)
+                {
+                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other);
+                }
 
-    public static bool operator ==(System.Guid left, TenantId right) => right.Value.Equals(left);
-
-    public static bool operator !=(System.Guid left, TenantId right) => !(left == right);
-
-    public static bool operator !=(TenantId left, System.Guid right) => !(left == right);
-
+                
 
                 
 

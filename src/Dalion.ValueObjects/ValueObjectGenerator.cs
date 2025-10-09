@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -147,23 +148,10 @@ public class ValueObjectGenerator : IIncrementalGenerator
                         : {valueTypeName}.Equals(this._value, other.Value, System.StringComparison.{stringComparison});
                 }}
             
-                /// <inheritdoc />
-                public bool Equals({valueTypeName}? other)
-                {{
-                    return {valueTypeName}.IsNullOrWhiteSpace(other)
-                        ? {valueTypeName}.IsNullOrWhiteSpace(this._value)
-                        : {valueTypeName}.Equals(this._value, other, System.StringComparison.{stringComparison});
-                }}
-            
                 public bool Equals({className}? other, IEqualityComparer<{className}> comparer)
                 {{
                     if (other == null) return false;
                     return comparer.Equals(this, other.Value);
-                }}
-            
-                public bool Equals({valueTypeName}? primitive, StringComparer comparer)
-                {{
-                    return comparer.Equals(this.Value, primitive);
                 }}
             
                 /// <inheritdoc />
@@ -206,12 +194,6 @@ public class ValueObjectGenerator : IIncrementalGenerator
                     return EqualityComparer<{valueTypeName}>.Default.Equals(this._value, other.Value);
                 }}
             
-                /// <inheritdoc />
-                public bool Equals({valueTypeName} other)
-                {{
-                    return EqualityComparer<{valueTypeName}>.Default.Equals(this._value, other);
-                }}
-            
                 public bool Equals({className}? other, IEqualityComparer<{className}> comparer)
                 {{
                     if (other == null) return false;
@@ -223,10 +205,34 @@ public class ValueObjectGenerator : IIncrementalGenerator
                     if (!IsInitialized()) return 0;
                     return EqualityComparer<{valueTypeName}>.Default.GetHashCode(this._value);
                 }}";
-
-        var equalityOperators =
+        
+        var equalityUnderlyingType =
             valueType == typeof(string)
                 ? $@"
+                /// <inheritdoc />
+                public bool Equals({valueTypeName}? other)
+                {{
+                    return {valueTypeName}.IsNullOrWhiteSpace(other)
+                        ? {valueTypeName}.IsNullOrWhiteSpace(this._value)
+                        : {valueTypeName}.Equals(this._value, other, System.StringComparison.{stringComparison});
+                }}
+            
+                public bool Equals({valueTypeName}? primitive, StringComparer comparer)
+                {{
+                    return comparer.Equals(this.Value, primitive);
+                }}"
+                : $@"
+                /// <inheritdoc />
+                public bool Equals({valueTypeName} other)
+                {{
+                    return EqualityComparer<{valueTypeName}>.Default.Equals(this._value, other);
+                }}";
+
+        var equalityOperators =
+            (config.PrimitiveEqualityGeneration & PrimitiveEqualityGeneration.GenerateOperators)
+            == PrimitiveEqualityGeneration.GenerateOperators
+                ? valueType == typeof(string)
+                    ? $@"
     public static bool operator ==({className} left, {valueTypeName}? right) => left.Value.Equals(right);
 
     public static bool operator ==({valueTypeName}? left, {className} right) => right.Value.Equals(left);
@@ -235,7 +241,7 @@ public class ValueObjectGenerator : IIncrementalGenerator
 
     public static bool operator !=({className} left, {valueTypeName}? right) => !(left == right);
 "
-                : $@"
+                    : $@"
     public static bool operator ==({className} left, {valueTypeName} right) => left.Value.Equals(right);
 
     public static bool operator ==({valueTypeName} left, {className} right) => right.Value.Equals(left);
@@ -243,7 +249,8 @@ public class ValueObjectGenerator : IIncrementalGenerator
     public static bool operator !=({valueTypeName} left, {className} right) => !(left == right);
 
     public static bool operator !=({className} left, {valueTypeName} right) => !(left == right);
-";
+"
+                : "";
 
         var creation =
             valueType == typeof(string)
@@ -458,14 +465,23 @@ private class ValueObjectValidationException : Exception
                 }
 ";
 
-        var interfaceDefs =
-            config.Comparison == ComparisonGeneration.Omit
-                ? $@"IEquatable<{className}>,
-               IEquatable<{valueTypeName}>"
-                : $@"IEquatable<{className}>,
-               IEquatable<{valueTypeName}>,
-               IComparable<{className}>,
-               IComparable";
+        var interfaceDefsBuilder = new StringBuilder();
+        interfaceDefsBuilder.AppendLine($": IEquatable<{className}>");
+        if (
+            (config.PrimitiveEqualityGeneration & PrimitiveEqualityGeneration.GenerateMethods)
+            == PrimitiveEqualityGeneration.GenerateMethods
+        )
+        {
+            interfaceDefsBuilder.Append($", IEquatable<{valueTypeName}>");
+        }
+
+        if (config.Comparison != ComparisonGeneration.Omit)
+        {
+            interfaceDefsBuilder.Append($", IComparable<{className}>");
+            interfaceDefsBuilder.Append(", IComparable");
+        }
+
+        var interfaceDefs = interfaceDefsBuilder.ToString();
 
         var generatedClass =
             $@"
@@ -473,7 +489,7 @@ private class ValueObjectValidationException : Exception
 
         namespace {namespaceName} {{
             [System.Diagnostics.DebuggerDisplay(""{className} {{Value}}"")]
-            public readonly partial record struct {className} : {interfaceDefs} {{
+            public readonly partial record struct {className} {interfaceDefs} {{
                 private readonly {valueTypeName} _value;
 
                 public {valueTypeName} Value => _value;
@@ -485,6 +501,8 @@ private class ValueObjectValidationException : Exception
                 public bool IsInitialized() => {initCheck};
 
                 {equality}
+
+                {equalityUnderlyingType}
 
                 {equalityOperators}
 
@@ -541,6 +559,14 @@ private class ValueObjectValidationException : Exception
 #nullable disable
 
 namespace {ns} {{
+    [System.Flags]
+    public enum PrimitiveEqualityGeneration {{
+        Omit = 0,
+        GenerateOperators = 1 << 0,
+        GenerateMethods = 1 << 1,
+        GenerateOperatorsAndMethods = GenerateOperators | GenerateMethods
+    }}
+
     public enum ComparisonGeneration {{
         Omit = 0,
         UseUnderlying = 1
@@ -563,7 +589,8 @@ namespace {ns} {{
             ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
             CastOperator toPrimitiveCasting = CastOperator.None,
             CastOperator fromPrimitiveCasting = CastOperator.None,
-            StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive
+            StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
+            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods
         )
             : base(
                 typeof(T),
@@ -581,7 +608,8 @@ namespace {ns} {{
             ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
             CastOperator toPrimitiveCasting = CastOperator.None,
             CastOperator fromPrimitiveCasting = CastOperator.None,
-            StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive
+            StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
+            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods
         ) {{ }}
     }}
 }}

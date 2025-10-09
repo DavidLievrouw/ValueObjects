@@ -220,6 +220,18 @@ public class ResourceGroupNameTests
         }
 
         [Fact]
+        public void HasEqualityMethodsForUnderlyingType()
+        {
+            var first = ResourceGroupName.From("abc123");
+            var second = "abc123";
+
+            Assert.True(first.Equals(second));
+            
+            var third = "xyz789";
+            Assert.False(first.Equals(third));
+        }
+
+        [Fact]
         public void HasEqualityOperatorsForUnderlyingType()
         {
             var first = ResourceGroupName.From("abc123");

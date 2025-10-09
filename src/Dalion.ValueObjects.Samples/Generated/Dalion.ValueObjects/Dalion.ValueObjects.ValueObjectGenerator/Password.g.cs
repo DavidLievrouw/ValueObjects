@@ -3,8 +3,8 @@
 
         namespace Dalion.ValueObjects.Samples {
             [System.Diagnostics.DebuggerDisplay("Password {Value}")]
-            public readonly partial record struct Password : IEquatable<Password>,
-               IEquatable<System.String> {
+            public readonly partial record struct Password : IEquatable<Password>
+ {
                 private readonly System.String _value;
 
                 public System.String Value => _value;
@@ -86,23 +86,10 @@
                         : System.String.Equals(this._value, other.Value, System.StringComparison.Ordinal);
                 }
             
-                /// <inheritdoc />
-                public bool Equals(System.String? other)
-                {
-                    return System.String.IsNullOrWhiteSpace(other)
-                        ? System.String.IsNullOrWhiteSpace(this._value)
-                        : System.String.Equals(this._value, other, System.StringComparison.Ordinal);
-                }
-            
                 public bool Equals(Password? other, IEqualityComparer<Password> comparer)
                 {
                     if (other == null) return false;
                     return comparer.Equals(this, other.Value);
-                }
-            
-                public bool Equals(System.String? primitive, StringComparer comparer)
-                {
-                    return comparer.Equals(this.Value, primitive);
                 }
             
                 /// <inheritdoc />
@@ -112,14 +99,20 @@
                 }
 
                 
-    public static bool operator ==(Password left, System.String? right) => left.Value.Equals(right);
+                /// <inheritdoc />
+                public bool Equals(System.String? other)
+                {
+                    return System.String.IsNullOrWhiteSpace(other)
+                        ? System.String.IsNullOrWhiteSpace(this._value)
+                        : System.String.Equals(this._value, other, System.StringComparison.Ordinal);
+                }
+            
+                public bool Equals(System.String? primitive, StringComparer comparer)
+                {
+                    return comparer.Equals(this.Value, primitive);
+                }
 
-    public static bool operator ==(System.String? left, Password right) => right.Value.Equals(left);
-
-    public static bool operator !=(System.String? left, Password right) => !(left == right);
-
-    public static bool operator !=(Password left, System.String? right) => !(left == right);
-
+                
 
                 
 

@@ -9,7 +9,8 @@ internal class AttributeConfiguration
         ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
         CastOperator toPrimitiveCasting = CastOperator.None,
         CastOperator fromPrimitiveCasting = CastOperator.None,
-        StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive
+        StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
+        PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods
     )
     {
         UnderlyingType = underlyingType;
@@ -17,6 +18,7 @@ internal class AttributeConfiguration
         ToPrimitiveCasting = toPrimitiveCasting;
         FromPrimitiveCasting = fromPrimitiveCasting;
         CaseSensitivity = stringCaseSensitivity;
+        PrimitiveEqualityGeneration = primitiveEqualityGeneration;
     }
 
     public Type UnderlyingType { get; }
@@ -24,4 +26,5 @@ internal class AttributeConfiguration
     public CastOperator ToPrimitiveCasting { get; }
     public CastOperator FromPrimitiveCasting { get; }
     public StringCaseSensitivity CaseSensitivity { get; }
+    public PrimitiveEqualityGeneration PrimitiveEqualityGeneration { get; }
 }

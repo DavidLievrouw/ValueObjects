@@ -2,6 +2,14 @@
 #nullable disable
 
 namespace Dalion.ValueObjects.Samples {
+    [System.Flags]
+    public enum PrimitiveEqualityGeneration {
+        Omit = 0,
+        GenerateOperators = 1 << 0,
+        GenerateMethods = 1 << 1,
+        GenerateOperatorsAndMethods = GenerateOperators | GenerateMethods
+    }
+
     public enum ComparisonGeneration {
         Omit = 0,
         UseUnderlying = 1
@@ -24,7 +32,8 @@ namespace Dalion.ValueObjects.Samples {
             ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
             CastOperator toPrimitiveCasting = CastOperator.None,
             CastOperator fromPrimitiveCasting = CastOperator.None,
-            StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive
+            StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
+            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods
         )
             : base(
                 typeof(T),
@@ -42,7 +51,8 @@ namespace Dalion.ValueObjects.Samples {
             ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
             CastOperator toPrimitiveCasting = CastOperator.None,
             CastOperator fromPrimitiveCasting = CastOperator.None,
-            StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive
+            StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
+            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods
         ) { }
     }
 }

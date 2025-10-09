@@ -40,6 +40,7 @@ internal class GenerationTarget
         var toPrimitiveCasting = CastOperator.None;
         var fromPrimitiveCasting = CastOperator.None;
         var stringCaseSensitivity = StringCaseSensitivity.CaseSensitive;
+        var primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods;
         foreach (var arg in argumentExpressions.Value)
         {
             var name = arg.GetFirstToken().ValueText;
@@ -57,6 +58,9 @@ internal class GenerationTarget
                 case "fromPrimitiveCasting":
                     fromPrimitiveCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
                     break;
+                case "primitiveEqualityGeneration":
+                    primitiveEqualityGeneration = (PrimitiveEqualityGeneration)Enum.Parse(typeof(PrimitiveEqualityGeneration), value);
+                    break;
                 case "stringCaseSensitivity":
                     stringCaseSensitivity = (StringCaseSensitivity)
                         Enum.Parse(typeof(StringCaseSensitivity), value);
@@ -69,7 +73,8 @@ internal class GenerationTarget
             comparison,
             toPrimitiveCasting,
             fromPrimitiveCasting,
-            stringCaseSensitivity
+            stringCaseSensitivity,
+            primitiveEqualityGeneration
         );
     }
 }

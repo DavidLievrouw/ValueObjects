@@ -3,10 +3,8 @@
 
         namespace Dalion.ValueObjects.Samples {
             [System.Diagnostics.DebuggerDisplay("ResourceGroupName {Value}")]
-            public readonly partial record struct ResourceGroupName : IEquatable<ResourceGroupName>,
-               IEquatable<System.String>,
-               IComparable<ResourceGroupName>,
-               IComparable {
+            public readonly partial record struct ResourceGroupName : IEquatable<ResourceGroupName>
+, IEquatable<System.String>, IComparable<ResourceGroupName>, IComparable {
                 private readonly System.String _value;
 
                 public System.String Value => _value;
@@ -88,6 +86,19 @@
                         : System.String.Equals(this._value, other.Value, System.StringComparison.OrdinalIgnoreCase);
                 }
             
+                public bool Equals(ResourceGroupName? other, IEqualityComparer<ResourceGroupName> comparer)
+                {
+                    if (other == null) return false;
+                    return comparer.Equals(this, other.Value);
+                }
+            
+                /// <inheritdoc />
+                public override int GetHashCode() {
+                    if (!IsInitialized()) return 0;
+                    return StringComparer.OrdinalIgnoreCase.GetHashCode(this._value);
+                }
+
+                
                 /// <inheritdoc />
                 public bool Equals(System.String? other)
                 {
@@ -96,21 +107,9 @@
                         : System.String.Equals(this._value, other, System.StringComparison.OrdinalIgnoreCase);
                 }
             
-                public bool Equals(ResourceGroupName? other, IEqualityComparer<ResourceGroupName> comparer)
-                {
-                    if (other == null) return false;
-                    return comparer.Equals(this, other.Value);
-                }
-            
                 public bool Equals(System.String? primitive, StringComparer comparer)
                 {
                     return comparer.Equals(this.Value, primitive);
-                }
-            
-                /// <inheritdoc />
-                public override int GetHashCode() {
-                    if (!IsInitialized()) return 0;
-                    return StringComparer.OrdinalIgnoreCase.GetHashCode(this._value);
                 }
 
                 

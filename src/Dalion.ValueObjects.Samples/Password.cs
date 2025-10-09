@@ -9,7 +9,8 @@ namespace Dalion.ValueObjects.Samples;
     fromPrimitiveCasting: CastOperator.None,
     toPrimitiveCasting: CastOperator.Explicit,
     comparison: ComparisonGeneration.Omit,
-    stringCaseSensitivity: StringCaseSensitivity.CaseSensitive
+    stringCaseSensitivity: StringCaseSensitivity.CaseSensitive,
+    primitiveEqualityGeneration: PrimitiveEqualityGeneration.Omit
 )]
 public readonly partial record struct Password
 {
