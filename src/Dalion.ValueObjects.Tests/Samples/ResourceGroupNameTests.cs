@@ -154,14 +154,15 @@ public class ResourceGroupNameTests
         }
 
         [Fact]
-        public void WhenValuesAreDifferentlyCased_AreNotEqual()
+        public void WhenValuesAreDifferentlyCased_AreEqual()
         {
             var first = ResourceGroupName.From("abc123");
             var second = ResourceGroupName.From("aBc123");
 
-            Assert.False(first.Equals(second));
-            Assert.False(first == second);
-            Assert.True(first != second);
+            Assert.True(first.Equals(second));
+            Assert.True(first == second);
+            Assert.False(first != second);
+            Assert.Equal(first.GetHashCode(), second.GetHashCode());
         }
 
         [Fact]

@@ -65,45 +65,280 @@ public class ValueObjectGenerator : IIncrementalGenerator
         var namespaceName = target.SymbolInformation.ContainingNamespace.ToDisplayString();
 
         var attrs = TryGetValueObjectAttributes(target.SymbolInformation);
-        var valueType = attrs.FirstOrDefault(a => a.AttributeClass != null)?.AttributeClass?.GetTypeArguments()
-            ?.FirstOrDefault() ?? "object";
+        var valueType =
+            attrs
+                .FirstOrDefault(a => a.AttributeClass != null)
+                ?.AttributeClass?.GetTypeArguments()
+                ?.FirstOrDefault() ?? "object";
 
-        var initCheck = Type.GetType(valueType) == typeof(string)
-            ? "!string.IsNullOrEmpty(_value)"
-            : "_value != default";
+        var initCheck =
+            Type.GetType(valueType) == typeof(string)
+                ? "!string.IsNullOrWhiteSpace(_value)"
+                : "_value != default";
 
-        var defaultValue = Type.GetType(valueType) == typeof(string) ? "System.String.Empty" : "default";
-        
+        var defaultValue =
+            Type.GetType(valueType) == typeof(string) ? "System.String.Empty" : "default";
+
         /*
-         *     : IEquatable<string>,
-        IComparable<JobDefinitionId>,
-        IComparable,
-        Equals x4
-        GetHashCode
+         *
+        Conversion operators
+        ToString override + DebuggerDisplay
         Validation on creation, allowing Empty
-        
+
          */
+
+        var equality =
+            Type.GetType(valueType) == typeof(string)
+                ? $@"
+                /// <inheritdoc />
+                public bool Equals({className}? other)
+                {{
+                    if (other == null) return false;
+
+                    if (!other.Value.IsInitialized())
+                    {{
+                        return !IsInitialized();
+                    }}
+
+                    if (other.Value.IsInitialized() != IsInitialized())
+                    {{
+                        return false;
+                    }}
+            
+                    return {valueType}.IsNullOrWhiteSpace(other.Value.Value)
+                        ? {valueType}.IsNullOrWhiteSpace(this._value)
+                        : {valueType}.Equals(this._value, other.Value.Value, StringComparison.Ordinal);
+                }}
+
+                /// <inheritdoc />
+                public bool Equals({className} other)
+                {{
+                    if (!other.IsInitialized())
+                    {{
+                        return !IsInitialized();
+                    }}
+
+                    if (other.IsInitialized() != IsInitialized())
+                    {{
+                        return false;
+                    }}
+            
+                    return {valueType}.IsNullOrWhiteSpace(other.Value)
+                        ? {valueType}.IsNullOrWhiteSpace(this._value)
+                        : {valueType}.Equals(this._value, other.Value, StringComparison.Ordinal);
+                }}
+            
+                /// <inheritdoc />
+                public bool Equals({valueType}? other)
+                {{
+                    return {valueType}.IsNullOrWhiteSpace(other)
+                        ? {valueType}.IsNullOrWhiteSpace(this._value)
+                        : {valueType}.Equals(this._value, other, StringComparison.Ordinal);
+                }}
+            
+                public bool Equals({className}? other, IEqualityComparer<{className}> comparer)
+                {{
+                    if (other == null) return false;
+                    return comparer.Equals(this, other.Value);
+                }}
+            
+                public bool Equals({valueType}? primitive, StringComparer comparer)
+                {{
+                    return comparer.Equals(this.Value, primitive);
+                }}
+            
+                /// <inheritdoc />
+                public override int GetHashCode() {{
+                    if (!IsInitialized()) return 0;
+                    return EqualityComparer<{valueType}>.Default.GetHashCode(this._value);
+                }}"
+                : $@"
+                /// <inheritdoc />
+                public bool Equals({className}? other)
+                {{
+                    if (other == null) return false;
+
+                    if (!other.Value.IsInitialized())
+                    {{
+                        return !IsInitialized();
+                    }}
+
+                    if (other.Value.IsInitialized() != IsInitialized())
+                    {{
+                        return false;
+                    }}
+            
+                    return EqualityComparer<{valueType}>.Default.Equals(this._value, other.Value.Value);
+                }}
+
+                /// <inheritdoc />
+                public bool Equals({className} other)
+                {{
+                    if (!other.IsInitialized())
+                    {{
+                        return !IsInitialized();
+                    }}
+
+                    if (other.IsInitialized() != IsInitialized())
+                    {{
+                        return false;
+                    }}
+            
+                    return EqualityComparer<{valueType}>.Default.Equals(this._value, other.Value);
+                }}
+            
+                /// <inheritdoc />
+                public bool Equals({valueType} other)
+                {{
+                    return EqualityComparer<{valueType}>.Default.Equals(this._value, other);
+                }}
+            
+                public bool Equals({className}? other, IEqualityComparer<{className}> comparer)
+                {{
+                    if (other == null) return false;
+                    return comparer.Equals(this, other.Value);
+                }}
+            
+                /// <inheritdoc />
+                public override int GetHashCode() {{
+                    if (!IsInitialized()) return 0;
+                    return EqualityComparer<{valueType}>.Default.GetHashCode(this._value);
+                }}"
+            ;
+
+var creation =
+            Type.GetType(valueType) == typeof(string)
+                ? $@"
+                private {className}({valueType} value) {{ 
+                    _value = value ?? {valueType}.Empty;
+                }}
+
+                public static {className} From({valueType}? value) {{
+                    if (string.IsNullOrWhiteSpace(value)) {{
+                        return Empty;
+                    }}
+
+                    return new {className}(value);
+                }}
+
+                public static bool TryFrom({valueType}? value, out {className} result) {{
+                    result = string.IsNullOrWhiteSpace(value) ? Empty : new {className}(value);
+                    return result.IsInitialized();
+                }}
+"
+                : $@"
+                private {className}({valueType} value) {{ 
+                    _value = value;
+                }}
+
+                public static {className} From({valueType} value) {{
+                    if (value == default) {{
+                        return Empty;
+                    }}
+
+                    return new {className}(value);
+                }}
+
+                public static bool TryFrom({valueType} value, out {className} result) {{
+                    result = value == default ? Empty : new {className}(value);
+                    return result.IsInitialized();
+                }}
+";
+
+        var comparison =
+            Type.GetType(valueType) == typeof(string)
+                ? $@"
+                public int CompareTo({className} other) => this.Value.CompareTo(other.Value);
+
+                public int CompareTo({valueType}? other) => this.Value.CompareTo(other);
+            
+                public int CompareTo(object? other)
+                {{
+                    if (other == null)
+                        return 1;
+                    if (other is {className} other1)
+                        return this.CompareTo(other1);
+                    if (other is {valueType} v)
+                        return this.CompareTo(v);
+                    throw new System.ArgumentException(
+                        ""Cannot compare to object as it is not of type {className}"",
+                        nameof(other)
+                    );
+                }}
+"
+                : $@"
+                public int CompareTo({className} other) => this.Value.CompareTo(other.Value);
+
+                public int CompareTo({valueType} other) => this.Value.CompareTo(other);
+            
+                public int CompareTo(object? other)
+                {{
+                    if (other == null)
+                        return 1;
+                    if (other is {className} other1)
+                        return this.CompareTo(other1);
+                    if (other is {valueType} v)
+                        return this.CompareTo(v);
+                    throw new System.ArgumentException(
+                        ""Cannot compare to object as it is not of type {className}"",
+                        nameof(other)
+                    );
+                }}
+";
+
+        var conversion =
+            $@"
+                /// <summary>
+                ///     An implicit conversion from <see cref=""{className}"" /> to <see cref=""{valueType}"" />.
+                /// </summary>
+                /// <param name=""id"">The value to convert.</param>
+                /// <returns>The {valueType} representation of the value object.</returns>
+                public static implicit operator {valueType}({className} id)
+                {{
+                    return id.Value;
+                }}
+            
+                /// <summary>
+                ///     An explicit conversion from <see cref=""{valueType}"" /> to <see cref=""{className}"" />.
+                /// </summary>
+                /// <param name=""value"">The value to convert.</param>
+                /// <returns>The <see cref=""{className}"" /> instance created from the input value.</returns>
+                public static explicit operator {className}({valueType} value)
+                {{
+                    return {className}.From(value);
+                }}";
+        
         var generatedClass =
             $@"
+        #nullable enable
+
         namespace {namespaceName} {{
-            public readonly partial record struct {className} {{
+            [System.Diagnostics.DebuggerDisplay(""{className} {{Value}}"")]
+            public readonly partial record struct {className} : IEquatable<{className}>,
+                                                                IEquatable<{valueType}>,
+                                                                IComparable<{className}>,
+                                                                IComparable {{
                 private readonly {valueType} _value;
 
                 public {valueType} Value => _value;
 
-                public static {className} From({valueType} value) => new {className}(value);
-
-                public static bool TryFrom({valueType} value, out {className} result) {{
-                    // ToDo: Incorrect!
-                    result = new {className}(value);
-                    return result.IsInitialized();
-                }}
-
-                private {className}({valueType} value) {{ _value = value; }}
+                {creation}
 
                 public static {className} Empty => new {className}({defaultValue});
 
                 public bool IsInitialized() => {initCheck};
+
+                {equality}
+
+                {comparison}
+
+                {conversion}
+
+                /// <inheritdoc />
+                public override string ToString()
+                {{
+                    return Value.ToString();
+                }}
             }}
         }}
         ";
@@ -217,14 +452,15 @@ public class ValueObjectGenerator : IIncrementalGenerator
         IncrementalGeneratorInitializationContext context
     )
     {
-        var namespaceName = context.AnalyzerConfigOptionsProvider.Select((p, _) =>
-            p.GlobalOptions.TryGetValue("build_property.RootNamespace", out var ns)
-            && !string.IsNullOrWhiteSpace(ns)
-                ? ns
+        var namespaceName = context.AnalyzerConfigOptionsProvider.Select(
+            (p, _) =>
+                p.GlobalOptions.TryGetValue("build_property.RootNamespace", out var ns)
+                && !string.IsNullOrWhiteSpace(ns)
+                    ? ns
                 : p.GlobalOptions.TryGetValue("build_property.AssemblyName", out var asm)
-                  && !string.IsNullOrWhiteSpace(asm)
+                && !string.IsNullOrWhiteSpace(asm)
                     ? asm
-                    : typeof(ValueObjectAttribute).Namespace
+                : typeof(ValueObjectAttribute).Namespace
         );
 
         var alreadyExistsDetection = context.CompilationProvider.Select((p, _) => p);
@@ -308,9 +544,10 @@ namespace {ns} {{
         return attrs.Where(a =>
         {
             var ns = a.AttributeClass?.ContainingNamespace?.ToDisplayString();
-            var fullName = string.IsNullOrEmpty(ns) || ns == "<global namespace>"
-                ? nameof(ValueObjectAttribute)
-                : ns + "." + nameof(ValueObjectAttribute);
+            var fullName =
+                string.IsNullOrEmpty(ns) || ns == "<global namespace>"
+                    ? nameof(ValueObjectAttribute)
+                    : ns + "." + nameof(ValueObjectAttribute);
             if (fullName.EndsWith("Attribute"))
             {
                 fullName = fullName.Substring(0, fullName.Length - "Attribute".Length);
@@ -323,8 +560,8 @@ namespace {ns} {{
             }
 
             return a.AttributeClass?.EscapedFullName() == fullName
-                   || a.AttributeClass?.BaseType?.EscapedFullName() == fullName
-                   || a.AttributeClass?.BaseType?.BaseType?.EscapedFullName() == fullName;
+                || a.AttributeClass?.BaseType?.EscapedFullName() == fullName
+                || a.AttributeClass?.BaseType?.BaseType?.EscapedFullName() == fullName;
         });
     }
 }
