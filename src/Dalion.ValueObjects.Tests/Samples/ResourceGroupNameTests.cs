@@ -327,11 +327,11 @@ public class ResourceGroupNameTests
         }
         
         [Fact]
-        public void WhenEmptyString_ThrowsJsonException()
+        public void WhenEmptyString_CreatesEmpty()
         {
-            var nonsense = "\"\"";
-
-            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<ResourceGroupName>(nonsense));
+            var actual = JsonSerializer.Deserialize<ResourceGroupName>("\"\"");
+            
+            Assert.Equal(ResourceGroupName.Empty, actual);
         }
         
         [Fact]

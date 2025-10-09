@@ -205,7 +205,7 @@ public class ValueObjectGenerator : IIncrementalGenerator
                     if (!IsInitialized()) return 0;
                     return EqualityComparer<{valueTypeName}>.Default.GetHashCode(this._value);
                 }}";
-        
+
         var equalityUnderlyingType =
             valueType == typeof(string)
                 ? $@"
@@ -483,14 +483,20 @@ private class ValueObjectValidationException : Exception
 
         var interfaceDefs = interfaceDefsBuilder.ToString();
 
+        var jsonConverter = JsonConverterTemplate
+            .Replace("{{className}}", className)
+            .Replace("{{valueTypeName}}", valueTypeName);
+
         var generatedClass =
             $@"
         #nullable enable
 
         namespace {namespaceName} {{
             [System.Diagnostics.DebuggerDisplay(""{className} {{Value}}"")]
+            [System.Text.Json.Serialization.JsonConverter(typeof({className}SystemTextJsonConverter))]
             public readonly partial record struct {className} {interfaceDefs} {{
                 private readonly {valueTypeName} _value;
+                private static readonly Type UnderlyingType = typeof({valueTypeName});
 
                 public {valueTypeName} Value => _value;
 
@@ -515,6 +521,8 @@ private class ValueObjectValidationException : Exception
                 {toStringOverrides}
 
                 {validationClasses}
+
+                {jsonConverter}
             }}
         }}
         ";
@@ -648,4 +656,187 @@ namespace {ns} {{
                 || a.AttributeClass?.BaseType?.BaseType?.EscapedFullName() == fullName;
         });
     }
+
+    private const string JsonConverterTemplate =
+        @"
+private class {{className}}SystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<{{className}}>
+{
+    public override {{className}} Read(
+        ref System.Text.Json.Utf8JsonReader reader,
+        Type typeToConvert,
+        System.Text.Json.JsonSerializerOptions options
+    )
+    {
+        var underlyingType = {{className}}.UnderlyingType;
+        object? underlyingValue;
+    
+        switch (Type.GetTypeCode(underlyingType)) {
+            case TypeCode.Boolean:
+                if (reader.TokenType != System.Text.Json.JsonTokenType.True && reader.TokenType != System.Text.Json.JsonTokenType.False)
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                underlyingValue = reader.GetBoolean();
+                break;
+            case TypeCode.Byte:
+                if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                underlyingValue = reader.GetByte();
+                break;
+            case TypeCode.Char:
+                if (reader.TokenType != System.Text.Json.JsonTokenType.String)
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                var charStr = reader.GetString();
+                if (string.IsNullOrEmpty(charStr) || charStr.Length != 1)
+                    throw new System.Text.Json.JsonException($""Cannot convert '{charStr}' to char."");
+                underlyingValue = charStr[0];
+                break;
+            case TypeCode.Decimal:
+                if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                underlyingValue = reader.GetDecimal();
+                break;
+            case TypeCode.Double:
+                if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                underlyingValue = reader.GetDouble();
+                break;
+            case TypeCode.Single:
+                if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                underlyingValue = reader.GetSingle();
+                break;
+            case TypeCode.Int16:
+                if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                underlyingValue = reader.GetInt16();
+                break;
+            case TypeCode.Int32:
+                if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                underlyingValue = reader.GetInt32();
+                break;
+            case TypeCode.Int64:
+                if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                underlyingValue = reader.GetInt64();
+                break;
+            case TypeCode.String:
+                if (reader.TokenType != System.Text.Json.JsonTokenType.String)
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                underlyingValue = reader.GetString();
+                break;
+            case TypeCode.DateTime:
+                if (reader.TokenType != System.Text.Json.JsonTokenType.String)
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                underlyingValue = reader.GetDateTime();
+                break;
+            default:
+                if (underlyingType == typeof(Guid)) {
+                    if (reader.TokenType != System.Text.Json.JsonTokenType.String)
+                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    var guidStr = reader.GetString();
+                    if (!Guid.TryParse(guidStr, out var guidValue))
+                        throw new System.Text.Json.JsonException($""Cannot convert '{guidStr}' to Guid."");
+                    underlyingValue = guidValue;
+                } else if (underlyingType == typeof(DateTimeOffset)) {
+                    if (reader.TokenType != System.Text.Json.JsonTokenType.String)
+                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    underlyingValue = reader.GetDateTimeOffset();
+                } else if (underlyingType == typeof(TimeSpan)) {
+                    if (reader.TokenType != System.Text.Json.JsonTokenType.String)
+                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    var tsStr = reader.GetString();
+                    if (!TimeSpan.TryParse(tsStr, out var tsValue))
+                        throw new System.Text.Json.JsonException($""Cannot convert '{tsStr}' to TimeSpan."");
+                    underlyingValue = tsValue;
+                } else if (underlyingType == typeof(TimeOnly)) {
+                    if (reader.TokenType != System.Text.Json.JsonTokenType.String)
+                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    var timeStr = reader.GetString();
+                    if (!TimeOnly.TryParse(timeStr, out var timeValue))
+                        throw new System.Text.Json.JsonException($""Cannot convert '{timeStr}' to TimeOnly."");
+                    underlyingValue = timeValue;
+                } else if (underlyingType == typeof(Uri)) {
+                    if (reader.TokenType != System.Text.Json.JsonTokenType.String)
+                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    var uriStr = reader.GetString();
+                    if (!Uri.TryCreate(uriStr, UriKind.RelativeOrAbsolute, out var uriValue))
+                        throw new System.Text.Json.JsonException($""Cannot convert '{uriStr}' to Uri."");
+                    underlyingValue = uriValue;
+                } else {
+                    throw new System.Text.Json.JsonException($""Unsupported underlying type for {{className}}."");
+                }
+                break;
+        }
+    
+        try {
+            return {{className}}.From(({{valueTypeName}})underlyingValue!);
+        } catch (System.Exception e) {
+            throw new System.Text.Json.JsonException(""Could not create an initialized instance of {{className}}."", e);
+        }
+    }
+    
+    public override void Write(
+        System.Text.Json.Utf8JsonWriter writer,
+        {{className}} value,
+        System.Text.Json.JsonSerializerOptions options
+    )
+    {
+        var underlyingType = {{className}}.UnderlyingType;
+        object underlyingValue = value.IsInitialized()
+            ? value.Value
+            : {{className}}.Empty.Value;
+    
+        switch (Type.GetTypeCode(underlyingType)) {
+            case TypeCode.Boolean:
+                writer.WriteBooleanValue((bool)underlyingValue);
+                break;
+            case TypeCode.Byte:
+                writer.WriteNumberValue((byte)underlyingValue);
+                break;
+            case TypeCode.Char:
+                writer.WriteStringValue(((char)underlyingValue).ToString());
+                break;
+            case TypeCode.Decimal:
+                writer.WriteNumberValue((decimal)underlyingValue);
+                break;
+            case TypeCode.Double:
+                writer.WriteNumberValue((double)underlyingValue);
+                break;
+            case TypeCode.Single:
+                writer.WriteNumberValue((float)underlyingValue);
+                break;
+            case TypeCode.Int16:
+                writer.WriteNumberValue((short)underlyingValue);
+                break;
+            case TypeCode.Int32:
+                writer.WriteNumberValue((int)underlyingValue);
+                break;
+            case TypeCode.Int64:
+                writer.WriteNumberValue((long)underlyingValue);
+                break;
+            case TypeCode.String:
+                writer.WriteStringValue((string)underlyingValue);
+                break;
+            case TypeCode.DateTime:
+                writer.WriteStringValue(((DateTime)underlyingValue));
+                break;
+            default:
+                if (underlyingType == typeof(Guid)) {
+                    writer.WriteStringValue(((Guid)underlyingValue));
+                } else if (underlyingType == typeof(DateTimeOffset)) {
+                    writer.WriteStringValue(((DateTimeOffset)underlyingValue));
+                } else if (underlyingType == typeof(TimeSpan)) {
+                    writer.WriteStringValue(((TimeSpan)underlyingValue).ToString());
+                } else if (underlyingType == typeof(TimeOnly)) {
+                    writer.WriteStringValue(((TimeOnly)underlyingValue).ToString());
+                } else if (underlyingType == typeof(Uri)) {
+                    writer.WriteStringValue(((Uri)underlyingValue).ToString());
+                } else {
+                    throw new System.Text.Json.JsonException($""Unsupported underlying type for {{className}}."");
+                }
+                break;
+        }
+    }
+}
+";
 }

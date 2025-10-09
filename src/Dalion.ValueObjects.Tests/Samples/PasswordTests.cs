@@ -255,11 +255,11 @@ public class PasswordTests
         }
 
         [Fact]
-        public void WhenEmptyString_ThrowsJsonException()
+        public void WhenEmptyString_CreatesEmpty()
         {
-            var nonsense = "\"\"";
-
-            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Password>(nonsense));
+            var actual = JsonSerializer.Deserialize<Password>("\"\"");
+            
+            Assert.Equal(Password.Empty, actual);
         }
 
         [Fact]
