@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Unicode;
+using System.Text.Json.Serialization;
 using Xunit;
 
 namespace Dalion.ValueObjects.Samples;
@@ -302,7 +302,8 @@ public partial class LegacyPhoneNumberTests
             JsonOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
             };
         }
 
@@ -389,7 +390,7 @@ public partial class LegacyPhoneNumberTests
 
             var serialized = JsonSerializer.Serialize(container, JsonOptions);
 
-            Assert.Equal("{\"id\":\"one\",\"data\":null}", serialized);
+            Assert.Equal("{\"id\":\"one\"}", serialized);
         }
 
         [Fact]
@@ -399,7 +400,7 @@ public partial class LegacyPhoneNumberTests
 
             var serialized = JsonSerializer.Serialize(container, JsonOptions);
 
-            Assert.Equal("{\"id\":\"one\",\"data\":null}", serialized);
+            Assert.Equal("{\"id\":\"one\"}", serialized);
         }
 
         [Fact]
