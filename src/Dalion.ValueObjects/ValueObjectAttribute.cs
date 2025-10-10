@@ -11,15 +11,15 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
     /// </summary>
     /// <param name="comparison">
     ///     Species which comparison code is generated—defaults to
-    ///     <see cref="ComparisonGeneration.UseUnderlying" /> which hoists any IComparable implementations from the primitive.
+    ///     <see cref="ComparisonGeneration.UseUnderlying" /> which hoists any IComparable implementations from the underlying type.
     /// </param>
-    /// <param name="toPrimitiveCasting">
-    ///     Controls how cast operators are generated for casting from the Value Object to the primitive.
+    /// <param name="toUnderlyingTypeCasting">
+    ///     Controls how cast operators are generated for casting from the Value Object to the underlying type.
     ///     Options are implicit or explicit or none.  Explicit is preferred over implicit if you really need them, but isn't
     ///     recommended.
     /// </param>
-    /// <param name="fromPrimitiveCasting">
-    ///     Controls how cast operators are generated for casting from the primitive to the Value Object.
+    /// <param name="fromUnderlyingTypeCasting">
+    ///     Controls how cast operators are generated for casting from the underlying type to the Value Object.
     ///     Options are implicit or explicit or none.  Explicit is preferred over implicit if you really need them, but isn't
     ///     recommended.
     /// </param>
@@ -27,10 +27,10 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
     ///     When using a <see cref="string" /> as a backing value, controls whether comparisons are case sensitive or not.
     ///     Defaults to <see cref="StringCaseSensitivity.CaseSensitive" />.
     /// </param>
-    /// <param name="primitiveEqualityGeneration">
-    ///     Specifies whether to generate primitive comparison operators, allowing this type to be compared for equality to the
-    ///     primitive.
-    ///     Defaults to <see cref="PrimitiveEqualityGeneration.GenerateOperatorsAndMethods" />
+    /// <param name="underlyingTypeEqualityGeneration">
+    ///     Specifies whether to generate underlying type comparison operators, allowing this type to be compared for equality to the
+    ///     underlying type.
+    ///     Defaults to <see cref="UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods" />
     /// </param>
     /// <param name="emptyValueName">
     ///     The name of the static property representing an empty value object, if applicable.
@@ -38,20 +38,20 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
     /// </param>
     public ValueObjectAttribute(
         ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
-        CastOperator toPrimitiveCasting = CastOperator.None,
-        CastOperator fromPrimitiveCasting = CastOperator.None,
+        CastOperator toUnderlyingTypeCasting = CastOperator.None,
+        CastOperator fromUnderlyingTypeCasting = CastOperator.None,
         StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-        PrimitiveEqualityGeneration primitiveEqualityGeneration =
-            PrimitiveEqualityGeneration.GenerateOperatorsAndMethods,
+        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration =
+            UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods,
         string emptyValueName = "Empty"
     )
         : base(
             typeof(T),
             comparison,
-            toPrimitiveCasting,
-            fromPrimitiveCasting,
+            toUnderlyingTypeCasting,
+            fromUnderlyingTypeCasting,
             stringCaseSensitivity,
-            primitiveEqualityGeneration,
+            underlyingTypeEqualityGeneration,
             emptyValueName
         ) { }
 }
@@ -66,27 +66,27 @@ public class ValueObjectAttribute : Attribute
     /// <summary>
     ///     Configures aspects of this individual value object.
     /// </summary>
-    /// <param name="underlyingType">The type of the primitive that is being wrapped—defaults to int.</param>
+    /// <param name="underlyingType">The type of the underlying value that is being wrapped.</param>
     /// <param name="comparison">
     ///     Species which comparison code is generated—defaults to
-    ///     <see cref="ComparisonGeneration.UseUnderlying" /> which hoists any IComparable implementations from the primitive.
+    ///     <see cref="ComparisonGeneration.UseUnderlying" /> which hoists any IComparable implementations from the underlying type.
     /// </param>
-    /// <param name="toPrimitiveCasting">
-    ///     Specifies the type of casting from wrapper to primitive - defaults to
+    /// <param name="toUnderlyingTypeCasting">
+    ///     Specifies the type of casting from wrapper to the underlying type - defaults to
     ///     <see cref="CastOperator.Explicit" />.
     /// </param>
-    /// <param name="fromPrimitiveCasting">
-    ///     Specifies the type of casting from primitive to wrapper - default to
+    /// <param name="fromUnderlyingTypeCasting">
+    ///     Specifies the type of casting from the underlying type to wrapper - default to
     ///     <see cref="CastOperator.Explicit" />.
     /// </param>
     /// <param name="stringCaseSensitivity">
     ///     When using a <see cref="string" /> as a backing value, controls whether comparisons are case-sensitive or not.
     ///     Defaults to <see cref="StringCaseSensitivity.CaseSensitive" />.
     /// </param>
-    /// <param name="primitiveEqualityGeneration">
-    ///     Specifies whether to generate primitive comparison operators, allowing this type to be compared for equality to the
-    ///     primitive.
-    ///     Defaults to <see cref="PrimitiveEqualityGeneration.GenerateOperatorsAndMethods" />
+    /// <param name="underlyingTypeEqualityGeneration">
+    ///     Specifies whether to generate underlying value comparison operators, allowing this type to be compared for equality to the
+    ///     underlying type.
+    ///     Defaults to <see cref="UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods" />
     /// </param>
     /// <param name="emptyValueName">
     ///     The name of the static property representing an empty value object, if applicable.
@@ -95,11 +95,11 @@ public class ValueObjectAttribute : Attribute
     public ValueObjectAttribute(
         Type? underlyingType = null!,
         ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
-        CastOperator toPrimitiveCasting = CastOperator.None,
-        CastOperator fromPrimitiveCasting = CastOperator.None,
+        CastOperator toUnderlyingTypeCasting = CastOperator.None,
+        CastOperator fromUnderlyingTypeCasting = CastOperator.None,
         StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-        PrimitiveEqualityGeneration primitiveEqualityGeneration =
-            PrimitiveEqualityGeneration.GenerateOperatorsAndMethods,
+        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration =
+            UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods,
         string emptyValueName = "Empty"
     ) { }
 }

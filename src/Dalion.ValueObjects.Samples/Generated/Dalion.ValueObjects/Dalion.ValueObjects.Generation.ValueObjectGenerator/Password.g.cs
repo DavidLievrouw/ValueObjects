@@ -42,14 +42,25 @@
                 }
 
                 public static Password From(System.String? value) {
-                    if (string.IsNullOrWhiteSpace(value)) {
-                        return Empty;
+                    if (value is null) {
+                        
+                  var validationResult = Validate(value);
+                  if (!validationResult.IsSuccess) {
+                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
+                  }
+                        var instance = new Password();
+                        return instance;
                     }
 
                     return new Password(value);
                 }
 
                 public static bool TryFrom(System.String? value, out Password result) {
+                    if (value is null) {
+                        result = new Password();
+                        return result.IsInitialized() && Validate(result._value).IsSuccess;
+                    }
+
                     result = string.IsNullOrWhiteSpace(value) ? Empty : new Password(value, validation: false);
                     return result.IsInitialized() && Validate(result._value).IsSuccess;
                 }
@@ -119,9 +130,9 @@
                         : System.String.Equals(this._value, other, System.StringComparison.Ordinal);
                 }
             
-                public bool Equals(System.String? primitive, StringComparer comparer)
+                public bool Equals(System.String? underlyingValue, StringComparer comparer)
                 {
-                    return comparer.Equals(this.Value, primitive);
+                    return comparer.Equals(this.Value, underlyingValue);
                 }
 
                 
@@ -319,7 +330,11 @@ private class PasswordSystemTextJsonConverter : System.Text.Json.Serialization.J
         }
     
         try {
-            return Password.From((System.String)underlyingValue!);
+            var typedUnderlyingValue = (System.String)underlyingValue!;
+            if (typedUnderlyingValue == default || underlyingValue is System.String suv && suv == System.String.Empty) {
+                return Password.Empty;
+            }
+            return Password.From(typedUnderlyingValue);
         } catch (System.Exception e) {
             throw new System.Text.Json.JsonException("Could not create an initialized instance of Password.", e);
         }

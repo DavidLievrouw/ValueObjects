@@ -56,10 +56,10 @@ internal class GenerationTarget
         };
 
         var comparison = ComparisonGeneration.UseUnderlying;
-        var toPrimitiveCasting = CastOperator.None;
-        var fromPrimitiveCasting = CastOperator.None;
+        var toUnderlyingTypeCasting = CastOperator.None;
+        var fromUnderlyingTypeCasting = CastOperator.None;
         var stringCaseSensitivity = StringCaseSensitivity.CaseSensitive;
-        var primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods;
+        var underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods;
         var emptyValueName = "Empty";
         foreach (var arg in argumentExpressions.Value)
         {
@@ -72,15 +72,15 @@ internal class GenerationTarget
                     comparison = (ComparisonGeneration)
                         Enum.Parse(typeof(ComparisonGeneration), value);
                     break;
-                case "toPrimitiveCasting":
-                    toPrimitiveCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
+                case "toUnderlyingTypeCasting":
+                    toUnderlyingTypeCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
                     break;
-                case "fromPrimitiveCasting":
-                    fromPrimitiveCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
+                case "fromUnderlyingTypeCasting":
+                    fromUnderlyingTypeCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
                     break;
-                case "primitiveEqualityGeneration":
-                    primitiveEqualityGeneration = (PrimitiveEqualityGeneration)
-                        Enum.Parse(typeof(PrimitiveEqualityGeneration), value);
+                case "underlyingTypeEqualityGeneration":
+                    underlyingTypeEqualityGeneration = (UnderlyingTypeEqualityGeneration)
+                        Enum.Parse(typeof(UnderlyingTypeEqualityGeneration), value);
                     break;
                 case "stringCaseSensitivity":
                     stringCaseSensitivity = (StringCaseSensitivity)
@@ -95,10 +95,10 @@ internal class GenerationTarget
         return new AttributeConfiguration(
             underlyingType,
             comparison,
-            toPrimitiveCasting,
-            fromPrimitiveCasting,
+            toUnderlyingTypeCasting,
+            fromUnderlyingTypeCasting,
             stringCaseSensitivity,
-            primitiveEqualityGeneration,
+            underlyingTypeEqualityGeneration,
             emptyValueName
         );
     }

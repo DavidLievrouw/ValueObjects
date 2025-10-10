@@ -3,10 +3,10 @@ using System;
 namespace Dalion.ValueObjects;
 
 /// <summary>
-///     Defines if equality operators to the underlying primitives are generated.
+///     Defines if equality operators to the underlying values are generated.
 /// </summary>
 [Flags]
-public enum PrimitiveEqualityGeneration
+public enum UnderlyingTypeEqualityGeneration
 {
     /// <summary>
     ///     Do not generate.
@@ -14,12 +14,12 @@ public enum PrimitiveEqualityGeneration
     Omit = 0,
 
     /// <summary>
-    ///     Generate equals operators for primitives.
+    ///     Generate equals operators for the underlying type.
     /// </summary>
     GenerateOperators = 1 << 0,
 
     /// <summary>
-    ///     Generate equals methods for primitives.
+    ///     Generate equals methods for the underlying type.
     /// </summary>
     GenerateMethods = 1 << 1,
 

@@ -4,9 +4,9 @@
 ///     An identifier of a tenant.
 /// </summary>
 [ValueObject<Guid>(
-    fromPrimitiveCasting: CastOperator.Explicit,
-    toPrimitiveCasting: CastOperator.None,
+    fromUnderlyingTypeCasting: CastOperator.Explicit,
+    toUnderlyingTypeCasting: CastOperator.None,
     comparison: ComparisonGeneration.Omit,
-    primitiveEqualityGeneration: PrimitiveEqualityGeneration.GenerateMethods
+    underlyingTypeEqualityGeneration: UnderlyingTypeEqualityGeneration.GenerateMethods
 )]
 public readonly partial record struct TenantId;

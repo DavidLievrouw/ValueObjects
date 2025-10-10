@@ -339,7 +339,11 @@ private class CelsiusSystemTextJsonConverter : System.Text.Json.Serialization.Js
         }
     
         try {
-            return Celsius.From((System.Decimal)underlyingValue!);
+            var typedUnderlyingValue = (System.Decimal)underlyingValue!;
+            if (typedUnderlyingValue == default || underlyingValue is System.String suv && suv == System.String.Empty) {
+                return Celsius.Zero;
+            }
+            return Celsius.From(typedUnderlyingValue);
         } catch (System.Exception e) {
             throw new System.Text.Json.JsonException("Could not create an initialized instance of Celsius.", e);
         }

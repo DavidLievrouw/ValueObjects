@@ -25,24 +25,25 @@ public partial class PasswordTests
             Assert.Equal("test-Pwd2", actual.Value);
         }
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("   ")]
-        [InlineData(" \t  ")]
-        public void CanCreateEmpty(string? invalid)
+        [Fact]
+        public void CannotCreateUninitializedWithNullValue()
         {
-            var empty = Password.Empty;
+            Action act = () => Password.From(null);
+            
+            Assert.Throws<InvalidOperationException>(act);
+        }
 
-            var actual = Password.From(invalid);
+        [Fact]
+        public void CannotCreateEmpty()
+        {
+            Action act = () => Password.From(string.Empty);
 
-            Assert.True(actual.Equals(empty));
-            Assert.True(actual == empty);
-            Assert.False(actual != empty);
-            Assert.Equal(actual.GetHashCode(), empty.GetHashCode());
+            Assert.Throws<InvalidOperationException>(act);
         }
 
         [Theory]
+        [InlineData("   ")]
+        [InlineData(" \t  ")]
         [InlineData("shoRt1!")] // Too short
         [InlineData("alllowercase1!")] // No uppercase
         [InlineData("ALLUPPERCASE1!")] // No lowercase
@@ -69,19 +70,26 @@ public partial class PasswordTests
             Assert.Equal("test-Pwd2", actual.Value);
         }
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("   ")]
-        [InlineData(" \t  ")]
-        public void CannotCreateNullEmptyOrWhitespace(string? invalid)
+        [Fact]
+        public void CanCreateUninitializedWithNullValue()
         {
-            var success = Password.TryFrom(invalid, out _);
+            var success = Password.TryFrom(null, out var actual);
+            
+            Assert.False(success);
+            Assert.False(actual.IsInitialized());
+        }
+
+        [Fact]
+        public void CannotCreateEmpty()
+        {
+            var success = Password.TryFrom(string.Empty, out var actual);
 
             Assert.False(success);
         }
 
         [Theory]
+        [InlineData("   ")]
+        [InlineData(" \t  ")]
         [InlineData("shoRt1!")] // Too short
         [InlineData("alllowercase1!")] // No uppercase
         [InlineData("ALLUPPERCASE1!")] // No lowercase
@@ -107,6 +115,14 @@ public partial class PasswordTests
             var actual = Password.From(expected);
 
             Assert.Equal(expected, actual.Value);
+        }
+
+        [Fact]
+        public void EmptyReturnsExpectedUnderlyingValue()
+        {
+            var actual = Password.Empty;
+
+            Assert.Equal(string.Empty, actual.Value);
         }
     }
 
@@ -159,21 +175,20 @@ public partial class PasswordTests
         }
 
         [Fact]
-        public void WhenValueIsDefault_IsEqualToEmpty()
+        public void WhenValueIsDefault_IsNotEqualToEmpty()
         {
             Password first = default;
-            Password second = Password.Empty;
+            var second = Password.Empty;
 
-            Assert.True(first.Equals(second));
-            Assert.True(first == second);
-            Assert.False(first != second);
-            Assert.Equal(first.GetHashCode(), second.GetHashCode());
+            Assert.False(first.Equals(second));
+            Assert.False(first == second);
+            Assert.True(first != second);
         }
 
         [Fact]
         public void WhenValueIsNotDefault_IsNotEqualToDefault()
         {
-            Password first = Password.From("test-Pwd2");
+            var first = Password.From("test-Pwd2");
             Password second = default;
 
             Assert.False(first.Equals(second));
@@ -220,11 +235,11 @@ public partial class PasswordTests
         }
 
         [Fact]
-        public void WhenValueIsEmpty_IsFalse()
+        public void WhenValueIsEmpty_IsTrue()
         {
-            Password sut = Password.Empty;
+            var sut = Password.Empty;
 
-            Assert.False(sut.IsInitialized());
+            Assert.True(sut.IsInitialized());
         }
     }
 
@@ -241,10 +256,10 @@ public partial class PasswordTests
         }
     }
 
-    public class ConversionOperatorsForPrimitive : PasswordTests
+    public class ConversionOperatorsForUnderlyingType : PasswordTests
     {
         [Fact]
-        public void IsExplicitlyConvertibleToPrimitive()
+        public void IsExplicitlyConvertibleToUnderlyingType()
         {
             var value = "test-Pwd2";
             var obj = Password.From(value);
@@ -315,15 +330,16 @@ public partial class PasswordTests
 
             var serialized = JsonSerializer.Serialize(original);
 
-            Assert.Equal("null", serialized);
+            Assert.Equal("\"\"", serialized);
 
             var deserialized = JsonSerializer.Deserialize<Password>(serialized);
 
             Assert.Equal(original, deserialized);
+            Assert.True(deserialized.IsInitialized());
         }
 
         [Fact]
-        public void SerializesUninitializedToEmpty()
+        public void SerializesUninitializedToNull()
         {
             var container = new Container { Id = "one", Data = default };
 
@@ -339,24 +355,26 @@ public partial class PasswordTests
 
             var serialized = JsonSerializer.Serialize(container);
 
-            Assert.Equal("{\"Id\":\"one\",\"Data\":null}", serialized);
+            Assert.Equal("{\"Id\":\"one\",\"Data\":\"\"}", serialized);
         }
 
         [Fact]
         public void DeserializesEmptyToEmpty()
         {
-            var serialized = "{\"Id\":\"one\",\"Data\":null}";
+            var serialized = "{\"Id\":\"one\",\"Data\":\"\"}";
 
             var deserialized = JsonSerializer.Deserialize<Container>(serialized);
 
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
             Assert.Equal(Password.Empty, deserialized.Data);
-            Assert.Equal(default, deserialized.Data);
+            Assert.NotEqual(default, deserialized.Data);
+            
+            Assert.True(deserialized.Data.IsInitialized());
         }
 
         [Fact]
-        public void DeserializesMissingToEmpty()
+        public void DeserializesMissingToUninitialized()
         {
             var serialized = "{\"Id\":\"one\"}";
 
@@ -364,8 +382,25 @@ public partial class PasswordTests
 
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
-            Assert.Equal(Password.Empty, deserialized.Data);
+            Assert.NotEqual(Password.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
+            
+            Assert.False(deserialized.Data.IsInitialized());
+        }
+
+        [Fact]
+        public void DeserializesNullToUninitialized()
+        {
+            var serialized = "{\"Id\":\"one\",\"Data\":null}";
+
+            var deserialized = JsonSerializer.Deserialize<Container>(serialized);
+
+            Assert.NotNull(deserialized);
+            Assert.Equal("one", deserialized.Id);
+            Assert.NotEqual(Password.Empty, deserialized.Data);
+            Assert.Equal(default, deserialized.Data);
+            
+            Assert.False(deserialized.Data.IsInitialized());
         }
 
         internal class Container
@@ -378,7 +413,7 @@ public partial class PasswordTests
     public class TypeConversion : PasswordTests
     {
         [Fact]
-        public void CanConvertFromPrimitive()
+        public void CanConvertFromUnderlyingType()
         {
             var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Password));
             Assert.True(converter.CanConvertFrom(typeof(string)));
@@ -400,7 +435,7 @@ public partial class PasswordTests
         }
 
         [Fact]
-        public void CanConvertToPrimitive()
+        public void CanConvertToUnderlyingType()
         {
             var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Password));
             Assert.True(converter.CanConvertTo(typeof(string)));
@@ -425,11 +460,11 @@ public partial class PasswordTests
     }
 
     [ValueObject<string>(
-        fromPrimitiveCasting: CastOperator.None,
-        toPrimitiveCasting: CastOperator.Explicit,
+        fromUnderlyingTypeCasting: CastOperator.None,
+        toUnderlyingTypeCasting: CastOperator.Explicit,
         comparison: ComparisonGeneration.Omit,
         stringCaseSensitivity: StringCaseSensitivity.CaseSensitive,
-        primitiveEqualityGeneration: PrimitiveEqualityGeneration.Omit
+        underlyingTypeEqualityGeneration: UnderlyingTypeEqualityGeneration.Omit
     )]
     public readonly partial record struct OtherPassword;
 }

@@ -6,17 +6,17 @@ namespace Dalion.ValueObjects.Samples;
 ///     A secure password.
 /// </summary>
 [ValueObject<string>(
-    fromPrimitiveCasting: CastOperator.None,
-    toPrimitiveCasting: CastOperator.Explicit,
+    fromUnderlyingTypeCasting: CastOperator.None,
+    toUnderlyingTypeCasting: CastOperator.Explicit,
     comparison: ComparisonGeneration.Omit,
     stringCaseSensitivity: StringCaseSensitivity.CaseSensitive,
-    primitiveEqualityGeneration: PrimitiveEqualityGeneration.Omit
+    underlyingTypeEqualityGeneration: UnderlyingTypeEqualityGeneration.Omit
 )]
 public readonly partial record struct Password
 {
     private const string PasswordPattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$";
 
-    private static Validation Validate(string input)
+    private static Validation Validate(string? input)
     {
         if (string.IsNullOrWhiteSpace(input))
         {

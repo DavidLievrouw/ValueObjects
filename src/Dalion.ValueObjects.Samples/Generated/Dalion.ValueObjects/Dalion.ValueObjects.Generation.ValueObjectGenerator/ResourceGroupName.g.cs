@@ -42,14 +42,25 @@
                 }
 
                 public static ResourceGroupName From(System.String? value) {
-                    if (string.IsNullOrWhiteSpace(value)) {
-                        return Empty;
+                    if (value is null) {
+                        
+                  var validationResult = Validate(value);
+                  if (!validationResult.IsSuccess) {
+                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
+                  }
+                        var instance = new ResourceGroupName();
+                        return instance;
                     }
 
                     return new ResourceGroupName(value);
                 }
 
                 public static bool TryFrom(System.String? value, out ResourceGroupName result) {
+                    if (value is null) {
+                        result = new ResourceGroupName();
+                        return result.IsInitialized() && Validate(result._value).IsSuccess;
+                    }
+
                     result = string.IsNullOrWhiteSpace(value) ? Empty : new ResourceGroupName(value, validation: false);
                     return result.IsInitialized() && Validate(result._value).IsSuccess;
                 }
@@ -119,9 +130,9 @@
                         : System.String.Equals(this._value, other, System.StringComparison.OrdinalIgnoreCase);
                 }
             
-                public bool Equals(System.String? primitive, StringComparer comparer)
+                public bool Equals(System.String? underlyingValue, StringComparer comparer)
                 {
-                    return comparer.Equals(this.Value, primitive);
+                    return comparer.Equals(this.Value, underlyingValue);
                 }
 
                 
@@ -354,7 +365,11 @@ private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serial
         }
     
         try {
-            return ResourceGroupName.From((System.String)underlyingValue!);
+            var typedUnderlyingValue = (System.String)underlyingValue!;
+            if (typedUnderlyingValue == default || underlyingValue is System.String suv && suv == System.String.Empty) {
+                return ResourceGroupName.Empty;
+            }
+            return ResourceGroupName.From(typedUnderlyingValue);
         } catch (System.Exception e) {
             throw new System.Text.Json.JsonException("Could not create an initialized instance of ResourceGroupName.", e);
         }

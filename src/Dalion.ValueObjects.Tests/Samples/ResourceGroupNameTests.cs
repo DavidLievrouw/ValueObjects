@@ -25,24 +25,25 @@ public partial class ResourceGroupNameTests
             Assert.Equal("theValue", actual.Value);
         }
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("   ")]
-        [InlineData(" \t  ")]
-        public void CanCreateEmpty(string? invalid)
+        [Fact]
+        public void CannotCreateUninitializedWithNullValue()
         {
-            var empty = ResourceGroupName.Empty;
+            Action act = () => ResourceGroupName.From(null);
+            
+            Assert.Throws<InvalidOperationException>(act);
+        }
 
-            var actual = ResourceGroupName.From(invalid);
+        [Fact]
+        public void CannotCreateEmpty()
+        {
+            Action act = () => ResourceGroupName.From(string.Empty);
 
-            Assert.True(actual.Equals(empty));
-            Assert.True(actual == empty);
-            Assert.False(actual != empty);
-            Assert.Equal(actual.GetHashCode(), empty.GetHashCode());
+            Assert.Throws<InvalidOperationException>(act);
         }
 
         [Theory]
+        [InlineData("   ")]
+        [InlineData(" \t  ")]
         [InlineData("a")] // too short
         [InlineData("ab")] // too short
         [InlineData("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl")] // too long
@@ -71,19 +72,26 @@ public partial class ResourceGroupNameTests
             Assert.Equal("theValue", actual.Value);
         }
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("   ")]
-        [InlineData(" \t  ")]
-        public void CannotCreateNullEmptyOrWhitespace(string? invalid)
+        [Fact]
+        public void CanCreateUninitializedWithNullValue()
         {
-            var success = ResourceGroupName.TryFrom(invalid, out _);
+            var success = ResourceGroupName.TryFrom(null, out var actual);
+            
+            Assert.False(success);
+            Assert.False(actual.IsInitialized());
+        }
+
+        [Fact]
+        public void CannotCreateEmpty()
+        {
+            var success = ResourceGroupName.TryFrom(string.Empty, out var actual);
 
             Assert.False(success);
         }
 
         [Theory]
+        [InlineData("   ")]
+        [InlineData(" \t  ")]
         [InlineData("a")] // too short
         [InlineData("ab")] // too short
         [InlineData("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl")] // too long
@@ -111,6 +119,14 @@ public partial class ResourceGroupNameTests
             var actual = ResourceGroupName.From(expected);
 
             Assert.Equal(expected, actual.Value);
+        }
+
+        [Fact]
+        public void EmptyReturnsExpectedUnderlyingValue()
+        {
+            var actual = ResourceGroupName.Empty;
+
+            Assert.Equal(string.Empty, actual.Value);
         }
     }
 
@@ -189,21 +205,20 @@ public partial class ResourceGroupNameTests
         }
 
         [Fact]
-        public void WhenValueIsDefault_IsEqualToEmpty()
+        public void WhenValueIsDefault_IsNotEqualToEmpty()
         {
             ResourceGroupName first = default;
-            ResourceGroupName second = ResourceGroupName.Empty;
+            var second = ResourceGroupName.Empty;
 
-            Assert.True(first.Equals(second));
-            Assert.True(first == second);
-            Assert.False(first != second);
-            Assert.Equal(first.GetHashCode(), second.GetHashCode());
+            Assert.False(first.Equals(second));
+            Assert.False(first == second);
+            Assert.True(first != second);
         }
 
         [Fact]
         public void WhenValueIsNotDefault_IsNotEqualToDefault()
         {
-            ResourceGroupName first = ResourceGroupName.From("abc123");
+            var first = ResourceGroupName.From("abc123");
             ResourceGroupName second = default;
 
             Assert.False(first.Equals(second));
@@ -280,11 +295,11 @@ public partial class ResourceGroupNameTests
         }
 
         [Fact]
-        public void WhenValueIsEmpty_IsFalse()
+        public void WhenValueIsEmpty_IsTrue()
         {
-            ResourceGroupName sut = ResourceGroupName.Empty;
+            var sut = ResourceGroupName.Empty;
 
-            Assert.False(sut.IsInitialized());
+            Assert.True(sut.IsInitialized());
         }
     }
 
@@ -301,10 +316,10 @@ public partial class ResourceGroupNameTests
         }
     }
 
-    public class ConversionOperatorsForPrimitive : ResourceGroupNameTests
+    public class ConversionOperatorsForUnderlyingType : ResourceGroupNameTests
     {
         [Fact]
-        public void IsImplicitlyConvertibleToPrimitive()
+        public void IsImplicitlyConvertibleToUnderlyingType()
         {
             var value = Guid.NewGuid().ToString();
             var obj = ResourceGroupName.From(value);
@@ -315,7 +330,7 @@ public partial class ResourceGroupNameTests
         }
         
         [Fact]
-        public void IsExplicitlyConvertibleToPrimitive()
+        public void IsExplicitlyConvertibleToUnderlyingType()
         {
             var value = Guid.NewGuid().ToString();
             var obj = ResourceGroupName.From(value);
@@ -326,7 +341,7 @@ public partial class ResourceGroupNameTests
         }
 
         [Fact]
-        public void IsExplicitlyConvertibleFromPrimitive()
+        public void IsExplicitlyConvertibleFromUnderlyingType()
         {
             var value = Guid.NewGuid().ToString();
             var str = value;
@@ -398,15 +413,16 @@ public partial class ResourceGroupNameTests
 
             var serialized = JsonSerializer.Serialize(original);
 
-            Assert.Equal("null", serialized);
+            Assert.Equal("\"\"", serialized);
 
             var deserialized = JsonSerializer.Deserialize<ResourceGroupName>(serialized);
 
             Assert.Equal(original, deserialized);
+            Assert.True(deserialized.IsInitialized());
         }
 
         [Fact]
-        public void SerializesUninitializedToEmpty()
+        public void SerializesUninitializedToNull()
         {
             var container = new Container
             {
@@ -430,24 +446,26 @@ public partial class ResourceGroupNameTests
 
             var serialized = JsonSerializer.Serialize(container);
 
-            Assert.Equal("{\"Id\":\"one\",\"Data\":null}", serialized);
+            Assert.Equal("{\"Id\":\"one\",\"Data\":\"\"}", serialized);
         }
 
         [Fact]
         public void DeserializesEmptyToEmpty()
         {
-            var serialized = "{\"Id\":\"one\",\"Data\":null}";
+            var serialized = "{\"Id\":\"one\",\"Data\":\"\"}";
 
             var deserialized = JsonSerializer.Deserialize<Container>(serialized);
 
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
             Assert.Equal(ResourceGroupName.Empty, deserialized.Data);
-            Assert.Equal(default, deserialized.Data);
+            Assert.NotEqual(default, deserialized.Data);
+            
+            Assert.True(deserialized.Data.IsInitialized());
         }
 
         [Fact]
-        public void DeserializesMissingToEmpty()
+        public void DeserializesMissingToUninitialized()
         {
             var serialized = "{\"Id\":\"one\"}";
 
@@ -455,8 +473,25 @@ public partial class ResourceGroupNameTests
 
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
-            Assert.Equal(ResourceGroupName.Empty, deserialized.Data);
+            Assert.NotEqual(ResourceGroupName.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
+            
+            Assert.False(deserialized.Data.IsInitialized());
+        }
+
+        [Fact]
+        public void DeserializesNullToUninitialized()
+        {
+            var serialized = "{\"Id\":\"one\",\"Data\":null}";
+
+            var deserialized = JsonSerializer.Deserialize<Container>(serialized);
+
+            Assert.NotNull(deserialized);
+            Assert.Equal("one", deserialized.Id);
+            Assert.NotEqual(ResourceGroupName.Empty, deserialized.Data);
+            Assert.Equal(default, deserialized.Data);
+            
+            Assert.False(deserialized.Data.IsInitialized());
         }
 
         internal class Container
@@ -469,7 +504,7 @@ public partial class ResourceGroupNameTests
     public class TypeConversion : ResourceGroupNameTests
     {
         [Fact]
-        public void CanConvertFromPrimitive()
+        public void CanConvertFromUnderlyingType()
         {
             var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(ResourceGroupName));
             Assert.True(converter.CanConvertFrom(typeof(string)));
@@ -491,7 +526,7 @@ public partial class ResourceGroupNameTests
         }
 
         [Fact]
-        public void CanConvertToPrimitive()
+        public void CanConvertToUnderlyingType()
         {
             var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(ResourceGroupName));
             Assert.True(converter.CanConvertTo(typeof(string)));
@@ -516,8 +551,8 @@ public partial class ResourceGroupNameTests
     }
 
     [ValueObject<string>(
-        fromPrimitiveCasting: CastOperator.Explicit,
-        toPrimitiveCasting: CastOperator.Explicit,
+        fromUnderlyingTypeCasting: CastOperator.Explicit,
+        toUnderlyingTypeCasting: CastOperator.Explicit,
         comparison: ComparisonGeneration.UseUnderlying,
         stringCaseSensitivity: StringCaseSensitivity.CaseInsensitive
     )]

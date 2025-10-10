@@ -1,7 +1,7 @@
 namespace Dalion.ValueObjects
 {
     /// <summary>
-    ///     Specifies whether to generate string comparers for a value object based on a string primitive type
+    ///     Specifies whether to generate string comparers for a value object based on a string primitive type.
     /// </summary>
     public enum StringCaseSensitivity
     {

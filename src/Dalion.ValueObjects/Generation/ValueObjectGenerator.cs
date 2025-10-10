@@ -187,7 +187,11 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
         }
     
         try {
-            return {{typeName}}.From(({{valueTypeName}})underlyingValue!);
+            var typedUnderlyingValue = ({{valueTypeName}})underlyingValue!;
+            if (typedUnderlyingValue == default || underlyingValue is System.String suv && suv == System.String.Empty) {
+                return {{typeName}}.{{emptyValueName}};
+            }
+            return {{typeName}}.From(typedUnderlyingValue);
         } catch (System.Exception e) {
             throw new System.Text.Json.JsonException(""Could not create an initialized instance of {{typeName}}."", e);
         }
@@ -461,9 +465,9 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         : {valueTypeName}.Equals(this._value, other, System.StringComparison.{stringComparison});
                 }}
             
-                public bool Equals({valueTypeName}? primitive, StringComparer comparer)
+                public bool Equals({valueTypeName}? underlyingValue, StringComparer comparer)
                 {{
-                    return comparer.Equals(this.Value, primitive);
+                    return comparer.Equals(this.Value, underlyingValue);
                 }}"
                 : $@"
                 /// <inheritdoc />
@@ -473,8 +477,8 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 }}";
 
         var equalityOperators =
-            (config.PrimitiveEqualityGeneration & PrimitiveEqualityGeneration.GenerateOperators)
-            == PrimitiveEqualityGeneration.GenerateOperators
+            (config.UnderlyingTypeEqualityGeneration & UnderlyingTypeEqualityGeneration.GenerateOperators)
+            == UnderlyingTypeEqualityGeneration.GenerateOperators
                 ? valueType == typeof(string)
                     ? $@"
     public static bool operator ==({typeName} left, {valueTypeName}? right) => left.Value.Equals(right);
@@ -522,14 +526,21 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 }}
 
                 public static {typeName} From({valueTypeName}? value) {{
-                    if (string.IsNullOrWhiteSpace(value)) {{
-                        return {emptyValueName};
+                    if (value is null) {{
+                        {ctorValidation}
+                        var instance = new {typeName}();
+                        return instance;
                     }}
 
                     return new {typeName}(value);
                 }}
 
                 public static bool TryFrom({valueTypeName}? value, out {typeName} result) {{
+                    if (value is null) {{
+                        result = new {typeName}();
+                        {tryFromValidation}
+                    }}
+
                     result = string.IsNullOrWhiteSpace(value) ? {emptyValueName} : new {typeName}(value, validation: false);
                     {tryFromValidation}
                 }}
@@ -607,10 +618,10 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 }}
 ";
 
-        var conversionToPrimitiveModifier =
-            config.ToPrimitiveCasting == CastOperator.Implicit ? "implicit" : "explicit";
-        var conversionToPrimitive =
-            config.ToPrimitiveCasting == CastOperator.None
+        var conversionToUnderlyingTypeModifier =
+            config.ToUnderlyingTypeCasting == CastOperator.Implicit ? "implicit" : "explicit";
+        var conversionToUnderlyingType =
+            config.ToUnderlyingTypeCasting == CastOperator.None
                 ? ""
                 : $@"
                 /// <summary>
@@ -618,15 +629,15 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 /// </summary>
                 /// <param name=""id"">The value to convert.</param>
                 /// <returns>The {valueTypeName} representation of the value object.</returns>
-                public static {conversionToPrimitiveModifier} operator {valueTypeName}({typeName} id)
+                public static {conversionToUnderlyingTypeModifier} operator {valueTypeName}({typeName} id)
                 {{
                     return id.Value;
                 }}";
 
-        var conversionFromPrimitiveModifier =
-            config.FromPrimitiveCasting == CastOperator.Implicit ? "implicit" : "explicit";
-        var conversionFromPrimitive =
-            config.FromPrimitiveCasting == CastOperator.None
+        var conversionFromUnderlyingTypeModifier =
+            config.FromUnderlyingTypeCasting == CastOperator.Implicit ? "implicit" : "explicit";
+        var conversionFromUnderlyingType =
+            config.FromUnderlyingTypeCasting == CastOperator.None
                 ? ""
                 : $@"
                 /// <summary>
@@ -634,7 +645,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 /// </summary>
                 /// <param name=""value"">The value to convert.</param>
                 /// <returns>The <see cref=""{typeName}"" /> instance created from the input value.</returns>
-                public static {conversionFromPrimitiveModifier} operator {typeName}({valueTypeName} value)
+                public static {conversionFromUnderlyingTypeModifier} operator {typeName}({valueTypeName} value)
                 {{
                     return {typeName}.From(value);
                 }}";
@@ -723,8 +734,8 @@ private class ValueObjectValidationException : Exception
         var interfaceDefsBuilder = new StringBuilder();
         interfaceDefsBuilder.AppendLine($": IEquatable<{typeName}>");
         if (
-            (config.PrimitiveEqualityGeneration & PrimitiveEqualityGeneration.GenerateMethods)
-            == PrimitiveEqualityGeneration.GenerateMethods
+            (config.UnderlyingTypeEqualityGeneration & UnderlyingTypeEqualityGeneration.GenerateMethods)
+            == UnderlyingTypeEqualityGeneration.GenerateMethods
         )
         {
             interfaceDefsBuilder.Append($", IEquatable<{valueTypeName}>");
@@ -781,9 +792,9 @@ private class ValueObjectValidationException : Exception
 
                 {comparison}
 
-                {conversionToPrimitive}
+                {conversionToUnderlyingType}
 
-                {conversionFromPrimitive}
+                {conversionFromUnderlyingType}
 
                 {toStringOverrides}
 
@@ -872,7 +883,7 @@ private class ValueObjectValidationException : Exception
 
 namespace {ns} {{
     [System.Flags]
-    public enum PrimitiveEqualityGeneration {{
+    public enum UnderlyingTypeEqualityGeneration {{
         Omit = 0,
         GenerateOperators = 1 << 0,
         GenerateMethods = 1 << 1,
@@ -899,19 +910,19 @@ namespace {ns} {{
     public class ValueObjectAttribute<T> : ValueObjectAttribute {{
         public ValueObjectAttribute(
             ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
-            CastOperator toPrimitiveCasting = CastOperator.None,
-            CastOperator fromPrimitiveCasting = CastOperator.None,
+            CastOperator toUnderlyingTypeCasting = CastOperator.None,
+            CastOperator fromUnderlyingTypeCasting = CastOperator.None,
             StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods,
+            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods,
             string emptyValueName = ""Empty""
         )
             : base(
                 typeof(T),
                 comparison,
-                toPrimitiveCasting,
-                fromPrimitiveCasting,
+                toUnderlyingTypeCasting,
+                fromUnderlyingTypeCasting,
                 stringCaseSensitivity,
-                primitiveEqualityGeneration,
+                underlyingTypeEqualityGeneration,
                 emptyValueName
             ) {{ }}
     }}
@@ -921,10 +932,10 @@ namespace {ns} {{
         public ValueObjectAttribute(
             Type underlyingType = null,
             ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
-            CastOperator toPrimitiveCasting = CastOperator.None,
-            CastOperator fromPrimitiveCasting = CastOperator.None,
+            CastOperator toUnderlyingTypeCasting = CastOperator.None,
+            CastOperator fromUnderlyingTypeCasting = CastOperator.None,
             StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods,
+            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods,
             string emptyValueName = ""Empty""
         ) {{ }}
     }}

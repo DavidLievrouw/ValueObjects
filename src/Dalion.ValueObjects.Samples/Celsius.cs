@@ -4,8 +4,8 @@
 ///     A temperature in Celsius.
 /// </summary>
 [ValueObject<decimal>(
-    fromPrimitiveCasting: CastOperator.Explicit,
-    toPrimitiveCasting: CastOperator.Explicit,
+    fromUnderlyingTypeCasting: CastOperator.Explicit,
+    toUnderlyingTypeCasting: CastOperator.Explicit,
     emptyValueName: "Zero"
 )]
 public readonly partial record struct Celsius

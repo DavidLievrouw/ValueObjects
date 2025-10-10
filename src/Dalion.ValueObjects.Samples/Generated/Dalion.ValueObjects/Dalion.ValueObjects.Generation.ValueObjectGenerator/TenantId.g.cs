@@ -300,7 +300,11 @@ private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.J
         }
     
         try {
-            return TenantId.From((System.Guid)underlyingValue!);
+            var typedUnderlyingValue = (System.Guid)underlyingValue!;
+            if (typedUnderlyingValue == default || underlyingValue is System.String suv && suv == System.String.Empty) {
+                return TenantId.Empty;
+            }
+            return TenantId.From(typedUnderlyingValue);
         } catch (System.Exception e) {
             throw new System.Text.Json.JsonException("Could not create an initialized instance of TenantId.", e);
         }

@@ -43,6 +43,8 @@ public partial class CelsiusTests
             Assert.True(actual == zero);
             Assert.False(actual != zero);
             Assert.Equal(actual.GetHashCode(), zero.GetHashCode());
+            
+            Assert.True(actual.IsInitialized());
         }
 
         [Theory]
@@ -82,6 +84,8 @@ public partial class CelsiusTests
             Assert.True(actual == zero);
             Assert.False(actual != zero);
             Assert.Equal(actual.GetHashCode(), zero.GetHashCode());
+            
+            Assert.True(actual.IsInitialized());
         }
         
         [Theory]
@@ -106,6 +110,14 @@ public partial class CelsiusTests
             var actual = Celsius.From(expected);
 
             Assert.Equal(expected, actual.Value);
+        }
+
+        [Fact]
+        public void EmptyReturnsExpectedUnderlyingValue()
+        {
+            var actual = Celsius.Zero;
+
+            Assert.Equal(0m, actual.Value);
         }
     }
     
@@ -168,7 +180,7 @@ public partial class CelsiusTests
         public void WhenValueIsDefault_IsNotEqualToZero()
         {
             Celsius first = default;
-            Celsius second = Celsius.Zero;
+            var second = Celsius.Zero;
 
             Assert.False(first.Equals(second));
             Assert.False(first == second);
@@ -179,7 +191,7 @@ public partial class CelsiusTests
         public void WhenValueIsNotDefault_IsNotEqualToDefault()
         {
             var backingValue = 24.2m;
-            Celsius first = Celsius.From(backingValue);
+            var first = Celsius.From(backingValue);
             Celsius second = default;
 
             Assert.False(first.Equals(second));
@@ -262,7 +274,7 @@ public partial class CelsiusTests
         [Fact]
         public void WhenValueIsZero_IsTrue()
         {
-            Celsius sut = Celsius.Zero;
+            var sut = Celsius.Zero;
 
             Assert.True(sut.IsInitialized());
         }
@@ -281,10 +293,10 @@ public partial class CelsiusTests
         }
     }
 
-    public class ConversionOperatorsForPrimitive : CelsiusTests
+    public class ConversionOperatorsForUnderlyingType : CelsiusTests
     {
         [Fact]
-        public void IsExplicitlyConvertibleToPrimitive()
+        public void IsExplicitlyConvertibleToUnderlyingType()
         {
             var value = 24.2m;
             var obj = Celsius.From(value);
@@ -295,7 +307,7 @@ public partial class CelsiusTests
         }
 
         [Fact]
-        public void IsExplicitlyConvertibleFromPrimitive()
+        public void IsExplicitlyConvertibleFromUnderlyingType()
         {
             var value = 24.2m;
             var str = value;
@@ -374,10 +386,11 @@ public partial class CelsiusTests
             var deserialized = JsonSerializer.Deserialize<Celsius>(serialized);
 
             Assert.Equal(original, deserialized);
+            Assert.True(deserialized.IsInitialized());
         }
 
         [Fact]
-        public void SerializesUninitializedToEmpty()
+        public void SerializesUninitializedToNull()
         {
             var container = new Container { Id = "one", Data = default };
 
@@ -412,11 +425,13 @@ public partial class CelsiusTests
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
             Assert.Equal(Celsius.Zero, deserialized.Data);
+            Assert.NotEqual(default, deserialized.Data);
+            
             Assert.True(deserialized.Data.IsInitialized());
         }
 
         [Fact]
-        public void DeserializesMissingToUnitialized()
+        public void DeserializesMissingToUninitialized()
         {
             var serialized = "{\"Id\":\"one\"}";
 
@@ -425,6 +440,21 @@ public partial class CelsiusTests
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
             Assert.Equal(default, deserialized.Data);
+            
+            Assert.False(deserialized.Data.IsInitialized());
+        }
+
+        [Fact]
+        public void DeserializesNullToUninitialized()
+        {
+            var serialized = "{\"Id\":\"one\",\"Data\":null}";
+
+            var deserialized = JsonSerializer.Deserialize<Container>(serialized);
+
+            Assert.NotNull(deserialized);
+            Assert.Equal("one", deserialized.Id);
+            Assert.Equal(default, deserialized.Data);
+            
             Assert.False(deserialized.Data.IsInitialized());
         }
 
@@ -438,7 +468,7 @@ public partial class CelsiusTests
     public class TypeConversion : CelsiusTests
     {
         [Fact]
-        public void CanConvertFromPrimitive()
+        public void CanConvertFromUnderlyingType()
         {
             var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Celsius));
             Assert.True(converter.CanConvertFrom(typeof(decimal)));
@@ -461,7 +491,7 @@ public partial class CelsiusTests
         }
 
         [Fact]
-        public void CanConvertToPrimitive()
+        public void CanConvertToUnderlyingType()
         {
             var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Celsius));
             Assert.True(converter.CanConvertTo(typeof(decimal)));
@@ -488,8 +518,8 @@ public partial class CelsiusTests
     }
 
     [ValueObject<decimal>(
-        fromPrimitiveCasting: CastOperator.Explicit,
-        toPrimitiveCasting: CastOperator.Explicit
+        fromUnderlyingTypeCasting: CastOperator.Explicit,
+        toUnderlyingTypeCasting: CastOperator.Explicit
     )]
     public readonly partial record struct OtherCelsius;
 }

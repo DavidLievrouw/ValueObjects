@@ -28,21 +28,31 @@ public partial class LegacyPhoneNumberTests
             Assert.Equal("+31 488 24 55 33", actual.Value);
         }
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("   ")]
-        [InlineData(" \t  ")]
-        public void CanCreateEmpty(string? invalid)
+        [Fact]
+        public void CanCreateUninitializedWithNullValue()
         {
+            var actual = LegacyPhoneNumber.From(null);
+            
             var empty = LegacyPhoneNumber.Empty;
+            Assert.False(actual.Equals(empty));
+            Assert.False(actual == empty);
+            Assert.True(actual != empty);
+            
+            Assert.False(actual.IsInitialized());
+        }
 
-            var actual = LegacyPhoneNumber.From(invalid);
+        [Fact]
+        public void CanCreateEmpty()
+        {
+            var actual = LegacyPhoneNumber.From(string.Empty);
 
+            var empty = LegacyPhoneNumber.Empty;
             Assert.True(actual.Equals(empty));
             Assert.True(actual == empty);
             Assert.False(actual != empty);
             Assert.Equal(actual.GetHashCode(), empty.GetHashCode());
+            
+            Assert.True(actual.IsInitialized());
         }
     }
 
@@ -56,17 +66,30 @@ public partial class LegacyPhoneNumberTests
             Assert.True(success);
             Assert.Equal("+31 488 24 55 33", actual.Value);
         }
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("   ")]
-        [InlineData(" \t  ")]
-        public void CannotCreateNullEmptyOrWhitespace(string? invalid)
+        
+        [Fact]
+        public void CanCreateUninitializedWithNullValue()
         {
-            var success = LegacyPhoneNumber.TryFrom(invalid, out _);
-
+            var success = LegacyPhoneNumber.TryFrom(null, out var actual);
+            
             Assert.False(success);
+            Assert.False(actual.IsInitialized());
+        }
+
+        [Fact]
+        public void CanCreateEmpty()
+        {
+            var success = LegacyPhoneNumber.TryFrom(string.Empty, out var actual);
+
+            Assert.True(success);
+            
+            var empty = LegacyPhoneNumber.Empty;
+            Assert.True(actual.Equals(empty));
+            Assert.True(actual == empty);
+            Assert.False(actual != empty);
+            Assert.Equal(actual.GetHashCode(), empty.GetHashCode());
+            
+            Assert.True(actual.IsInitialized());
         }
     }
 
@@ -80,6 +103,14 @@ public partial class LegacyPhoneNumberTests
             var actual = LegacyPhoneNumber.From(expected);
 
             Assert.Equal(expected, actual.Value);
+        }
+
+        [Fact]
+        public void EmptyReturnsExpectedUnderlyingValue()
+        {
+            var actual = LegacyPhoneNumber.Empty;
+
+            Assert.Equal(string.Empty, actual.Value);
         }
     }
 
@@ -132,15 +163,14 @@ public partial class LegacyPhoneNumberTests
         }
 
         [Fact]
-        public void WhenValueIsDefault_IsEqualToEmpty()
+        public void WhenValueIsDefault_IsNotEqualToEmpty()
         {
             LegacyPhoneNumber first = default;
             var second = LegacyPhoneNumber.Empty;
 
-            Assert.True(first.Equals(second));
-            Assert.True(first == second);
-            Assert.False(first != second);
-            Assert.Equal(first.GetHashCode(), second.GetHashCode());
+            Assert.False(first.Equals(second));
+            Assert.False(first == second);
+            Assert.True(first != second);
         }
 
         [Fact]
@@ -223,11 +253,11 @@ public partial class LegacyPhoneNumberTests
         }
 
         [Fact]
-        public void WhenValueIsEmpty_IsFalse()
+        public void WhenValueIsEmpty_IsTrue()
         {
             var sut = LegacyPhoneNumber.Empty;
 
-            Assert.False(sut.IsInitialized());
+            Assert.True(sut.IsInitialized());
         }
     }
 
@@ -244,10 +274,10 @@ public partial class LegacyPhoneNumberTests
         }
     }
 
-    public class ConversionOperatorsForPrimitive : LegacyPhoneNumberTests
+    public class ConversionOperatorsForUnderlyingType : LegacyPhoneNumberTests
     {
         [Fact]
-        public void IsImplicitlyConvertibleToPrimitive()
+        public void IsImplicitlyConvertibleToUnderlyingType()
         {
             var value = Guid.NewGuid().ToString();
             var obj = LegacyPhoneNumber.From(value);
@@ -258,7 +288,7 @@ public partial class LegacyPhoneNumberTests
         }
 
         [Fact]
-        public void IsExplicitlyConvertibleToPrimitive()
+        public void IsExplicitlyConvertibleToUnderlyingType()
         {
             var value = Guid.NewGuid().ToString();
             var obj = LegacyPhoneNumber.From(value);
@@ -269,7 +299,7 @@ public partial class LegacyPhoneNumberTests
         }
 
         [Fact]
-        public void IsImplicitlyConvertibleFromPrimitive()
+        public void IsImplicitlyConvertibleFromUnderlyingType()
         {
             var value = Guid.NewGuid().ToString();
             var str = value;
@@ -281,7 +311,7 @@ public partial class LegacyPhoneNumberTests
         }
 
         [Fact]
-        public void IsExplicitlyConvertibleFromPrimitive()
+        public void IsExplicitlyConvertibleFromUnderlyingType()
         {
             var value = Guid.NewGuid().ToString();
             var str = value;
@@ -373,7 +403,7 @@ public partial class LegacyPhoneNumberTests
 
             var serialized = JsonSerializer.Serialize(original, JsonOptions);
 
-            Assert.Equal("null", serialized);
+            Assert.Equal("\"\"", serialized);
 
             var deserialized = JsonSerializer.Deserialize<LegacyPhoneNumber>(
                 serialized,
@@ -381,10 +411,11 @@ public partial class LegacyPhoneNumberTests
             );
 
             Assert.Equal(original, deserialized);
+            Assert.True(deserialized.IsInitialized());
         }
 
         [Fact]
-        public void SerializesUninitializedToEmpty()
+        public void SerializesUninitializedToNull()
         {
             var container = new Container { Id = "one", Data = default };
 
@@ -400,24 +431,26 @@ public partial class LegacyPhoneNumberTests
 
             var serialized = JsonSerializer.Serialize(container, JsonOptions);
 
-            Assert.Equal("{\"id\":\"one\"}", serialized);
+            Assert.Equal("{\"id\":\"one\",\"data\":\"\"}", serialized);
         }
 
         [Fact]
         public void DeserializesEmptyToEmpty()
         {
-            var serialized = "{\"id\":\"one\",\"data\":null}";
+            var serialized = "{\"id\":\"one\",\"data\":\"\"}";
 
             var deserialized = JsonSerializer.Deserialize<Container>(serialized, JsonOptions);
 
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
             Assert.Equal(LegacyPhoneNumber.Empty, deserialized.Data);
-            Assert.Equal(default, deserialized.Data);
+            Assert.NotEqual(default, deserialized.Data);
+            
+            Assert.True(deserialized.Data.IsInitialized());
         }
 
         [Fact]
-        public void DeserializesMissingToEmpty()
+        public void DeserializesMissingToUninitialized()
         {
             var serialized = "{\"id\":\"one\"}";
 
@@ -425,8 +458,25 @@ public partial class LegacyPhoneNumberTests
 
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
-            Assert.Equal(LegacyPhoneNumber.Empty, deserialized.Data);
+            Assert.NotEqual(LegacyPhoneNumber.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
+            
+            Assert.False(deserialized.Data.IsInitialized());
+        }
+
+        [Fact]
+        public void DeserializesNullToUninitialized()
+        {
+            var serialized = "{\"id\":\"one\",\"data\":null}";
+
+            var deserialized = JsonSerializer.Deserialize<Container>(serialized, JsonOptions);
+
+            Assert.NotNull(deserialized);
+            Assert.Equal("one", deserialized.Id);
+            Assert.NotEqual(LegacyPhoneNumber.Empty, deserialized.Data);
+            Assert.Equal(default, deserialized.Data);
+            
+            Assert.False(deserialized.Data.IsInitialized());
         }
 
         internal class Container
@@ -439,7 +489,7 @@ public partial class LegacyPhoneNumberTests
     public class TypeConversion : LegacyPhoneNumberTests
     {
         [Fact]
-        public void CanConvertFromPrimitive()
+        public void CanConvertFromUnderlyingType()
         {
             var converter = TypeDescriptor.GetConverter(typeof(LegacyPhoneNumber));
             Assert.True(converter.CanConvertFrom(typeof(string)));
@@ -461,7 +511,7 @@ public partial class LegacyPhoneNumberTests
         }
 
         [Fact]
-        public void CanConvertToPrimitive()
+        public void CanConvertToUnderlyingType()
         {
             var converter = TypeDescriptor.GetConverter(typeof(LegacyPhoneNumber));
             Assert.True(converter.CanConvertTo(typeof(string)));
@@ -486,8 +536,8 @@ public partial class LegacyPhoneNumberTests
     }
 
     [ValueObject<string>(
-        fromPrimitiveCasting: CastOperator.Explicit,
-        toPrimitiveCasting: CastOperator.Explicit,
+        fromUnderlyingTypeCasting: CastOperator.Explicit,
+        toUnderlyingTypeCasting: CastOperator.Explicit,
         comparison: ComparisonGeneration.Omit
     )]
     public readonly partial record struct OtherLegacyPhoneNumber;

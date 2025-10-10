@@ -38,14 +38,21 @@
                 }
 
                 public static LegacyPhoneNumber From(System.String? value) {
-                    if (string.IsNullOrWhiteSpace(value)) {
-                        return Empty;
+                    if (value is null) {
+                        
+                        var instance = new LegacyPhoneNumber();
+                        return instance;
                     }
 
                     return new LegacyPhoneNumber(value);
                 }
 
                 public static bool TryFrom(System.String? value, out LegacyPhoneNumber result) {
+                    if (value is null) {
+                        result = new LegacyPhoneNumber();
+                        return result.IsInitialized();
+                    }
+
                     result = string.IsNullOrWhiteSpace(value) ? Empty : new LegacyPhoneNumber(value, validation: false);
                     return result.IsInitialized();
                 }
@@ -115,9 +122,9 @@
                         : System.String.Equals(this._value, other, System.StringComparison.Ordinal);
                 }
             
-                public bool Equals(System.String? primitive, StringComparer comparer)
+                public bool Equals(System.String? underlyingValue, StringComparer comparer)
                 {
-                    return comparer.Equals(this.Value, primitive);
+                    return comparer.Equals(this.Value, underlyingValue);
                 }
 
                 
@@ -332,7 +339,11 @@ private class LegacyPhoneNumberSystemTextJsonConverter : System.Text.Json.Serial
         }
     
         try {
-            return LegacyPhoneNumber.From((System.String)underlyingValue!);
+            var typedUnderlyingValue = (System.String)underlyingValue!;
+            if (typedUnderlyingValue == default || underlyingValue is System.String suv && suv == System.String.Empty) {
+                return LegacyPhoneNumber.Empty;
+            }
+            return LegacyPhoneNumber.From(typedUnderlyingValue);
         } catch (System.Exception e) {
             throw new System.Text.Json.JsonException("Could not create an initialized instance of LegacyPhoneNumber.", e);
         }

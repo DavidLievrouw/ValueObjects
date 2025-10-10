@@ -3,7 +3,7 @@
 
 namespace Dalion.ValueObjects.Samples {
     [System.Flags]
-    public enum PrimitiveEqualityGeneration {
+    public enum UnderlyingTypeEqualityGeneration {
         Omit = 0,
         GenerateOperators = 1 << 0,
         GenerateMethods = 1 << 1,
@@ -30,19 +30,19 @@ namespace Dalion.ValueObjects.Samples {
     public class ValueObjectAttribute<T> : ValueObjectAttribute {
         public ValueObjectAttribute(
             ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
-            CastOperator toPrimitiveCasting = CastOperator.None,
-            CastOperator fromPrimitiveCasting = CastOperator.None,
+            CastOperator toUnderlyingTypeCasting = CastOperator.None,
+            CastOperator fromUnderlyingTypeCasting = CastOperator.None,
             StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods,
+            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods,
             string emptyValueName = "Empty"
         )
             : base(
                 typeof(T),
                 comparison,
-                toPrimitiveCasting,
-                fromPrimitiveCasting,
+                toUnderlyingTypeCasting,
+                fromUnderlyingTypeCasting,
                 stringCaseSensitivity,
-                primitiveEqualityGeneration,
+                underlyingTypeEqualityGeneration,
                 emptyValueName
             ) { }
     }
@@ -52,10 +52,10 @@ namespace Dalion.ValueObjects.Samples {
         public ValueObjectAttribute(
             Type underlyingType = null,
             ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
-            CastOperator toPrimitiveCasting = CastOperator.None,
-            CastOperator fromPrimitiveCasting = CastOperator.None,
+            CastOperator toUnderlyingTypeCasting = CastOperator.None,
+            CastOperator fromUnderlyingTypeCasting = CastOperator.None,
             StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods,
+            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods,
             string emptyValueName = "Empty"
         ) { }
     }

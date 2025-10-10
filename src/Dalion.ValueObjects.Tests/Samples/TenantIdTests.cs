@@ -29,14 +29,15 @@ public partial class TenantIdTests
         [Fact]
         public void CanCreateEmpty()
         {
-            var empty = TenantId.Empty;
-            
             var actual = TenantId.From(Guid.Empty);
 
+            var empty = TenantId.Empty;
             Assert.True(actual.Equals(empty));
             Assert.True(actual == empty);
             Assert.False(actual != empty);
             Assert.Equal(actual.GetHashCode(), empty.GetHashCode());
+            
+            Assert.True(actual.IsInitialized());
         }
     } 
     
@@ -54,11 +55,19 @@ public partial class TenantIdTests
         }
 
         [Fact]
-        public void CannotCreateEmpty()
+        public void CanCreateEmpty()
         {
-            var success = TenantId.TryFrom(Guid.Empty, out _);
+            var success = TenantId.TryFrom(Guid.Empty, out var actual);
             
-            Assert.False(success);
+            Assert.True(success);
+            
+            var empty = TenantId.Empty;
+            Assert.True(actual.Equals(empty));
+            Assert.True(actual == empty);
+            Assert.False(actual != empty);
+            Assert.Equal(actual.GetHashCode(), empty.GetHashCode());
+            
+            Assert.True(actual.IsInitialized());
         }
     }
 
@@ -72,6 +81,14 @@ public partial class TenantIdTests
             var actual = TenantId.From(expected);
             
             Assert.Equal(expected, actual.Value);
+        }
+
+        [Fact]
+        public void EmptyReturnsExpectedUnderlyingValue()
+        {
+            var actual = TenantId.Empty;
+
+            Assert.Equal(Guid.Empty, actual.Value);
         }
     }
 
@@ -116,22 +133,21 @@ public partial class TenantIdTests
         }
 
         [Fact]
-        public void WhenValueIsDefault_IsEqualToEmpty()
+        public void WhenValueIsDefault_IsNotEqualToEmpty()
         {
             TenantId first = default;
-            TenantId second = TenantId.Empty;
+            var second = TenantId.Empty;
 
-            Assert.True(first.Equals(second));
-            Assert.True(first == second);
-            Assert.False(first != second);
-            Assert.Equal(first.GetHashCode(), second.GetHashCode());
+            Assert.False(first.Equals(second));
+            Assert.False(first == second);
+            Assert.True(first != second);
         }
 
         [Fact]
         public void WhenValueIsNotDefault_IsNotEqualToDefault()
         {
             var backingValue = Guid.NewGuid();
-            TenantId first = TenantId.From(backingValue);
+            var first = TenantId.From(backingValue);
             TenantId second = default;
             
             Assert.False(first.Equals(second));
@@ -194,11 +210,11 @@ public partial class TenantIdTests
         }
 
         [Fact]
-        public void WhenValueIsEmpty_IsFalse()
+        public void WhenValueIsEmpty_IsTrue()
         {
-            TenantId sut = TenantId.Empty;
+            var sut = TenantId.Empty;
             
-            Assert.False(sut.IsInitialized());
+            Assert.True(sut.IsInitialized());
         }
     }
 
@@ -215,10 +231,10 @@ public partial class TenantIdTests
         }
     }
 
-    public class ConversionOperatorsForPrimitive : TenantIdTests
+    public class ConversionOperatorsForUnderlyingType : TenantIdTests
     {
         [Fact]
-        public void IsExplicitlyConvertibleFromPrimitive()
+        public void IsExplicitlyConvertibleFromUnderlyingType()
         {
             var value = Guid.NewGuid();
             
@@ -291,15 +307,16 @@ public partial class TenantIdTests
 
             var serialized = JsonSerializer.Serialize(original);
 
-            Assert.Equal("null", serialized);
+            Assert.Equal("\"00000000-0000-0000-0000-000000000000\"", serialized);
 
             var deserialized = JsonSerializer.Deserialize<TenantId>(serialized);
 
             Assert.Equal(original, deserialized);
+            Assert.True(deserialized.IsInitialized());
         }
 
         [Fact]
-        public void SerializesUninitializedToEmpty()
+        public void SerializesUninitializedToNull()
         {
             var container = new Container
             {
@@ -323,24 +340,26 @@ public partial class TenantIdTests
             
             var serialized = JsonSerializer.Serialize(container);
 
-            Assert.Equal("{\"Id\":\"one\",\"Data\":null}", serialized);
+            Assert.Equal("{\"Id\":\"one\",\"Data\":\"00000000-0000-0000-0000-000000000000\"}", serialized);
         }
 
         [Fact]
         public void DeserializesEmptyToEmpty()
         {
-            var serialized = "{\"Id\":\"one\",\"Data\":null}";
+            var serialized = "{\"Id\":\"one\",\"Data\":\"00000000-0000-0000-0000-000000000000\"}";
 
             var deserialized = JsonSerializer.Deserialize<Container>(serialized);
 
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
             Assert.Equal(TenantId.Empty, deserialized.Data);
-            Assert.Equal(default, deserialized.Data);
+            Assert.NotEqual(default, deserialized.Data);
+            
+            Assert.True(deserialized.Data.IsInitialized());
         }
 
         [Fact]
-        public void DeserializesMissingToEmpty()
+        public void DeserializesMissingToUninitialized()
         {
             var serialized = "{\"Id\":\"one\"}";
 
@@ -348,8 +367,25 @@ public partial class TenantIdTests
 
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
-            Assert.Equal(TenantId.Empty, deserialized.Data);
+            Assert.NotEqual(TenantId.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
+            
+            Assert.False(deserialized.Data.IsInitialized());
+        }
+
+        [Fact]
+        public void DeserializesNullToUninitialized()
+        {
+            var serialized = "{\"Id\":\"one\",\"Data\":null}";
+
+            var deserialized = JsonSerializer.Deserialize<Container>(serialized);
+
+            Assert.NotNull(deserialized);
+            Assert.Equal("one", deserialized.Id);
+            Assert.NotEqual(TenantId.Empty, deserialized.Data);
+            Assert.Equal(default, deserialized.Data);
+            
+            Assert.False(deserialized.Data.IsInitialized());
         }
         
         internal class Container
@@ -362,7 +398,7 @@ public partial class TenantIdTests
     public class TypeConversion : TenantIdTests
     {
         [Fact]
-        public void CanConvertFromPrimitive()
+        public void CanConvertFromUnderlyingType()
         {
             var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(TenantId));
             Assert.True(converter.CanConvertFrom(typeof(Guid)));
@@ -385,7 +421,7 @@ public partial class TenantIdTests
         }
 
         [Fact]
-        public void CanConvertToPrimitive()
+        public void CanConvertToUnderlyingType()
         {
             var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(TenantId));
             Assert.True(converter.CanConvertTo(typeof(Guid)));
@@ -412,10 +448,10 @@ public partial class TenantIdTests
     }
     
     [ValueObject<Guid>(
-        fromPrimitiveCasting: CastOperator.Explicit,
-        toPrimitiveCasting: CastOperator.None,
+        fromUnderlyingTypeCasting: CastOperator.Explicit,
+        toUnderlyingTypeCasting: CastOperator.None,
         comparison: ComparisonGeneration.Omit,
-        primitiveEqualityGeneration: PrimitiveEqualityGeneration.GenerateMethods
+        underlyingTypeEqualityGeneration: UnderlyingTypeEqualityGeneration.GenerateMethods
     )]
     public readonly partial record struct OtherTenantId;
 }
