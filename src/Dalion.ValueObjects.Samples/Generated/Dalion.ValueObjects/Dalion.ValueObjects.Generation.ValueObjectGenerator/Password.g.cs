@@ -137,7 +137,7 @@
                 /// <inheritdoc />
                 public override string ToString()
                 {{
-                    return Value.ToString() ?? "";
+                    return Value ?? "";
                 }}
 
                 /// <inheritdoc cref="M:System.String.ToString(System.IFormatProvider)" />

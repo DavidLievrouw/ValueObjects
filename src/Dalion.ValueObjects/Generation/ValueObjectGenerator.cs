@@ -681,7 +681,7 @@ private class ValueObjectValidationException : Exception
                 /// <inheritdoc />
                 public override string ToString()
                 {{
-                    return Value.ToString() ?? """";
+                    return Value ?? """";
                 }}
 
                 /// <inheritdoc cref=""M:System.String.ToString(System.IFormatProvider)"" />
@@ -694,7 +694,9 @@ private class ValueObjectValidationException : Exception
                 /// <inheritdoc />
                 public override string ToString()
                 {
-                    return Value.ToString() ?? """";
+                    return Value is IFormattable f 
+                        ? f.ToString(format: null, formatProvider: System.Globalization.CultureInfo.InvariantCulture)
+                        : Value.ToString() ?? """";
                 }
 
                 /// <inheritdoc cref=""M:System.String.ToString(System.IFormatProvider)"" />
