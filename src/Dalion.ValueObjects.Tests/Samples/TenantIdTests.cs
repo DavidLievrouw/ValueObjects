@@ -5,7 +5,7 @@ namespace Dalion.ValueObjects.Samples;
 
 public class TenantIdTests
 {
-    public class Construction : PasswordTests
+    public class Construction : TenantIdTests
     {
         // Does not compile, as intended, when the analyzer works correctly.
         /*[Fact]

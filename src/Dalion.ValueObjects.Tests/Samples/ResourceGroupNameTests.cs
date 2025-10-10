@@ -5,19 +5,19 @@ namespace Dalion.ValueObjects.Samples;
 
 public class ResourceGroupNameTests
 {
+    public class Construction : ResourceGroupNameTests
+    {
+        // Does not compile, as intended, when the analyzer works correctly.
+        /*[Fact]
+        public void NotAllowedToNewUp()
+        {
+            var actual = new ResourceGroupName();
+            Assert.Fail("Should not be allowed to new up, but got: " + actual);
+        }*/
+    }
+
     public class From : ResourceGroupNameTests
     {
-        public class Construction : PasswordTests
-        {
-            // Does not compile, as intended, when the analyzer works correctly.
-            /*[Fact]
-            public void NotAllowedToNewUp()
-            {
-                var actual = new ResourceGroupName();
-                Assert.Fail("Should not be allowed to new up, but got: " + actual);
-            }*/
-        }
-        
         [Fact]
         public void From_CreatesResourceGroupNameWithValue()
         {
@@ -33,7 +33,7 @@ public class ResourceGroupNameTests
         public void CanCreateEmpty(string? invalid)
         {
             var empty = ResourceGroupName.Empty;
-            
+
             var actual = ResourceGroupName.From(invalid);
 
             Assert.True(actual.Equals(empty));
@@ -58,15 +58,15 @@ public class ResourceGroupNameTests
 
             Assert.Throws<InvalidOperationException>(act);
         }
-    } 
-    
+    }
+
     public class TryFrom : ResourceGroupNameTests
     {
         [Fact]
         public void TryFrom_CreatesResourceGroupNameWithValue()
         {
             var success = ResourceGroupName.TryFrom("theValue", out var actual);
-            
+
             Assert.True(success);
             Assert.Equal("theValue", actual.Value);
         }
@@ -79,7 +79,7 @@ public class ResourceGroupNameTests
         public void CannotCreateNullEmptyOrWhitespace(string? invalid)
         {
             var success = ResourceGroupName.TryFrom(invalid, out _);
-            
+
             Assert.False(success);
         }
 
@@ -107,9 +107,9 @@ public class ResourceGroupNameTests
         public void ReturnsUnderlyingValue()
         {
             var expected = "theValue";
-            
+
             var actual = ResourceGroupName.From(expected);
-            
+
             Assert.Equal(expected, actual.Value);
         }
     }
@@ -205,7 +205,7 @@ public class ResourceGroupNameTests
         {
             ResourceGroupName first = ResourceGroupName.From("abc123");
             ResourceGroupName second = default;
-            
+
             Assert.False(first.Equals(second));
             Assert.False(first == second);
             Assert.True(first != second);
@@ -227,7 +227,7 @@ public class ResourceGroupNameTests
             var second = "abc123";
 
             Assert.True(first.Equals(second));
-            
+
             var third = "xyz789";
             Assert.False(first.Equals(third));
         }
@@ -242,7 +242,7 @@ public class ResourceGroupNameTests
             Assert.True(second == first);
             Assert.False(first != second);
             Assert.False(second != first);
-            
+
             var third = "xyz789";
             Assert.False(first == third);
             Assert.False(third == first);
@@ -250,14 +250,14 @@ public class ResourceGroupNameTests
             Assert.True(third != first);
         }
     }
-    
+
     public class IsInitialized : ResourceGroupNameTests
     {
         [Fact]
         public void WhenValueIsNotDefault_IsTrue()
         {
             var sut = ResourceGroupName.From("abc123");
-            
+
             Assert.True(sut.IsInitialized());
         }
 
@@ -265,7 +265,7 @@ public class ResourceGroupNameTests
         public void WhenValueIsDefault_IsFalse()
         {
             ResourceGroupName sut = default;
-            
+
             Assert.False(sut.IsInitialized());
         }
 
@@ -273,7 +273,7 @@ public class ResourceGroupNameTests
         public void WhenValueIsEmpty_IsFalse()
         {
             ResourceGroupName sut = ResourceGroupName.Empty;
-            
+
             Assert.False(sut.IsInitialized());
         }
     }
@@ -284,9 +284,9 @@ public class ResourceGroupNameTests
         public void ReturnsValue()
         {
             var value = Guid.NewGuid().ToString();
-            
+
             var actual = ResourceGroupName.From(value).ToString();
-            
+
             Assert.Equal(value, actual);
         }
     }
@@ -298,9 +298,9 @@ public class ResourceGroupNameTests
         {
             var value = Guid.NewGuid().ToString();
             var obj = ResourceGroupName.From(value);
-            
+
             string actual = obj;
-            
+
             Assert.Equal(value, actual);
         }
 
@@ -309,9 +309,9 @@ public class ResourceGroupNameTests
         {
             var value = Guid.NewGuid().ToString();
             var str = value;
-            
+
             var actual = (ResourceGroupName)str;
-            
+
             var expected = ResourceGroupName.From(value);
             Assert.Equal(expected, actual);
         }
@@ -326,15 +326,15 @@ public class ResourceGroupNameTests
 
             Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<ResourceGroupName>(nonsense));
         }
-        
+
         [Fact]
         public void WhenEmptyString_CreatesEmpty()
         {
             var actual = JsonSerializer.Deserialize<ResourceGroupName>("\"\"");
-            
+
             Assert.Equal(ResourceGroupName.Empty, actual);
         }
-        
+
         [Fact]
         public void CanRoundTrip()
         {
@@ -392,7 +392,7 @@ public class ResourceGroupNameTests
                 Id = "one",
                 Data = default
             };
-            
+
             var serialized = JsonSerializer.Serialize(container);
 
             Assert.Equal("{\"Id\":\"one\",\"Data\":\"\"}", serialized);
@@ -406,7 +406,7 @@ public class ResourceGroupNameTests
                 Id = "one",
                 Data = ResourceGroupName.Empty
             };
-            
+
             var serialized = JsonSerializer.Serialize(container);
 
             Assert.Equal("{\"Id\":\"one\",\"Data\":\"\"}", serialized);
@@ -437,14 +437,14 @@ public class ResourceGroupNameTests
             Assert.Equal(ResourceGroupName.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
         }
-        
+
         internal class Container
         {
             public required string Id { get; set; }
             public ResourceGroupName Data { get; set; }
         }
     }
-    
+
     public class TypeConversion : ResourceGroupNameTests
     {
         [Fact]
