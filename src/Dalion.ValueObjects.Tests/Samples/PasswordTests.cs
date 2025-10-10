@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Dalion.ValueObjects.Samples;
 
-public class PasswordTests
+public partial class PasswordTests
 {
     public class Construction : PasswordTests
     {
@@ -189,6 +189,16 @@ public class PasswordTests
 
             Assert.False(first.Equals(second));
         }
+
+        [Fact]
+        public void GivenOtherObjectIsAnotherValueType_AreNotEqual()
+        {
+            var first = Password.From("test-Pwd2");
+            var second = OtherPassword.From(first.Value);
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            Assert.False(first.Equals(second));
+        }
     }
 
     public class IsInitialized : PasswordTests
@@ -231,10 +241,10 @@ public class PasswordTests
         }
     }
 
-    public class ConversionOperatorsForString : PasswordTests
+    public class ConversionOperatorsForPrimitive : PasswordTests
     {
         [Fact]
-        public void IsExplicitlyConvertibleToString()
+        public void IsExplicitlyConvertibleToPrimitive()
         {
             var value = "test-Pwd2";
             var obj = Password.From(value);
@@ -413,4 +423,13 @@ public class PasswordTests
             Assert.Throws<NotSupportedException>(act);
         }
     }
+
+    [ValueObject<string>(
+        fromPrimitiveCasting: CastOperator.None,
+        toPrimitiveCasting: CastOperator.Explicit,
+        comparison: ComparisonGeneration.Omit,
+        stringCaseSensitivity: StringCaseSensitivity.CaseSensitive,
+        primitiveEqualityGeneration: PrimitiveEqualityGeneration.Omit
+    )]
+    public readonly partial record struct OtherPassword;
 }

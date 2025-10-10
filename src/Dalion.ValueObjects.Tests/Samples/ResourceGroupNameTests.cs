@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Dalion.ValueObjects.Samples;
 
-public class ResourceGroupNameTests
+public partial class ResourceGroupNameTests
 {
     public class Construction : ResourceGroupNameTests
     {
@@ -221,6 +221,16 @@ public class ResourceGroupNameTests
         }
 
         [Fact]
+        public void GivenOtherObjectIsAnotherValueType_AreNotEqual()
+        {
+            var first = ResourceGroupName.From("abc123");
+            var second = OtherResourceGroupName.From(first.Value);
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            Assert.False(first.Equals(second));
+        }
+
+        [Fact]
         public void HasEqualityMethodsForUnderlyingType()
         {
             var first = ResourceGroupName.From("abc123");
@@ -291,10 +301,10 @@ public class ResourceGroupNameTests
         }
     }
 
-    public class ConversionOperatorsForString : ResourceGroupNameTests
+    public class ConversionOperatorsForPrimitive : ResourceGroupNameTests
     {
         [Fact]
-        public void IsImplicitlyConvertibleToString()
+        public void IsImplicitlyConvertibleToPrimitive()
         {
             var value = Guid.NewGuid().ToString();
             var obj = ResourceGroupName.From(value);
@@ -305,7 +315,7 @@ public class ResourceGroupNameTests
         }
 
         [Fact]
-        public void IsExplicitlyConvertibleFromString()
+        public void IsExplicitlyConvertibleFromPrimitive()
         {
             var value = Guid.NewGuid().ToString();
             var str = value;
@@ -493,4 +503,12 @@ public class ResourceGroupNameTests
             Assert.Throws<NotSupportedException>(act);
         }
     }
+
+    [ValueObject<string>(
+        fromPrimitiveCasting: CastOperator.Explicit,
+        toPrimitiveCasting: CastOperator.Explicit,
+        comparison: ComparisonGeneration.UseUnderlying,
+        stringCaseSensitivity: StringCaseSensitivity.CaseInsensitive
+    )]
+    public readonly partial record struct OtherResourceGroupName;
 }

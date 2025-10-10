@@ -34,7 +34,26 @@ internal class GenerationTarget
         var argumentExpressions = attributeSyntax.ArgumentList?.Arguments!;
 
         var typeSymbol = AttributeData.AttributeClass!.TypeArguments[0];
-        var underlyingType = Type.GetType(typeSymbol.ToDisplayString()) ?? typeof(string);
+        var typeName = typeSymbol.ToDisplayString();
+        var underlyingType = typeName switch
+        {
+            "decimal" or "System.Decimal" => typeof(decimal),
+            "int" or "System.Int32" => typeof(int),
+            "string" or "System.String" => typeof(string),
+            "bool" or "System.Boolean" => typeof(bool),
+            "double" or "System.Double" => typeof(double),
+            "float" or "System.Single" => typeof(float),
+            "long" or "System.Int64" => typeof(long),
+            "short" or "System.Int16" => typeof(short),
+            "byte" or "System.Byte" => typeof(byte),
+            "char" or "System.Char" => typeof(char),
+            "DateTime" or "System.DateTime" => typeof(DateTime),
+            "DateTimeOffset" or "System.DateTimeOffset" => typeof(DateTimeOffset),
+            "Guid" or "System.Guid" => typeof(Guid),
+            "TimeSpan" or "System.TimeSpan" => typeof(TimeSpan),
+            "Uri" or "System.Uri" => typeof(Uri),
+            _ => Type.GetType(typeName) ?? typeof(string),
+        };
 
         var comparison = ComparisonGeneration.UseUnderlying;
         var toPrimitiveCasting = CastOperator.None;
@@ -59,7 +78,8 @@ internal class GenerationTarget
                     fromPrimitiveCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
                     break;
                 case "primitiveEqualityGeneration":
-                    primitiveEqualityGeneration = (PrimitiveEqualityGeneration)Enum.Parse(typeof(PrimitiveEqualityGeneration), value);
+                    primitiveEqualityGeneration = (PrimitiveEqualityGeneration)
+                        Enum.Parse(typeof(PrimitiveEqualityGeneration), value);
                     break;
                 case "stringCaseSensitivity":
                     stringCaseSensitivity = (StringCaseSensitivity)

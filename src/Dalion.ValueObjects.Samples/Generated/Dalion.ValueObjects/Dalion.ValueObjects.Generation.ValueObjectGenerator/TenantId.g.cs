@@ -2,6 +2,7 @@
         #nullable enable
 
         namespace Dalion.ValueObjects.Samples {
+            
             [System.Diagnostics.DebuggerDisplay("TenantId {Value}")]
             [System.Text.Json.Serialization.JsonConverter(typeof(TenantIdSystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof(TenantIdTypeConverter))]
@@ -418,5 +419,6 @@ private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
 }
 
             }
+            
         }
         

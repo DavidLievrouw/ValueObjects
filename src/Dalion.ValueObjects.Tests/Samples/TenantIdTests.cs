@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Dalion.ValueObjects.Samples;
 
-public class TenantIdTests
+public partial class TenantIdTests
 {
     public class Construction : TenantIdTests
     {
@@ -150,6 +150,17 @@ public class TenantIdTests
         }
 
         [Fact]
+        public void GivenOtherObjectIsAnotherValueType_AreNotEqual()
+        {
+            var backingValue = Guid.NewGuid();
+            var first = TenantId.From(backingValue);
+            var second = OtherTenantId.From(backingValue);
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            Assert.False(first.Equals(second));
+        }
+
+        [Fact]
         public void HasEqualityMethodsForUnderlyingType()
         {
             var backingValue = Guid.NewGuid();
@@ -204,10 +215,10 @@ public class TenantIdTests
         }
     }
 
-    public class ConversionOperatorsForGuid : TenantIdTests
+    public class ConversionOperatorsForPrimitive : TenantIdTests
     {
         [Fact]
-        public void IsExplicitlyConvertibleFromString()
+        public void IsExplicitlyConvertibleFromPrimitive()
         {
             var value = Guid.NewGuid();
             
@@ -399,4 +410,12 @@ public class TenantIdTests
             Assert.Throws<NotSupportedException>(act);
         }
     }
+    
+    [ValueObject<Guid>(
+        fromPrimitiveCasting: CastOperator.Explicit,
+        toPrimitiveCasting: CastOperator.None,
+        comparison: ComparisonGeneration.Omit,
+        primitiveEqualityGeneration: PrimitiveEqualityGeneration.GenerateMethods
+    )]
+    public readonly partial record struct OtherTenantId;
 }

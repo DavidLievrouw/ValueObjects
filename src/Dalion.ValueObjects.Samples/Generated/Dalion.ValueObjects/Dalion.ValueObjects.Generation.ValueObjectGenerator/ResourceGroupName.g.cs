@@ -2,6 +2,7 @@
         #nullable enable
 
         namespace Dalion.ValueObjects.Samples {
+            
             [System.Diagnostics.DebuggerDisplay("ResourceGroupName {Value}")]
             [System.Text.Json.Serialization.JsonConverter(typeof(ResourceGroupNameSystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof(ResourceGroupNameTypeConverter))]
@@ -469,5 +470,6 @@ private class ResourceGroupNameTypeConverter : System.ComponentModel.TypeConvert
 }
 
             }
+            
         }
         

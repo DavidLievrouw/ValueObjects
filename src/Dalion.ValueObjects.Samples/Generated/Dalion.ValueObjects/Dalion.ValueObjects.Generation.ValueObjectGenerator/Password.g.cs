@@ -2,6 +2,7 @@
         #nullable enable
 
         namespace Dalion.ValueObjects.Samples {
+            
             [System.Diagnostics.DebuggerDisplay("Password {Value}")]
             [System.Text.Json.Serialization.JsonConverter(typeof(PasswordSystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof(PasswordTypeConverter))]
@@ -434,5 +435,6 @@ private class PasswordTypeConverter : System.ComponentModel.TypeConverter
 }
 
             }
+            
         }
         
