@@ -185,14 +185,16 @@
 private class Validation
 {
     public static readonly Validation Ok = new(string.Empty);
+    private readonly bool _isSuccess;
 
     private Validation(string reason)
     {
         ErrorMessage = reason;
+        _isSuccess = string.IsNullOrEmpty(reason);
     }
 
     public string ErrorMessage { get; }
-    public bool IsSuccess => string.IsNullOrEmpty(ErrorMessage);
+    public bool IsSuccess => _isSuccess;
 
     public Dictionary<object, object>? Data { get; private set; }
 
