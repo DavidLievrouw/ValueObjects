@@ -60,6 +60,7 @@ internal class GenerationTarget
         var fromPrimitiveCasting = CastOperator.None;
         var stringCaseSensitivity = StringCaseSensitivity.CaseSensitive;
         var primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods;
+        var emptyValueName = "Empty";
         foreach (var arg in argumentExpressions.Value)
         {
             var name = arg.GetFirstToken().ValueText;
@@ -85,6 +86,9 @@ internal class GenerationTarget
                     stringCaseSensitivity = (StringCaseSensitivity)
                         Enum.Parse(typeof(StringCaseSensitivity), value);
                     break;
+                case "emptyValueName":
+                    emptyValueName = value;
+                    break;
             }
         }
 
@@ -94,7 +98,8 @@ internal class GenerationTarget
             toPrimitiveCasting,
             fromPrimitiveCasting,
             stringCaseSensitivity,
-            primitiveEqualityGeneration
+            primitiveEqualityGeneration,
+            emptyValueName
         );
     }
 }

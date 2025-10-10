@@ -32,13 +32,18 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
     ///     primitive.
     ///     Defaults to <see cref="PrimitiveEqualityGeneration.GenerateOperatorsAndMethods" />
     /// </param>
+    /// <param name="emptyValueName">
+    ///     The name of the static property representing an empty value object, if applicable.
+    ///     Defaults to "Empty".
+    /// </param>
     public ValueObjectAttribute(
         ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
         CastOperator toPrimitiveCasting = CastOperator.None,
         CastOperator fromPrimitiveCasting = CastOperator.None,
         StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
         PrimitiveEqualityGeneration primitiveEqualityGeneration =
-            PrimitiveEqualityGeneration.GenerateOperatorsAndMethods
+            PrimitiveEqualityGeneration.GenerateOperatorsAndMethods,
+        string emptyValueName = "Empty"
     )
         : base(
             typeof(T),
@@ -46,7 +51,8 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
             toPrimitiveCasting,
             fromPrimitiveCasting,
             stringCaseSensitivity,
-            primitiveEqualityGeneration
+            primitiveEqualityGeneration,
+            emptyValueName
         ) { }
 }
 
@@ -82,6 +88,10 @@ public class ValueObjectAttribute : Attribute
     ///     primitive.
     ///     Defaults to <see cref="PrimitiveEqualityGeneration.GenerateOperatorsAndMethods" />
     /// </param>
+    /// <param name="emptyValueName">
+    ///     The name of the static property representing an empty value object, if applicable.
+    ///     Defaults to "Empty".
+    /// </param>
     public ValueObjectAttribute(
         Type? underlyingType = null!,
         ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
@@ -89,6 +99,7 @@ public class ValueObjectAttribute : Attribute
         CastOperator fromPrimitiveCasting = CastOperator.None,
         StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
         PrimitiveEqualityGeneration primitiveEqualityGeneration =
-            PrimitiveEqualityGeneration.GenerateOperatorsAndMethods
+            PrimitiveEqualityGeneration.GenerateOperatorsAndMethods,
+        string emptyValueName = "Empty"
     ) { }
 }

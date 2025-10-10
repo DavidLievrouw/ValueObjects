@@ -33,14 +33,17 @@ namespace Dalion.ValueObjects.Samples {
             CastOperator toPrimitiveCasting = CastOperator.None,
             CastOperator fromPrimitiveCasting = CastOperator.None,
             StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods
+            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods,
+            string emptyValueName = "Empty"
         )
             : base(
                 typeof(T),
                 comparison,
                 toPrimitiveCasting,
                 fromPrimitiveCasting,
-                stringCaseSensitivity
+                stringCaseSensitivity,
+                primitiveEqualityGeneration,
+                emptyValueName
             ) { }
     }
 
@@ -52,7 +55,8 @@ namespace Dalion.ValueObjects.Samples {
             CastOperator toPrimitiveCasting = CastOperator.None,
             CastOperator fromPrimitiveCasting = CastOperator.None,
             StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods
+            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods,
+            string emptyValueName = "Empty"
         ) { }
     }
 }

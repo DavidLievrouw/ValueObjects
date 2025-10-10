@@ -9,6 +9,7 @@
             public partial record struct TenantId : IEquatable<TenantId>
 , IEquatable<System.Guid> {
                 private readonly System.Guid _value;
+                private readonly bool _initialized;
                 private static readonly Type UnderlyingType = typeof(System.Guid);
 
                 public System.Guid Value => _value;
@@ -19,12 +20,14 @@
                 public TenantId()
                 {
                     _value = default;
+                    _initialized = false;
                 }
 
                 private TenantId(System.Guid value, bool validation = true) {
                     if (validation) {
                         
                     }
+                    _initialized = true;
                     _value = value;
                 }
 
@@ -44,7 +47,7 @@
 
                 public static TenantId Empty => new TenantId(default, validation: false);
 
-                public bool IsInitialized() => _value != default;
+                public bool IsInitialized() => _initialized;
 
                 
                 /// <inheritdoc />

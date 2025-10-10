@@ -14,7 +14,7 @@ public class ValueObjectGenerator : IIncrementalGenerator
 {
     private const string TypeConverterTemplate =
         @"
-private class {{className}}TypeConverter : System.ComponentModel.TypeConverter
+private class {{typeName}}TypeConverter : System.ComponentModel.TypeConverter
 {
     public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
     {
@@ -30,7 +30,7 @@ private class {{className}}TypeConverter : System.ComponentModel.TypeConverter
 
         var underlyingValue = GetUnderlyingValue(value);
 
-        return underlyingValue == default ? Empty : From(({{valueTypeName}})underlyingValue);
+        return underlyingValue == default ? {{emptyValueName}} : From(({{valueTypeName}})underlyingValue);
     }
 
     private object? GetUnderlyingValue(object? value) {{
@@ -61,7 +61,7 @@ private class {{className}}TypeConverter : System.ComponentModel.TypeConverter
             throw new NotSupportedException($""Cannot convert to type '{destinationType}'."");
         }
 
-        if (value is {{className}} vo)
+        if (value is {{typeName}} vo)
         {
             return vo.Value;
         }
@@ -73,35 +73,35 @@ private class {{className}}TypeConverter : System.ComponentModel.TypeConverter
 
     private const string JsonConverterTemplate =
         @"
-private class {{className}}SystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<{{className}}>
+private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<{{typeName}}>
 {
-    public override {{className}} Read(
+    public override {{typeName}} Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
         System.Text.Json.JsonSerializerOptions options
     )
     {
         if (reader.TokenType == System.Text.Json.JsonTokenType.Null) {
-            return new {{className}}();
+            return new {{typeName}}();
         }
 
-        var underlyingType = {{className}}.UnderlyingType;
+        var underlyingType = {{typeName}}.UnderlyingType;
         object? underlyingValue;
     
         switch (Type.GetTypeCode(underlyingType)) {
             case TypeCode.Boolean:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.True && reader.TokenType != System.Text.Json.JsonTokenType.False)
-                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                 underlyingValue = reader.GetBoolean();
                 break;
             case TypeCode.Byte:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                 underlyingValue = reader.GetByte();
                 break;
             case TypeCode.Char:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                 var charStr = reader.GetString();
                 if (string.IsNullOrEmpty(charStr) || charStr.Length != 1)
                     throw new System.Text.Json.JsonException($""Cannot convert '{charStr}' to char."");
@@ -109,97 +109,97 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                 break;
             case TypeCode.Decimal:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                 underlyingValue = reader.GetDecimal();
                 break;
             case TypeCode.Double:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                 underlyingValue = reader.GetDouble();
                 break;
             case TypeCode.Single:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                 underlyingValue = reader.GetSingle();
                 break;
             case TypeCode.Int16:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                 underlyingValue = reader.GetInt16();
                 break;
             case TypeCode.Int32:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                 underlyingValue = reader.GetInt32();
                 break;
             case TypeCode.Int64:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                 underlyingValue = reader.GetInt64();
                 break;
             case TypeCode.String:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                 underlyingValue = reader.GetString();
                 break;
             case TypeCode.DateTime:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                    throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                 underlyingValue = reader.GetDateTime();
                 break;
             default:
                 if (underlyingType == typeof(Guid)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                     var guidStr = reader.GetString();
                     if (!Guid.TryParse(guidStr, out var guidValue))
                         throw new System.Text.Json.JsonException($""Cannot convert '{guidStr}' to Guid."");
                     underlyingValue = guidValue;
                 } else if (underlyingType == typeof(DateTimeOffset)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                     underlyingValue = reader.GetDateTimeOffset();
                 } else if (underlyingType == typeof(TimeSpan)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                     var tsStr = reader.GetString();
                     if (!TimeSpan.TryParse(tsStr, out var tsValue))
                         throw new System.Text.Json.JsonException($""Cannot convert '{tsStr}' to TimeSpan."");
                     underlyingValue = tsValue;
                 } else if (underlyingType == typeof(TimeOnly)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                     var timeStr = reader.GetString();
                     if (!TimeOnly.TryParse(timeStr, out var timeValue))
                         throw new System.Text.Json.JsonException($""Cannot convert '{timeStr}' to TimeOnly."");
                     underlyingValue = timeValue;
                 } else if (underlyingType == typeof(Uri)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{className}}."");
+                        throw new System.Text.Json.JsonException($""Unsupported JSON token type for {{typeName}}."");
                     var uriStr = reader.GetString();
                     if (!Uri.TryCreate(uriStr, UriKind.RelativeOrAbsolute, out var uriValue))
                         throw new System.Text.Json.JsonException($""Cannot convert '{uriStr}' to Uri."");
                     underlyingValue = uriValue;
                 } else {
-                    throw new System.Text.Json.JsonException($""Unsupported underlying type for {{className}}."");
+                    throw new System.Text.Json.JsonException($""Unsupported underlying type for {{typeName}}."");
                 }
                 break;
         }
     
         try {
-            return {{className}}.From(({{valueTypeName}})underlyingValue!);
+            return {{typeName}}.From(({{valueTypeName}})underlyingValue!);
         } catch (System.Exception e) {
-            throw new System.Text.Json.JsonException(""Could not create an initialized instance of {{className}}."", e);
+            throw new System.Text.Json.JsonException(""Could not create an initialized instance of {{typeName}}."", e);
         }
     }
     
     public override void Write(
         System.Text.Json.Utf8JsonWriter writer,
-        {{className}} value,
+        {{typeName}} value,
         System.Text.Json.JsonSerializerOptions options
     )
     {
-        var underlyingType = {{className}}.UnderlyingType;
+        var underlyingType = {{typeName}}.UnderlyingType;
         object? underlyingValue = value.IsInitialized()
             ? value.Value
             : null;
@@ -255,7 +255,7 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                 } else if (underlyingType == typeof(Uri)) {
                     writer.WriteStringValue(((Uri)underlyingValue).ToString());
                 } else {
-                    throw new System.Text.Json.JsonException($""Unsupported underlying type for {{className}}."");
+                    throw new System.Text.Json.JsonException($""Unsupported underlying type for {{typeName}}."");
                 }
                 break;
         }
@@ -314,17 +314,13 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
 
     private void Execute(GenerationTarget target, SourceProductionContext context)
     {
-        var className = target.SymbolInformation.Name;
+        var typeName = target.SymbolInformation.Name;
         var namespaceName = target.SymbolInformation.ContainingNamespace.ToDisplayString();
 
         var config = target.GetAttributeConfiguration();
         var valueType = config.UnderlyingType;
         var valueTypeName = valueType.FullName;
-
-        var initCheck =
-            valueType == typeof(string)
-                ? "!System.String.IsNullOrWhiteSpace(_value)"
-                : "_value != default";
+        var emptyValueName = config.EmptyValueName;
 
         var defaultValue = valueType == typeof(string) ? "System.String.Empty" : "default";
 
@@ -359,7 +355,7 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
             valueType == typeof(string)
                 ? $@"
                 /// <inheritdoc />
-                public bool Equals({className}? other)
+                public bool Equals({typeName}? other)
                 {{
                     if (other is null) return false;
 
@@ -379,7 +375,7 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                 }}
 
                 /// <inheritdoc />
-                public bool Equals({className} other)
+                public bool Equals({typeName} other)
                 {{
                     if (!other.IsInitialized())
                     {{
@@ -396,7 +392,7 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                         : {valueTypeName}.Equals(this._value, other.Value, System.StringComparison.{stringComparison});
                 }}
             
-                public bool Equals({className}? other, IEqualityComparer<{className}> comparer)
+                public bool Equals({typeName}? other, IEqualityComparer<{typeName}> comparer)
                 {{
                     if (other is null) return false;
                     return comparer.Equals(this, other.Value);
@@ -409,7 +405,7 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                 }}"
                 : $@"
                 /// <inheritdoc />
-                public bool Equals({className}? other)
+                public bool Equals({typeName}? other)
                 {{
                     if (other is null) return false;
 
@@ -427,7 +423,7 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                 }}
 
                 /// <inheritdoc />
-                public bool Equals({className} other)
+                public bool Equals({typeName} other)
                 {{
                     if (!other.IsInitialized())
                     {{
@@ -442,7 +438,7 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                     return EqualityComparer<{valueTypeName}>.Default.Equals(this._value, other.Value);
                 }}
             
-                public bool Equals({className}? other, IEqualityComparer<{className}> comparer)
+                public bool Equals({typeName}? other, IEqualityComparer<{typeName}> comparer)
                 {{
                     if (other is null) return false;
                     return comparer.Equals(this, other.Value);
@@ -481,22 +477,22 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
             == PrimitiveEqualityGeneration.GenerateOperators
                 ? valueType == typeof(string)
                     ? $@"
-    public static bool operator ==({className} left, {valueTypeName}? right) => left.Value.Equals(right);
+    public static bool operator ==({typeName} left, {valueTypeName}? right) => left.Value.Equals(right);
 
-    public static bool operator ==({valueTypeName}? left, {className} right) => right.Value.Equals(left);
+    public static bool operator ==({valueTypeName}? left, {typeName} right) => right.Value.Equals(left);
 
-    public static bool operator !=({valueTypeName}? left, {className} right) => !(left == right);
+    public static bool operator !=({valueTypeName}? left, {typeName} right) => !(left == right);
 
-    public static bool operator !=({className} left, {valueTypeName}? right) => !(left == right);
+    public static bool operator !=({typeName} left, {valueTypeName}? right) => !(left == right);
 "
                     : $@"
-    public static bool operator ==({className} left, {valueTypeName} right) => left.Value.Equals(right);
+    public static bool operator ==({typeName} left, {valueTypeName} right) => left.Value.Equals(right);
 
-    public static bool operator ==({valueTypeName} left, {className} right) => right.Value.Equals(left);
+    public static bool operator ==({valueTypeName} left, {typeName} right) => right.Value.Equals(left);
 
-    public static bool operator !=({valueTypeName} left, {className} right) => !(left == right);
+    public static bool operator !=({valueTypeName} left, {typeName} right) => !(left == right);
 
-    public static bool operator !=({className} left, {valueTypeName} right) => !(left == right);
+    public static bool operator !=({typeName} left, {valueTypeName} right) => !(left == right);
 "
                 : "";
 
@@ -505,57 +501,66 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                 ? $@"
                 [System.Diagnostics.DebuggerStepThrough]
                 [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-                public {className}()
+                public {typeName}()
                 {{
                     _value = {valueTypeName}.Empty;
+                    _initialized = false;
                 }}
 
                 [System.Diagnostics.DebuggerStepThrough]
-                private {className}({valueTypeName} value, bool validation = true) {{
+                private {typeName}({valueTypeName} value, bool validation = true) {{
                     if (validation) {{
                         {ctorValidation}
                     }}
-                    _value = value ?? {valueTypeName}.Empty;
+                    if (value == default) {{
+                        _initialized = false;
+                        _value = {valueTypeName}.Empty;
+                    }} else {{
+                        _initialized = true;
+                        _value = value;
+                    }}
                 }}
 
-                public static {className} From({valueTypeName}? value) {{
+                public static {typeName} From({valueTypeName}? value) {{
                     if (string.IsNullOrWhiteSpace(value)) {{
-                        return Empty;
+                        return {emptyValueName};
                     }}
 
-                    return new {className}(value);
+                    return new {typeName}(value);
                 }}
 
-                public static bool TryFrom({valueTypeName}? value, out {className} result) {{
-                    result = string.IsNullOrWhiteSpace(value) ? Empty : new {className}(value, validation: false);
+                public static bool TryFrom({valueTypeName}? value, out {typeName} result) {{
+                    result = string.IsNullOrWhiteSpace(value) ? {emptyValueName} : new {typeName}(value, validation: false);
                     {tryFromValidation}
                 }}
 "
                 : $@"
                 [System.Diagnostics.DebuggerStepThrough]
                 [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-                public {className}()
+                public {typeName}()
                 {{
                     _value = default;
+                    _initialized = false;
                 }}
 
-                private {className}({valueTypeName} value, bool validation = true) {{
+                private {typeName}({valueTypeName} value, bool validation = true) {{
                     if (validation) {{
                         {ctorValidation}
                     }}
+                    _initialized = true;
                     _value = value;
                 }}
 
-                public static {className} From({valueTypeName} value) {{
+                public static {typeName} From({valueTypeName} value) {{
                     if (value == default) {{
-                        return Empty;
+                        return {emptyValueName};
                     }}
 
-                    return new {className}(value);
+                    return new {typeName}(value);
                 }}
 
-                public static bool TryFrom({valueTypeName} value, out {className} result) {{
-                    result = value == default ? Empty : new {className}(value, validation: false);
+                public static bool TryFrom({valueTypeName} value, out {typeName} result) {{
+                    result = value == default ? {emptyValueName} : new {typeName}(value, validation: false);
                     {tryFromValidation}
                 }}
 ";
@@ -564,7 +569,7 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
             config.Comparison == ComparisonGeneration.Omit ? ""
             : valueType == typeof(string)
                 ? $@"
-                public int CompareTo({className} other) => this.Value.CompareTo(other.Value);
+                public int CompareTo({typeName} other) => this.Value.CompareTo(other.Value);
 
                 public int CompareTo({valueTypeName}? other) => this.Value.CompareTo(other);
             
@@ -572,18 +577,18 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                 {{
                     if (other == null)
                         return 1;
-                    if (other is {className} other1)
+                    if (other is {typeName} other1)
                         return this.CompareTo(other1);
                     if (other is {valueTypeName} v)
                         return this.CompareTo(v);
                     throw new System.ArgumentException(
-                        ""Cannot compare to object as it is not of type {className}"",
+                        ""Cannot compare to object as it is not of type {typeName}"",
                         nameof(other)
                     );
                 }}
 "
             : $@"
-                public int CompareTo({className} other) => this.Value.CompareTo(other.Value);
+                public int CompareTo({typeName} other) => this.Value.CompareTo(other.Value);
 
                 public int CompareTo({valueTypeName} other) => this.Value.CompareTo(other);
             
@@ -591,12 +596,12 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                 {{
                     if (other == null)
                         return 1;
-                    if (other is {className} other1)
+                    if (other is {typeName} other1)
                         return this.CompareTo(other1);
                     if (other is {valueTypeName} v)
                         return this.CompareTo(v);
                     throw new System.ArgumentException(
-                        ""Cannot compare to object as it is not of type {className}"",
+                        ""Cannot compare to object as it is not of type {typeName}"",
                         nameof(other)
                     );
                 }}
@@ -609,11 +614,11 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                 ? ""
                 : $@"
                 /// <summary>
-                ///     An implicit conversion from <see cref=""{className}"" /> to <see cref=""{valueTypeName}"" />.
+                ///     An implicit conversion from <see cref=""{typeName}"" /> to <see cref=""{valueTypeName}"" />.
                 /// </summary>
                 /// <param name=""id"">The value to convert.</param>
                 /// <returns>The {valueTypeName} representation of the value object.</returns>
-                public static {conversionToPrimitiveModifier} operator {valueTypeName}({className} id)
+                public static {conversionToPrimitiveModifier} operator {valueTypeName}({typeName} id)
                 {{
                     return id.Value;
                 }}";
@@ -625,13 +630,13 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                 ? ""
                 : $@"
                 /// <summary>
-                ///     An explicit conversion from <see cref=""{valueTypeName}"" /> to <see cref=""{className}"" />.
+                ///     An explicit conversion from <see cref=""{valueTypeName}"" /> to <see cref=""{typeName}"" />.
                 /// </summary>
                 /// <param name=""value"">The value to convert.</param>
-                /// <returns>The <see cref=""{className}"" /> instance created from the input value.</returns>
-                public static {conversionFromPrimitiveModifier} operator {className}({valueTypeName} value)
+                /// <returns>The <see cref=""{typeName}"" /> instance created from the input value.</returns>
+                public static {conversionFromPrimitiveModifier} operator {typeName}({valueTypeName} value)
                 {{
-                    return {className}.From(value);
+                    return {typeName}.From(value);
                 }}";
 
         var validationClasses =
@@ -716,7 +721,7 @@ private class ValueObjectValidationException : Exception
 ";
 
         var interfaceDefsBuilder = new StringBuilder();
-        interfaceDefsBuilder.AppendLine($": IEquatable<{className}>");
+        interfaceDefsBuilder.AppendLine($": IEquatable<{typeName}>");
         if (
             (config.PrimitiveEqualityGeneration & PrimitiveEqualityGeneration.GenerateMethods)
             == PrimitiveEqualityGeneration.GenerateMethods
@@ -727,19 +732,21 @@ private class ValueObjectValidationException : Exception
 
         if (config.Comparison != ComparisonGeneration.Omit)
         {
-            interfaceDefsBuilder.Append($", IComparable<{className}>");
+            interfaceDefsBuilder.Append($", IComparable<{typeName}>");
             interfaceDefsBuilder.Append(", IComparable");
         }
 
         var interfaceDefs = interfaceDefsBuilder.ToString();
 
         var jsonConverter = JsonConverterTemplate
-            .Replace("{{className}}", className)
-            .Replace("{{valueTypeName}}", valueTypeName);
+            .Replace("{{typeName}}", typeName)
+            .Replace("{{valueTypeName}}", valueTypeName)
+            .Replace("{{emptyValueName}}", emptyValueName);
 
         var typeConverter = TypeConverterTemplate
-            .Replace("{{className}}", className)
-            .Replace("{{valueTypeName}}", valueTypeName);
+            .Replace("{{typeName}}", typeName)
+            .Replace("{{valueTypeName}}", valueTypeName)
+            .Replace("{{emptyValueName}}", emptyValueName);
 
         var containingTypes = GetContainingTypes(target.SymbolInformation);
         var closingBraces = GetClosingBraces(target.SymbolInformation);
@@ -750,20 +757,21 @@ private class ValueObjectValidationException : Exception
 
         namespace {namespaceName} {{
             {containingTypes}
-            [System.Diagnostics.DebuggerDisplay(""{className} {{Value}}"")]
-            [System.Text.Json.Serialization.JsonConverter(typeof({className}SystemTextJsonConverter))]
-            [System.ComponentModel.TypeConverter(typeof({className}TypeConverter))]
-            public partial record struct {className} {interfaceDefs} {{
+            [System.Diagnostics.DebuggerDisplay(""{typeName} {{Value}}"")]
+            [System.Text.Json.Serialization.JsonConverter(typeof({typeName}SystemTextJsonConverter))]
+            [System.ComponentModel.TypeConverter(typeof({typeName}TypeConverter))]
+            public partial record struct {typeName} {interfaceDefs} {{
                 private readonly {valueTypeName} _value;
+                private readonly bool _initialized;
                 private static readonly Type UnderlyingType = typeof({valueTypeName});
 
                 public {valueTypeName} Value => _value;
 
                 {creation}
 
-                public static {className} Empty => new {className}({defaultValue}, validation: false);
+                public static {typeName} {emptyValueName} => new {typeName}({defaultValue}, validation: false);
 
-                public bool IsInitialized() => {initCheck};
+                public bool IsInitialized() => _initialized;
 
                 {equality}
 
@@ -788,7 +796,7 @@ private class ValueObjectValidationException : Exception
         }}
         ";
 
-        context.AddSource($"{className}.g.cs", generatedClass);
+        context.AddSource($"{typeName}.g.cs", generatedClass);
     }
 
     private static string GetContainingTypes(INamedTypeSymbol symbol)
@@ -894,14 +902,17 @@ namespace {ns} {{
             CastOperator toPrimitiveCasting = CastOperator.None,
             CastOperator fromPrimitiveCasting = CastOperator.None,
             StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods
+            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods,
+            string emptyValueName = ""Empty""
         )
             : base(
                 typeof(T),
                 comparison,
                 toPrimitiveCasting,
                 fromPrimitiveCasting,
-                stringCaseSensitivity
+                stringCaseSensitivity,
+                primitiveEqualityGeneration,
+                emptyValueName
             ) {{ }}
     }}
 
@@ -913,7 +924,8 @@ namespace {ns} {{
             CastOperator toPrimitiveCasting = CastOperator.None,
             CastOperator fromPrimitiveCasting = CastOperator.None,
             StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods
+            PrimitiveEqualityGeneration primitiveEqualityGeneration = PrimitiveEqualityGeneration.GenerateOperatorsAndMethods,
+            string emptyValueName = ""Empty""
         ) {{ }}
     }}
 }}

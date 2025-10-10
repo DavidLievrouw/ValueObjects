@@ -9,6 +9,7 @@
             public partial record struct ResourceGroupName : IEquatable<ResourceGroupName>
 , IEquatable<System.String>, IComparable<ResourceGroupName>, IComparable {
                 private readonly System.String _value;
+                private readonly bool _initialized;
                 private static readonly Type UnderlyingType = typeof(System.String);
 
                 public System.String Value => _value;
@@ -19,6 +20,7 @@
                 public ResourceGroupName()
                 {
                     _value = System.String.Empty;
+                    _initialized = false;
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
@@ -30,7 +32,13 @@
                       throw new System.InvalidOperationException(validationResult.ErrorMessage);
                   }
                     }
-                    _value = value ?? System.String.Empty;
+                    if (value == default) {
+                        _initialized = false;
+                        _value = System.String.Empty;
+                    } else {
+                        _initialized = true;
+                        _value = value;
+                    }
                 }
 
                 public static ResourceGroupName From(System.String? value) {
@@ -49,7 +57,7 @@
 
                 public static ResourceGroupName Empty => new ResourceGroupName(System.String.Empty, validation: false);
 
-                public bool IsInitialized() => !System.String.IsNullOrWhiteSpace(_value);
+                public bool IsInitialized() => _initialized;
 
                 
                 /// <inheritdoc />

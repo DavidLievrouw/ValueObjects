@@ -9,6 +9,7 @@
             public partial record struct Celsius : IEquatable<Celsius>
 , IEquatable<System.Decimal>, IComparable<Celsius>, IComparable {
                 private readonly System.Decimal _value;
+                private readonly bool _initialized;
                 private static readonly Type UnderlyingType = typeof(System.Decimal);
 
                 public System.Decimal Value => _value;
@@ -19,6 +20,7 @@
                 public Celsius()
                 {
                     _value = default;
+                    _initialized = false;
                 }
 
                 private Celsius(System.Decimal value, bool validation = true) {
@@ -29,26 +31,27 @@
                       throw new System.InvalidOperationException(validationResult.ErrorMessage);
                   }
                     }
+                    _initialized = true;
                     _value = value;
                 }
 
                 public static Celsius From(System.Decimal value) {
                     if (value == default) {
-                        return Empty;
+                        return Zero;
                     }
 
                     return new Celsius(value);
                 }
 
                 public static bool TryFrom(System.Decimal value, out Celsius result) {
-                    result = value == default ? Empty : new Celsius(value, validation: false);
+                    result = value == default ? Zero : new Celsius(value, validation: false);
                     return result.IsInitialized() && Validate(result._value).IsSuccess;
                 }
 
 
-                public static Celsius Empty => new Celsius(default, validation: false);
+                public static Celsius Zero => new Celsius(default, validation: false);
 
-                public bool IsInitialized() => _value != default;
+                public bool IsInitialized() => _initialized;
 
                 
                 /// <inheritdoc />
@@ -428,7 +431,7 @@ private class CelsiusTypeConverter : System.ComponentModel.TypeConverter
 
         var underlyingValue = GetUnderlyingValue(value);
 
-        return underlyingValue == default ? Empty : From((System.Decimal)underlyingValue);
+        return underlyingValue == default ? Zero : From((System.Decimal)underlyingValue);
     }
 
     private object? GetUnderlyingValue(object? value) {{

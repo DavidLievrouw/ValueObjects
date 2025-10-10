@@ -5,7 +5,8 @@
 /// </summary>
 [ValueObject<decimal>(
     fromPrimitiveCasting: CastOperator.Explicit,
-    toPrimitiveCasting: CastOperator.Explicit
+    toPrimitiveCasting: CastOperator.Explicit,
+    emptyValueName: "Zero"
 )]
 public readonly partial record struct Celsius
 {

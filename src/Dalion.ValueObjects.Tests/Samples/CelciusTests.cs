@@ -23,23 +23,28 @@ public partial class CelsiusTests
         public void From_CreatesCelsiusWithValue()
         {
             var backingValue = 24.2M;
+            
             var actual = Celsius.From(backingValue);
+            
             Assert.Equal(backingValue, actual.Value);
         }
 
         [Fact]
-        public void CanCreateEmpty()
+        public void CanCreateZero()
         {
-            var empty = Celsius.Empty;
-
-            var actual = Celsius.From(0m);
-
-            Assert.True(actual.Equals(empty));
-            Assert.True(actual == empty);
-            Assert.False(actual != empty);
-            Assert.Equal(actual.GetHashCode(), empty.GetHashCode());
+            var backingValue = 0m;
+            
+            var actual = Celsius.From(backingValue);
+            
+            Assert.Equal(backingValue, actual.Value);
+            
+            var zero = Celsius.Zero;
+            Assert.True(actual.Equals(zero));
+            Assert.True(actual == zero);
+            Assert.False(actual != zero);
+            Assert.Equal(actual.GetHashCode(), zero.GetHashCode());
         }
-        
+
         [Theory]
         [InlineData(-273.16)] // lower than absolute zero
         [InlineData(-300)] // lower than absolute zero
@@ -66,11 +71,17 @@ public partial class CelsiusTests
         }
 
         [Fact]
-        public void CannotCreateEmpty()
+        public void CanCreateZero()
         {
-            var success = Celsius.TryFrom(0m, out _);
+            var success = Celsius.TryFrom(0m, out var actual);
 
-            Assert.False(success);
+            Assert.True(success);
+            
+            var zero = Celsius.Zero;
+            Assert.True(actual.Equals(zero));
+            Assert.True(actual == zero);
+            Assert.False(actual != zero);
+            Assert.Equal(actual.GetHashCode(), zero.GetHashCode());
         }
         
         [Theory]
@@ -154,15 +165,14 @@ public partial class CelsiusTests
         }
 
         [Fact]
-        public void WhenValueIsDefault_IsEqualToEmpty()
+        public void WhenValueIsDefault_IsNotEqualToZero()
         {
             Celsius first = default;
-            Celsius second = Celsius.Empty;
+            Celsius second = Celsius.Zero;
 
-            Assert.True(first.Equals(second));
-            Assert.True(first == second);
-            Assert.False(first != second);
-            Assert.Equal(first.GetHashCode(), second.GetHashCode());
+            Assert.False(first.Equals(second));
+            Assert.False(first == second);
+            Assert.True(first != second);
         }
 
         [Fact]
@@ -250,11 +260,11 @@ public partial class CelsiusTests
         }
 
         [Fact]
-        public void WhenValueIsEmpty_IsFalse()
+        public void WhenValueIsZero_IsTrue()
         {
-            Celsius sut = Celsius.Empty;
+            Celsius sut = Celsius.Zero;
 
-            Assert.False(sut.IsInitialized());
+            Assert.True(sut.IsInitialized());
         }
     }
 
@@ -353,13 +363,13 @@ public partial class CelsiusTests
         }
 
         [Fact]
-        public void CanRoundTripEmpty()
+        public void CanRoundTripZero()
         {
-            var original = Celsius.Empty;
+            var original = Celsius.Zero;
 
             var serialized = JsonSerializer.Serialize(original);
 
-            Assert.Equal("null", serialized);
+            Assert.Equal("0", serialized);
 
             var deserialized = JsonSerializer.Deserialize<Celsius>(serialized);
 
@@ -380,33 +390,33 @@ public partial class CelsiusTests
         }
 
         [Fact]
-        public void SerializesEmptyToEmpty()
+        public void SerializesZeroToZero()
         {
-            var container = new Container { Id = "one", Data = Celsius.Empty };
+            var container = new Container { Id = "one", Data = Celsius.Zero };
 
             var serialized = JsonSerializer.Serialize(container);
 
             Assert.Equal(
-                "{\"Id\":\"one\",\"Data\":null}",
+                "{\"Id\":\"one\",\"Data\":0}",
                 serialized
             );
         }
 
         [Fact]
-        public void DeserializesEmptyToEmpty()
+        public void DeserializesZeroToZero()
         {
-            var serialized = "{\"Id\":\"one\",\"Data\":null}";
+            var serialized = "{\"Id\":\"one\",\"Data\":0}";
 
             var deserialized = JsonSerializer.Deserialize<Container>(serialized);
 
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
-            Assert.Equal(Celsius.Empty, deserialized.Data);
-            Assert.Equal(default, deserialized.Data);
+            Assert.Equal(Celsius.Zero, deserialized.Data);
+            Assert.True(deserialized.Data.IsInitialized());
         }
 
         [Fact]
-        public void DeserializesMissingToEmpty()
+        public void DeserializesMissingToUnitialized()
         {
             var serialized = "{\"Id\":\"one\"}";
 
@@ -414,8 +424,8 @@ public partial class CelsiusTests
 
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
-            Assert.Equal(Celsius.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
+            Assert.False(deserialized.Data.IsInitialized());
         }
 
         internal class Container

@@ -9,6 +9,7 @@
             public partial record struct LegacyPhoneNumber : IEquatable<LegacyPhoneNumber>
 , IEquatable<System.String> {
                 private readonly System.String _value;
+                private readonly bool _initialized;
                 private static readonly Type UnderlyingType = typeof(System.String);
 
                 public System.String Value => _value;
@@ -19,6 +20,7 @@
                 public LegacyPhoneNumber()
                 {
                     _value = System.String.Empty;
+                    _initialized = false;
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
@@ -26,7 +28,13 @@
                     if (validation) {
                         
                     }
-                    _value = value ?? System.String.Empty;
+                    if (value == default) {
+                        _initialized = false;
+                        _value = System.String.Empty;
+                    } else {
+                        _initialized = true;
+                        _value = value;
+                    }
                 }
 
                 public static LegacyPhoneNumber From(System.String? value) {
@@ -45,7 +53,7 @@
 
                 public static LegacyPhoneNumber Empty => new LegacyPhoneNumber(System.String.Empty, validation: false);
 
-                public bool IsInitialized() => !System.String.IsNullOrWhiteSpace(_value);
+                public bool IsInitialized() => _initialized;
 
                 
                 /// <inheritdoc />
