@@ -53,7 +53,7 @@
                 }
 
 
-                public static Celsius Zero => new Celsius(default, validation: false);
+                public static Celsius Zero { get; } = new Celsius(default, validation: false);
 
                 public bool IsInitialized() => _initialized;
 

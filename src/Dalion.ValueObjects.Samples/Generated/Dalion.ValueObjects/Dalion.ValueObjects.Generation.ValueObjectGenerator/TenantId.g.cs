@@ -49,7 +49,7 @@
                 }
 
 
-                public static TenantId Empty => new TenantId(default, validation: false);
+                public static TenantId Empty { get; } = new TenantId(default, validation: false);
 
                 public bool IsInitialized() => _initialized;
 

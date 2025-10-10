@@ -64,7 +64,7 @@
                 }
 
 
-                public static LegacyPhoneNumber Empty => new LegacyPhoneNumber(System.String.Empty, validation: false);
+                public static LegacyPhoneNumber Empty { get; } = new LegacyPhoneNumber(System.String.Empty, validation: false);
 
                 public bool IsInitialized() => _initialized;
 

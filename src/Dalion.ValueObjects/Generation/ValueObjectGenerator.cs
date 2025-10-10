@@ -813,7 +813,7 @@ private class ValueObjectValidationException : Exception
 
                 {creation}
 
-                public static {typeName} {emptyValueName} => new {typeName}({defaultValue}, validation: false);
+                public static {typeName} {emptyValueName} {{ get; }} = new {typeName}({defaultValue}, validation: false);
 
                 public bool IsInitialized() => _initialized;
 

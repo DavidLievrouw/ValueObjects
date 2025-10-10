@@ -72,7 +72,7 @@
                 }
 
 
-                public static ResourceGroupName Empty => new ResourceGroupName(System.String.Empty, validation: false);
+                public static ResourceGroupName Empty { get; } = new ResourceGroupName(System.String.Empty, validation: false);
 
                 public bool IsInitialized() => _initialized;
 

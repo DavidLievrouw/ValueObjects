@@ -72,7 +72,7 @@
                 }
 
 
-                public static Password Empty => new Password(System.String.Empty, validation: false);
+                public static Password Empty { get; } = new Password(System.String.Empty, validation: false);
 
                 public bool IsInitialized() => _initialized;
 
