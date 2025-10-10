@@ -71,7 +71,7 @@ public partial class PasswordTests
         }
 
         [Fact]
-        public void CanCreateUninitializedWithNullValue()
+        public void CannotCreateUninitializedWithNullValue()
         {
             var success = Password.TryFrom(null, out var actual);
             

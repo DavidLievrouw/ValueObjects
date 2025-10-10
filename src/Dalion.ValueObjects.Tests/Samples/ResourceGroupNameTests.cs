@@ -73,7 +73,7 @@ public partial class ResourceGroupNameTests
         }
 
         [Fact]
-        public void CanCreateUninitializedWithNullValue()
+        public void CannotCreateUninitializedWithNullValue()
         {
             var success = ResourceGroupName.TryFrom(null, out var actual);
             
