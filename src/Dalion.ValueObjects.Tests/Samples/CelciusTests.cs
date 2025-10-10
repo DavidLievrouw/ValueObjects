@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.ComponentModel;
+using System.Globalization;
 using System.Text.Json;
 using Xunit;
 
@@ -23,9 +24,9 @@ public partial class CelsiusTests
         public void From_CreatesCelsiusWithValue()
         {
             var backingValue = 24.2M;
-            
+
             var actual = Celsius.From(backingValue);
-            
+
             Assert.Equal(backingValue, actual.Value);
         }
 
@@ -33,17 +34,17 @@ public partial class CelsiusTests
         public void CanCreateZero()
         {
             var backingValue = 0m;
-            
+
             var actual = Celsius.From(backingValue);
-            
+
             Assert.Equal(backingValue, actual.Value);
-            
+
             var zero = Celsius.Zero;
             Assert.True(actual.Equals(zero));
             Assert.True(actual == zero);
             Assert.False(actual != zero);
             Assert.Equal(actual.GetHashCode(), zero.GetHashCode());
-            
+
             Assert.True(actual.IsInitialized());
         }
 
@@ -78,16 +79,16 @@ public partial class CelsiusTests
             var success = Celsius.TryFrom(0m, out var actual);
 
             Assert.True(success);
-            
+
             var zero = Celsius.Zero;
             Assert.True(actual.Equals(zero));
             Assert.True(actual == zero);
             Assert.False(actual != zero);
             Assert.Equal(actual.GetHashCode(), zero.GetHashCode());
-            
+
             Assert.True(actual.IsInitialized());
         }
-        
+
         [Theory]
         [InlineData(-273.16)] // lower than absolute zero
         [InlineData(-300)] // lower than absolute zero
@@ -120,7 +121,7 @@ public partial class CelsiusTests
             Assert.Equal(0m, actual.Value);
         }
     }
-    
+
     public class Comparison : CelsiusTests
     {
         [Fact]
@@ -135,7 +136,7 @@ public partial class CelsiusTests
             Assert.True(a.CompareTo(a2) == 0);
         }
     }
-    
+
     public class Equality : CelsiusTests
     {
         [Fact]
@@ -232,7 +233,7 @@ public partial class CelsiusTests
             var third = -2.4m;
             Assert.False(first.Equals(third));
         }
-        
+
         [Fact]
         public void HasEqualityOperatorsForUnderlyingType()
         {
@@ -396,10 +397,7 @@ public partial class CelsiusTests
 
             var serialized = JsonSerializer.Serialize(container);
 
-            Assert.Equal(
-                "{\"Id\":\"one\",\"Data\":null}",
-                serialized
-            );
+            Assert.Equal("{\"Id\":\"one\",\"Data\":null}", serialized);
         }
 
         [Fact]
@@ -409,10 +407,7 @@ public partial class CelsiusTests
 
             var serialized = JsonSerializer.Serialize(container);
 
-            Assert.Equal(
-                "{\"Id\":\"one\",\"Data\":0}",
-                serialized
-            );
+            Assert.Equal("{\"Id\":\"one\",\"Data\":0}", serialized);
         }
 
         [Fact]
@@ -426,7 +421,7 @@ public partial class CelsiusTests
             Assert.Equal("one", deserialized.Id);
             Assert.Equal(Celsius.Zero, deserialized.Data);
             Assert.NotEqual(default, deserialized.Data);
-            
+
             Assert.True(deserialized.Data.IsInitialized());
         }
 
@@ -440,7 +435,7 @@ public partial class CelsiusTests
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
             Assert.Equal(default, deserialized.Data);
-            
+
             Assert.False(deserialized.Data.IsInitialized());
         }
 
@@ -454,7 +449,7 @@ public partial class CelsiusTests
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
             Assert.Equal(default, deserialized.Data);
-            
+
             Assert.False(deserialized.Data.IsInitialized());
         }
 
@@ -470,7 +465,7 @@ public partial class CelsiusTests
         [Fact]
         public void CanConvertFromUnderlyingType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Celsius));
+            var converter = TypeDescriptor.GetConverter(typeof(Celsius));
             Assert.True(converter.CanConvertFrom(typeof(decimal)));
 
             var backingValue = 24.2m;
@@ -482,7 +477,7 @@ public partial class CelsiusTests
         [Fact]
         public void CannotConvertFromUnsupportedType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Celsius));
+            var converter = TypeDescriptor.GetConverter(typeof(Celsius));
             Assert.False(converter.CanConvertFrom(typeof(int)));
 
             Action act = () => converter.ConvertFrom(5);
@@ -493,7 +488,7 @@ public partial class CelsiusTests
         [Fact]
         public void CanConvertToUnderlyingType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Celsius));
+            var converter = TypeDescriptor.GetConverter(typeof(Celsius));
             Assert.True(converter.CanConvertTo(typeof(decimal)));
 
             var backingValue = 24.2m;
@@ -506,7 +501,7 @@ public partial class CelsiusTests
         [Fact]
         public void CannotConvertToUnsupportedType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Celsius));
+            var converter = TypeDescriptor.GetConverter(typeof(Celsius));
             Assert.False(converter.CanConvertTo(typeof(int)));
 
             var backingValue = 24.2m;
@@ -514,6 +509,38 @@ public partial class CelsiusTests
             Action act = () => converter.ConvertTo(sut, typeof(int));
 
             Assert.Throws<NotSupportedException>(act);
+        }
+    }
+
+    public class IsValid : CelsiusTests
+    {
+        [Fact]
+        public void ValidInstanceIsValid()
+        {
+            var backingValue = 24.2m;
+            var sut = Celsius.From(backingValue);
+
+            Assert.True(sut.IsValid());
+        }
+
+        [Fact]
+        public void ZeroIsValid()
+        {
+            var sut = Celsius.Zero;
+
+            Assert.True(sut.IsValid());
+        }
+    }
+
+    public class GetValidationErrorMessage : CelsiusTests
+    {
+        [Fact]
+        public void WhenValidReturnsNull()
+        {
+            var backingValue = 24.2m;
+            var sut = Celsius.From(backingValue);
+
+            Assert.Null(sut.GetValidationErrorMessage());
         }
     }
 

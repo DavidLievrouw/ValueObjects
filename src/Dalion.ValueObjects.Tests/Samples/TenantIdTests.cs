@@ -447,6 +447,38 @@ public partial class TenantIdTests
         }
     }
     
+    public class IsValid : TenantIdTests
+    {
+        [Fact]
+        public void ValidInstanceIsValid()
+        {
+            var backingValue = Guid.NewGuid();
+            var sut = TenantId.From(backingValue);
+
+            Assert.True(sut.IsValid());
+        }
+
+        [Fact]
+        public void EmptyIsValid()
+        {
+            var sut = TenantId.Empty;
+
+            Assert.True(sut.IsValid());
+        }
+    }
+
+    public class GetValidationErrorMessage : TenantIdTests
+    {
+        [Fact]
+        public void WhenValidReturnsNull()
+        {
+            var backingValue = Guid.NewGuid();
+            var sut = TenantId.From(backingValue);
+
+            Assert.Null(sut.GetValidationErrorMessage());
+        }
+    }
+    
     [ValueObject<Guid>(
         fromUnderlyingTypeCasting: CastOperator.Explicit,
         toUnderlyingTypeCasting: CastOperator.None,

@@ -10,9 +10,10 @@
 , IEquatable<System.Decimal>, IComparable<Celsius>, IComparable {
                 private readonly System.Decimal _value;
                 private readonly bool _initialized;
-#pragma warning disable CS0169
+#pragma warning disable CS0414
                 private readonly bool _isNullOrEmpty;
-#pragma warning restore CS0169
+#pragma warning restore CS0414
+                private readonly Validation _validation;
                 private static readonly Type UnderlyingType = typeof(System.Decimal);
 
                 public System.Decimal Value => _value;
@@ -24,6 +25,8 @@
                 {
                     _value = default;
                     _initialized = false;
+                    _isNullOrEmpty = false;
+                    _validation = Validate(_value);
                 }
 
                 private Celsius(System.Decimal value, bool validation = true) {
@@ -37,6 +40,8 @@
                     }
                     _initialized = true;
                     _value = value;
+                    _isNullOrEmpty = false;
+                    _validation = Validate(_value);
                 }
 
                 public static Celsius From(System.Decimal value) {
@@ -178,6 +183,10 @@
                     return Value.ToString(format: null, provider: provider) ?? "";
                 }
 
+
+                
+public bool IsValid() => _validation.IsSuccess;
+public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _validation.ErrorMessage;
 
                 
 private class Validation

@@ -10,9 +10,10 @@
 , IEquatable<System.Guid> {
                 private readonly System.Guid _value;
                 private readonly bool _initialized;
-#pragma warning disable CS0169
+#pragma warning disable CS0414
                 private readonly bool _isNullOrEmpty;
-#pragma warning restore CS0169
+#pragma warning restore CS0414
+                private readonly Validation _validation;
                 private static readonly Type UnderlyingType = typeof(System.Guid);
 
                 public System.Guid Value => _value;
@@ -24,6 +25,8 @@
                 {
                     _value = default;
                     _initialized = false;
+                    _isNullOrEmpty = false;
+                    _validation = Validation.Ok;
                 }
 
                 private TenantId(System.Guid value, bool validation = true) {
@@ -33,6 +36,8 @@
                     }
                     _initialized = true;
                     _value = value;
+                    _isNullOrEmpty = false;
+                    _validation = Validation.Ok;
                 }
 
                 public static TenantId From(System.Guid value) {
@@ -139,6 +144,10 @@
                     return Value.ToString(format: null, provider: provider) ?? "";
                 }
 
+
+                
+public bool IsValid() => _validation.IsSuccess;
+public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _validation.ErrorMessage;
 
                 
 private class Validation

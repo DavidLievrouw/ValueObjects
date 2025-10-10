@@ -336,10 +336,17 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 && member.Modifiers.Any(SyntaxKind.StaticKeyword)
                 && member.ParameterList.Parameters.Count == 1
                 && SymbolEqualityComparer.Default.Equals(
-                    target.SemanticModel.GetTypeInfo(member.ParameterList.Parameters[0].Type!).Type!,
+                    target
+                        .SemanticModel.GetTypeInfo(member.ParameterList.Parameters[0].Type!)
+                        .Type!,
                     target.SemanticModel.Compilation.GetTypeByMetadataName(valueType.FullName!)
                 )
             );
+
+        var validationFieldAssignment =
+            validateMethod == null
+                ? "_validation = Validation.Ok;"
+                : "_validation = Validate(_value);";
 
         var ctorValidation =
             validateMethod == null
@@ -354,7 +361,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
             validateMethod == null
                 ? "return result.IsInitialized();"
                 : "return result.IsInitialized() && Validate(result._value).IsSuccess;";
-        
+
         var normalizeMethod = target
             .SyntaxInformation.Members.OfType<MethodDeclarationSyntax>()
             .FirstOrDefault(member =>
@@ -363,7 +370,9 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 && member.Modifiers.Any(SyntaxKind.StaticKeyword)
                 && member.ParameterList.Parameters.Count == 1
                 && SymbolEqualityComparer.Default.Equals(
-                    target.SemanticModel.GetTypeInfo(member.ParameterList.Parameters[0].Type!).Type!,
+                    target
+                        .SemanticModel.GetTypeInfo(member.ParameterList.Parameters[0].Type!)
+                        .Type!,
                     target.SemanticModel.Compilation.GetTypeByMetadataName(valueType.FullName!)
                 )
                 && SymbolEqualityComparer.Default.Equals(
@@ -371,11 +380,8 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     target.SemanticModel.Compilation.GetTypeByMetadataName(valueType.FullName!)
                 )
             );
-        var inputNormalization =
-            normalizeMethod == null
-                ? ""
-                : "value = NormalizeInput(value);";
-        
+        var inputNormalization = normalizeMethod == null ? "" : "value = NormalizeInput(value);";
+
         var stringComparison =
             config.CaseSensitivity == StringCaseSensitivity.CaseInsensitive
                 ? "OrdinalIgnoreCase"
@@ -503,8 +509,10 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 }}";
 
         var equalityOperators =
-            (config.UnderlyingTypeEqualityGeneration & UnderlyingTypeEqualityGeneration.GenerateOperators)
-            == UnderlyingTypeEqualityGeneration.GenerateOperators
+            (
+                config.UnderlyingTypeEqualityGeneration
+                & UnderlyingTypeEqualityGeneration.GenerateOperators
+            ) == UnderlyingTypeEqualityGeneration.GenerateOperators
                 ? valueType == typeof(string)
                     ? $@"
     public static bool operator ==({typeName} left, {valueTypeName}? right) => left.Value.Equals(right);
@@ -536,6 +544,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     _value = {valueTypeName}.Empty;
                     _initialized = false;
                     _isNullOrEmpty = {valueTypeName}.IsNullOrEmpty(_value);
+                    {validationFieldAssignment}
                 }}
 
                 [System.Diagnostics.DebuggerStepThrough]
@@ -552,6 +561,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         _value = value;
                     }}
                     _isNullOrEmpty = {valueTypeName}.IsNullOrEmpty(_value);
+                    {validationFieldAssignment}
                 }}
 
                 public static {typeName} From({valueTypeName}? value) {{
@@ -581,6 +591,8 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 {{
                     _value = default;
                     _initialized = false;
+                    _isNullOrEmpty = false;
+                    {validationFieldAssignment}
                 }}
 
                 private {typeName}({valueTypeName} value, bool validation = true) {{
@@ -590,6 +602,8 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     }}
                     _initialized = true;
                     _value = value;
+                    _isNullOrEmpty = false;
+                    {validationFieldAssignment}
                 }}
 
                 public static {typeName} From({valueTypeName} value) {{
@@ -679,7 +693,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 {{
                     return {typeName}.From(value);
                 }}";
-
+        
         var validationClasses =
             @"
 private class Validation
@@ -732,6 +746,10 @@ private class ValueObjectValidationException : Exception
         : base(message, innerException) { }
 }";
 
+        var validationMembers = @"
+public bool IsValid() => _validation.IsSuccess;
+public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _validation.ErrorMessage;
+";
         var toStringOverrides =
             valueType == typeof(string)
                 ? @"
@@ -766,8 +784,10 @@ private class ValueObjectValidationException : Exception
         var interfaceDefsBuilder = new StringBuilder();
         interfaceDefsBuilder.AppendLine($": IEquatable<{typeName}>");
         if (
-            (config.UnderlyingTypeEqualityGeneration & UnderlyingTypeEqualityGeneration.GenerateMethods)
-            == UnderlyingTypeEqualityGeneration.GenerateMethods
+            (
+                config.UnderlyingTypeEqualityGeneration
+                & UnderlyingTypeEqualityGeneration.GenerateMethods
+            ) == UnderlyingTypeEqualityGeneration.GenerateMethods
         )
         {
             interfaceDefsBuilder.Append($", IEquatable<{valueTypeName}>");
@@ -793,7 +813,7 @@ private class ValueObjectValidationException : Exception
 
         var containingTypes = GetContainingTypes(target.SymbolInformation);
         var closingBraces = GetClosingBraces(target.SymbolInformation);
-        
+
         var generatedClass =
             $@"
         #nullable enable
@@ -806,9 +826,10 @@ private class ValueObjectValidationException : Exception
             public partial record struct {typeName} {interfaceDefs} {{
                 private readonly {valueTypeName} _value;
                 private readonly bool _initialized;
-#pragma warning disable CS0169
+#pragma warning disable CS0414
                 private readonly bool _isNullOrEmpty;
-#pragma warning restore CS0169
+#pragma warning restore CS0414
+                private readonly Validation _validation;
                 private static readonly Type UnderlyingType = typeof({valueTypeName});
 
                 public {valueTypeName} Value => _value;
@@ -833,6 +854,7 @@ private class ValueObjectValidationException : Exception
 
                 {toStringOverrides}
 
+                {validationMembers}
                 {validationClasses}
 
                 {jsonConverter}
@@ -857,7 +879,7 @@ private class ValueObjectValidationException : Exception
                 TypeKind.Struct => "struct",
                 TypeKind.Interface => "interface",
                 TypeKind.Enum => "enum",
-                _ => "class"
+                _ => "class",
             };
             var recordModifier = current.IsRecord ? "record " : "";
             types.Push($"public partial {recordModifier}{kind} {current.Name} {{");

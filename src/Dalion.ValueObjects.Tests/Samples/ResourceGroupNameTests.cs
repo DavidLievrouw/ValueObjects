@@ -564,6 +564,44 @@ public partial class ResourceGroupNameTests
         }
     }
 
+    public class IsValid : ResourceGroupNameTests
+    {
+        [Fact]
+        public void ValidInstanceIsValid()
+        {
+            var sut = ResourceGroupName.From("test-resource-group-name");
+
+            Assert.True(sut.IsValid());
+        }
+
+        [Fact]
+        public void EmptyIsInvalid()
+        {
+            var sut = ResourceGroupName.Empty;
+
+            Assert.False(sut.IsValid());
+        }
+    }
+
+    public class GetValidationErrorMessage : ResourceGroupNameTests
+    {
+        [Fact]
+        public void WhenValidReturnsNull()
+        {
+            var sut = ResourceGroupName.From("test-resource-group-name");
+
+            Assert.Null(sut.GetValidationErrorMessage());
+        }
+
+        [Fact]
+        public void WhenInvalid_ReturnsErrorMessage()
+        {
+            var sut = ResourceGroupName.Empty;
+
+            Assert.Equal("ResourceGroupName cannot be null, empty, or whitespace.", sut.GetValidationErrorMessage());
+        }
+    }
+
     [ValueObject<string>(
         fromUnderlyingTypeCasting: CastOperator.Explicit,
         toUnderlyingTypeCasting: CastOperator.Explicit,

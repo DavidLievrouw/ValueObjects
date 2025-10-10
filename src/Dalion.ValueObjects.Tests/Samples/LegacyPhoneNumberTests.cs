@@ -534,6 +534,36 @@ public partial class LegacyPhoneNumberTests
             Assert.Throws<NotSupportedException>(act);
         }
     }
+    
+    public class IsValid : LegacyPhoneNumberTests
+    {
+        [Fact]
+        public void ValidInstanceIsValid()
+        {
+            var sut = LegacyPhoneNumber.From("+44 1.5458.55.44.8");
+
+            Assert.True(sut.IsValid());
+        }
+
+        [Fact]
+        public void EmptyIsValid()
+        {
+            var sut = LegacyPhoneNumber.Empty;
+
+            Assert.True(sut.IsValid());
+        }
+    }
+
+    public class GetValidationErrorMessage : LegacyPhoneNumberTests
+    {
+        [Fact]
+        public void WhenValidReturnsNull()
+        {
+            var sut = LegacyPhoneNumber.From("+44 1.5458.55.44.8");
+
+            Assert.Null(sut.GetValidationErrorMessage());
+        }
+    }
 
     [ValueObject<string>(
         fromUnderlyingTypeCasting: CastOperator.Explicit,

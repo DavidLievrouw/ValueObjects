@@ -10,9 +10,10 @@
 , IEquatable<System.String> {
                 private readonly System.String _value;
                 private readonly bool _initialized;
-#pragma warning disable CS0169
+#pragma warning disable CS0414
                 private readonly bool _isNullOrEmpty;
-#pragma warning restore CS0169
+#pragma warning restore CS0414
+                private readonly Validation _validation;
                 private static readonly Type UnderlyingType = typeof(System.String);
 
                 public System.String Value => _value;
@@ -25,6 +26,7 @@
                     _value = System.String.Empty;
                     _initialized = false;
                     _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
+                    _validation = Validation.Ok;
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
@@ -41,6 +43,7 @@
                         _value = value;
                     }
                     _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
+                    _validation = Validation.Ok;
                 }
 
                 public static LegacyPhoneNumber From(System.String? value) {
@@ -180,6 +183,10 @@
                     return Value.ToString(provider: provider) ?? "";
                 }}
 
+
+                
+public bool IsValid() => _validation.IsSuccess;
+public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _validation.ErrorMessage;
 
                 
 private class Validation

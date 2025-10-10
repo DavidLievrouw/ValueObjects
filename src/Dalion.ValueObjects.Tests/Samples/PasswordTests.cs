@@ -29,7 +29,7 @@ public partial class PasswordTests
         public void CannotCreateUninitializedWithNullValue()
         {
             Action act = () => Password.From(null);
-            
+
             Assert.Throws<InvalidOperationException>(act);
         }
 
@@ -74,7 +74,7 @@ public partial class PasswordTests
         public void CannotCreateUninitializedWithNullValue()
         {
             var success = Password.TryFrom(null, out var actual);
-            
+
             Assert.False(success);
             Assert.False(actual.IsInitialized());
         }
@@ -284,7 +284,7 @@ public partial class PasswordTests
         public void WhenEmptyString_CreatesEmpty()
         {
             var actual = JsonSerializer.Deserialize<Password>("\"\"");
-            
+
             Assert.Equal(Password.Empty, actual);
         }
 
@@ -369,7 +369,7 @@ public partial class PasswordTests
             Assert.Equal("one", deserialized.Id);
             Assert.Equal(Password.Empty, deserialized.Data);
             Assert.NotEqual(default, deserialized.Data);
-            
+
             Assert.True(deserialized.Data.IsInitialized());
         }
 
@@ -384,7 +384,7 @@ public partial class PasswordTests
             Assert.Equal("one", deserialized.Id);
             Assert.NotEqual(Password.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
-            
+
             Assert.False(deserialized.Data.IsInitialized());
         }
 
@@ -399,7 +399,7 @@ public partial class PasswordTests
             Assert.Equal("one", deserialized.Id);
             Assert.NotEqual(Password.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
-            
+
             Assert.False(deserialized.Data.IsInitialized());
         }
 
@@ -456,6 +456,44 @@ public partial class PasswordTests
             Action act = () => converter.ConvertTo(sut, typeof(int));
 
             Assert.Throws<NotSupportedException>(act);
+        }
+    }
+
+    public class IsValid : PasswordTests
+    {
+        [Fact]
+        public void ValidInstanceIsValid()
+        {
+            var sut = Password.From("test-Pwd2");
+
+            Assert.True(sut.IsValid());
+        }
+
+        [Fact]
+        public void EmptyIsInvalid()
+        {
+            var sut = Password.Empty;
+
+            Assert.False(sut.IsValid());
+        }
+    }
+
+    public class GetValidationErrorMessage : ResourceGroupNameTests
+    {
+        [Fact]
+        public void WhenValidReturnsNull()
+        {
+            var sut = Password.From("test-Pwd2");
+
+            Assert.Null(sut.GetValidationErrorMessage());
+        }
+
+        [Fact]
+        public void WhenInvalid_ReturnsErrorMessage()
+        {
+            var sut = Password.Empty;
+
+            Assert.Equal("Password cannot be null, empty, or whitespace.", sut.GetValidationErrorMessage());
         }
     }
 
