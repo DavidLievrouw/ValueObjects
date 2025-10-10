@@ -10,6 +10,9 @@
 , IEquatable<System.Guid> {
                 private readonly System.Guid _value;
                 private readonly bool _initialized;
+#pragma warning disable CS0169
+                private readonly bool _isNullOrEmpty;
+#pragma warning restore CS0169
                 private static readonly Type UnderlyingType = typeof(System.Guid);
 
                 public System.Guid Value => _value;

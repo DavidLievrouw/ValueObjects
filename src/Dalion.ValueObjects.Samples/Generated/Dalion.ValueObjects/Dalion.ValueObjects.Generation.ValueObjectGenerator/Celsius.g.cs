@@ -10,6 +10,9 @@
 , IEquatable<System.Decimal>, IComparable<Celsius>, IComparable {
                 private readonly System.Decimal _value;
                 private readonly bool _initialized;
+#pragma warning disable CS0169
+                private readonly bool _isNullOrEmpty;
+#pragma warning restore CS0169
                 private static readonly Type UnderlyingType = typeof(System.Decimal);
 
                 public System.Decimal Value => _value;

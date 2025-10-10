@@ -399,8 +399,8 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         return false;
                     }}
             
-                    return {valueTypeName}.IsNullOrWhiteSpace(other.Value.Value)
-                        ? {valueTypeName}.IsNullOrWhiteSpace(this._value)
+                    return other.Value._isNullOrEmpty
+                        ? this._isNullOrEmpty
                         : {valueTypeName}.Equals(this._value, other.Value.Value, System.StringComparison.{stringComparison});
                 }}
 
@@ -417,8 +417,8 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         return false;
                     }}
             
-                    return {valueTypeName}.IsNullOrWhiteSpace(other.Value)
-                        ? {valueTypeName}.IsNullOrWhiteSpace(this._value)
+                    return other._isNullOrEmpty
+                        ? this._isNullOrEmpty
                         : {valueTypeName}.Equals(this._value, other.Value, System.StringComparison.{stringComparison});
                 }}
             
@@ -486,8 +486,8 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 /// <inheritdoc />
                 public bool Equals({valueTypeName}? other)
                 {{
-                    return {valueTypeName}.IsNullOrWhiteSpace(other)
-                        ? {valueTypeName}.IsNullOrWhiteSpace(this._value)
+                    return {valueTypeName}.IsNullOrEmpty(other)
+                        ? this._isNullOrEmpty
                         : {valueTypeName}.Equals(this._value, other, System.StringComparison.{stringComparison});
                 }}
             
@@ -535,6 +535,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 {{
                     _value = {valueTypeName}.Empty;
                     _initialized = false;
+                    _isNullOrEmpty = {valueTypeName}.IsNullOrEmpty(_value);
                 }}
 
                 [System.Diagnostics.DebuggerStepThrough]
@@ -550,6 +551,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         _initialized = true;
                         _value = value;
                     }}
+                    _isNullOrEmpty = {valueTypeName}.IsNullOrEmpty(_value);
                 }}
 
                 public static {typeName} From({valueTypeName}? value) {{
@@ -568,7 +570,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         {tryFromValidation}
                     }}
 
-                    result = string.IsNullOrWhiteSpace(value) ? {emptyValueName} : new {typeName}(value, validation: false);
+                    result = string.IsNullOrEmpty(value) ? {emptyValueName} : new {typeName}(value, validation: false);
                     {tryFromValidation}
                 }}
 "
@@ -802,6 +804,9 @@ private class ValueObjectValidationException : Exception
             public partial record struct {typeName} {interfaceDefs} {{
                 private readonly {valueTypeName} _value;
                 private readonly bool _initialized;
+#pragma warning disable CS0169
+                private readonly bool _isNullOrEmpty;
+#pragma warning restore CS0169
                 private static readonly Type UnderlyingType = typeof({valueTypeName});
 
                 public {valueTypeName} Value => _value;

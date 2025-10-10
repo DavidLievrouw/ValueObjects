@@ -10,6 +10,9 @@
 , IEquatable<System.String> {
                 private readonly System.String _value;
                 private readonly bool _initialized;
+#pragma warning disable CS0169
+                private readonly bool _isNullOrEmpty;
+#pragma warning restore CS0169
                 private static readonly Type UnderlyingType = typeof(System.String);
 
                 public System.String Value => _value;
@@ -21,6 +24,7 @@
                 {
                     _value = System.String.Empty;
                     _initialized = false;
+                    _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
@@ -36,6 +40,7 @@
                         _initialized = true;
                         _value = value;
                     }
+                    _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
                 }
 
                 public static LegacyPhoneNumber From(System.String? value) {
@@ -54,7 +59,7 @@
                         return result.IsInitialized();
                     }
 
-                    result = string.IsNullOrWhiteSpace(value) ? Empty : new LegacyPhoneNumber(value, validation: false);
+                    result = string.IsNullOrEmpty(value) ? Empty : new LegacyPhoneNumber(value, validation: false);
                     return result.IsInitialized();
                 }
 
@@ -79,8 +84,8 @@
                         return false;
                     }
             
-                    return System.String.IsNullOrWhiteSpace(other.Value.Value)
-                        ? System.String.IsNullOrWhiteSpace(this._value)
+                    return other.Value._isNullOrEmpty
+                        ? this._isNullOrEmpty
                         : System.String.Equals(this._value, other.Value.Value, System.StringComparison.Ordinal);
                 }
 
@@ -97,8 +102,8 @@
                         return false;
                     }
             
-                    return System.String.IsNullOrWhiteSpace(other.Value)
-                        ? System.String.IsNullOrWhiteSpace(this._value)
+                    return other._isNullOrEmpty
+                        ? this._isNullOrEmpty
                         : System.String.Equals(this._value, other.Value, System.StringComparison.Ordinal);
                 }
             
@@ -118,8 +123,8 @@
                 /// <inheritdoc />
                 public bool Equals(System.String? other)
                 {
-                    return System.String.IsNullOrWhiteSpace(other)
-                        ? System.String.IsNullOrWhiteSpace(this._value)
+                    return System.String.IsNullOrEmpty(other)
+                        ? this._isNullOrEmpty
                         : System.String.Equals(this._value, other, System.StringComparison.Ordinal);
                 }
             
