@@ -4,8 +4,8 @@
 ## Release 1.0.0
 
 ### New Rules
-
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-DVOG001 | Usage | Error    | DoNotUseNewAnalyzer
-DVOG002 | Usage | Error    | UseOnReadonlyRecordStruct
+DVO001 | Usage | Error    | DoNotUseNewAnalyzer
+DVO002 | Usage | Error    | UseOnReadOnlyRecordStruct
+DVO003 | Usage | Error    | DoNotUseTwoWayImplicitConversion

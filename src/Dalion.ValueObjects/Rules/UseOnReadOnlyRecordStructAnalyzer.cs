@@ -10,12 +10,12 @@ namespace Dalion.ValueObjects.Rules;
 ///     Analyzer that prohibits the use of 'new' to create value objects.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class UseOnReadonlyRecordStructAnalyzer : DiagnosticAnalyzer
+public class UseOnReadOnlyRecordStructAnalyzer : DiagnosticAnalyzer
 {
-    private static readonly DiagnosticDescriptor Rule1 = new(
-        RuleIdentifiers.UseOnReadonlyRecordStruct,
-        "Only readonly record structs can be used as Value Objects",
-        "Only readonly record structs can be used as Value Objects. Type '{0}' is not a readonly record struct.",
+    private static readonly DiagnosticDescriptor Rule = new(
+        RuleIdentifiers.UseOnReadOnlyRecordStruct,
+        "Only readonly record structs can be used as value objects",
+        "Only readonly record structs can be used as value objects. Type '{0}' is not a readonly record struct.",
         RuleCategories.Usage,
         DiagnosticSeverity.Error,
         true,
@@ -24,7 +24,7 @@ public class UseOnReadonlyRecordStructAnalyzer : DiagnosticAnalyzer
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(Rule1);
+        ImmutableArray.Create(Rule);
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -60,7 +60,7 @@ public class UseOnReadonlyRecordStructAnalyzer : DiagnosticAnalyzer
         }
 
         var diagnostic = DiagnosticsCatalogue.BuildDiagnostic(
-            Rule1,
+            Rule,
             symbol.Name,
             symbol.Locations[0]
         );

@@ -299,18 +299,6 @@ public partial class LegacyPhoneNumberTests
         }
 
         [Fact]
-        public void IsImplicitlyConvertibleFromUnderlyingType()
-        {
-            var value = Guid.NewGuid().ToString();
-            var str = value;
-
-            LegacyPhoneNumber actual = str;
-
-            var expected = LegacyPhoneNumber.From(value);
-            Assert.Equal(expected, actual);
-        }
-
-        [Fact]
         public void IsExplicitlyConvertibleFromUnderlyingType()
         {
             var value = Guid.NewGuid().ToString();

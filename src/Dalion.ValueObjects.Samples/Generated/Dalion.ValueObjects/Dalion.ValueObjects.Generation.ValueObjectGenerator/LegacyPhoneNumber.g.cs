@@ -165,7 +165,7 @@
                 /// </summary>
                 /// <param name="value">The value to convert.</param>
                 /// <returns>The <see cref="LegacyPhoneNumber" /> instance created from the input value.</returns>
-                public static implicit operator LegacyPhoneNumber(System.String value)
+                public static explicit operator LegacyPhoneNumber(System.String value)
                 {
                     return LegacyPhoneNumber.From(value);
                 }

@@ -4,7 +4,7 @@
 ///     A legacy phone number.
 /// </summary>
 [ValueObject<string>(
-    fromUnderlyingTypeCasting: CastOperator.Implicit,
+    fromUnderlyingTypeCasting: CastOperator.Explicit,
     toUnderlyingTypeCasting: CastOperator.Implicit,
     comparison: ComparisonGeneration.Omit
 )]
