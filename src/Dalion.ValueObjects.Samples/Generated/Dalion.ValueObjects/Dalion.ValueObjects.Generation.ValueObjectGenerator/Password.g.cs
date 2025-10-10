@@ -205,6 +205,10 @@ private class PasswordSystemTextJsonConverter : System.Text.Json.Serialization.J
         System.Text.Json.JsonSerializerOptions options
     )
     {
+        if (reader.TokenType == System.Text.Json.JsonTokenType.Null) {
+            return new Password();
+        }
+
         var underlyingType = Password.UnderlyingType;
         object? underlyingValue;
     
@@ -320,9 +324,14 @@ private class PasswordSystemTextJsonConverter : System.Text.Json.Serialization.J
     )
     {
         var underlyingType = Password.UnderlyingType;
-        object underlyingValue = value.IsInitialized()
+        object? underlyingValue = value.IsInitialized()
             ? value.Value
-            : Password.Empty.Value;
+            : null;
+
+        if (underlyingValue == null) {
+            writer.WriteNullValue();
+            return;
+        }
     
         switch (Type.GetTypeCode(underlyingType)) {
             case TypeCode.Boolean:

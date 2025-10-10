@@ -218,6 +218,10 @@ private class LegacyPhoneNumberSystemTextJsonConverter : System.Text.Json.Serial
         System.Text.Json.JsonSerializerOptions options
     )
     {
+        if (reader.TokenType == System.Text.Json.JsonTokenType.Null) {
+            return new LegacyPhoneNumber();
+        }
+
         var underlyingType = LegacyPhoneNumber.UnderlyingType;
         object? underlyingValue;
     
@@ -333,9 +337,14 @@ private class LegacyPhoneNumberSystemTextJsonConverter : System.Text.Json.Serial
     )
     {
         var underlyingType = LegacyPhoneNumber.UnderlyingType;
-        object underlyingValue = value.IsInitialized()
+        object? underlyingValue = value.IsInitialized()
             ? value.Value
-            : LegacyPhoneNumber.Empty.Value;
+            : null;
+
+        if (underlyingValue == null) {
+            writer.WriteNullValue();
+            return;
+        }
     
         switch (Type.GetTypeCode(underlyingType)) {
             case TypeCode.Boolean:

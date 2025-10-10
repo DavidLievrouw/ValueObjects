@@ -3,52 +3,56 @@
 
         namespace Dalion.ValueObjects.Samples {
             
-            [System.Diagnostics.DebuggerDisplay("TenantId {Value}")]
-            [System.Text.Json.Serialization.JsonConverter(typeof(TenantIdSystemTextJsonConverter))]
-            [System.ComponentModel.TypeConverter(typeof(TenantIdTypeConverter))]
-            public partial record struct TenantId : IEquatable<TenantId>
-, IEquatable<System.Guid> {
-                private readonly System.Guid _value;
-                private static readonly Type UnderlyingType = typeof(System.Guid);
+            [System.Diagnostics.DebuggerDisplay("Celsius {Value}")]
+            [System.Text.Json.Serialization.JsonConverter(typeof(CelsiusSystemTextJsonConverter))]
+            [System.ComponentModel.TypeConverter(typeof(CelsiusTypeConverter))]
+            public partial record struct Celsius : IEquatable<Celsius>
+, IEquatable<System.Decimal>, IComparable<Celsius>, IComparable {
+                private readonly System.Decimal _value;
+                private static readonly Type UnderlyingType = typeof(System.Decimal);
 
-                public System.Guid Value => _value;
+                public System.Decimal Value => _value;
 
                 
                 [System.Diagnostics.DebuggerStepThrough]
                 [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-                public TenantId()
+                public Celsius()
                 {
                     _value = default;
                 }
 
-                private TenantId(System.Guid value, bool validation = true) {
+                private Celsius(System.Decimal value, bool validation = true) {
                     if (validation) {
                         
+                  var validationResult = Validate(value);
+                  if (!validationResult.IsSuccess) {
+                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
+                  }
                     }
                     _value = value;
                 }
 
-                public static TenantId From(System.Guid value) {
+                public static Celsius From(System.Decimal value) {
                     if (value == default) {
                         return Empty;
                     }
 
-                    return new TenantId(value);
+                    return new Celsius(value);
                 }
 
-                public static bool TryFrom(System.Guid value, out TenantId result) {
-                    result = value == default ? Empty : new TenantId(value, validation: false);
-                    return result.IsInitialized();
+                public static bool TryFrom(System.Decimal value, out Celsius result) {
+                    result = value == default ? Empty : new Celsius(value, validation: false);
+                    return result.IsInitialized() && Validate(result._value).IsSuccess;
                 }
 
 
-                public static TenantId Empty => new TenantId(default, validation: false);
+                public static Celsius Empty => new Celsius(default, validation: false);
 
                 public bool IsInitialized() => _value != default;
 
                 
                 /// <inheritdoc />
-                public bool Equals(TenantId? other)
+                public bool Equals(Celsius? other)
                 {
                     if (other is null) return false;
 
@@ -62,11 +66,11 @@
                         return false;
                     }
             
-                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other.Value.Value);
+                    return EqualityComparer<System.Decimal>.Default.Equals(this._value, other.Value.Value);
                 }
 
                 /// <inheritdoc />
-                public bool Equals(TenantId other)
+                public bool Equals(Celsius other)
                 {
                     if (!other.IsInitialized())
                     {
@@ -78,10 +82,10 @@
                         return false;
                     }
             
-                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other.Value);
+                    return EqualityComparer<System.Decimal>.Default.Equals(this._value, other.Value);
                 }
             
-                public bool Equals(TenantId? other, IEqualityComparer<TenantId> comparer)
+                public bool Equals(Celsius? other, IEqualityComparer<Celsius> comparer)
                 {
                     if (other is null) return false;
                     return comparer.Equals(this, other.Value);
@@ -90,31 +94,66 @@
                 /// <inheritdoc />
                 public override int GetHashCode() {
                     if (!IsInitialized()) return 0;
-                    return EqualityComparer<System.Guid>.Default.GetHashCode(this._value);
+                    return EqualityComparer<System.Decimal>.Default.GetHashCode(this._value);
                 }
 
                 
                 /// <inheritdoc />
-                public bool Equals(System.Guid other)
+                public bool Equals(System.Decimal other)
                 {
-                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other);
+                    return EqualityComparer<System.Decimal>.Default.Equals(this._value, other);
                 }
 
                 
+    public static bool operator ==(Celsius left, System.Decimal right) => left.Value.Equals(right);
+
+    public static bool operator ==(System.Decimal left, Celsius right) => right.Value.Equals(left);
+
+    public static bool operator !=(System.Decimal left, Celsius right) => !(left == right);
+
+    public static bool operator !=(Celsius left, System.Decimal right) => !(left == right);
+
 
                 
+                public int CompareTo(Celsius other) => this.Value.CompareTo(other.Value);
 
-                
+                public int CompareTo(System.Decimal other) => this.Value.CompareTo(other);
+            
+                public int CompareTo(object? other)
+                {
+                    if (other == null)
+                        return 1;
+                    if (other is Celsius other1)
+                        return this.CompareTo(other1);
+                    if (other is System.Decimal v)
+                        return this.CompareTo(v);
+                    throw new System.ArgumentException(
+                        "Cannot compare to object as it is not of type Celsius",
+                        nameof(other)
+                    );
+                }
+
 
                 
                 /// <summary>
-                ///     An explicit conversion from <see cref="System.Guid" /> to <see cref="TenantId" />.
+                ///     An implicit conversion from <see cref="Celsius" /> to <see cref="System.Decimal" />.
+                /// </summary>
+                /// <param name="id">The value to convert.</param>
+                /// <returns>The System.Decimal representation of the value object.</returns>
+                public static explicit operator System.Decimal(Celsius id)
+                {
+                    return id.Value;
+                }
+
+                
+                /// <summary>
+                ///     An explicit conversion from <see cref="System.Decimal" /> to <see cref="Celsius" />.
                 /// </summary>
                 /// <param name="value">The value to convert.</param>
-                /// <returns>The <see cref="TenantId" /> instance created from the input value.</returns>
-                public static explicit operator TenantId(System.Guid value)
+                /// <returns>The <see cref="Celsius" /> instance created from the input value.</returns>
+                public static explicit operator Celsius(System.Decimal value)
                 {
-                    return TenantId.From(value);
+                    return Celsius.From(value);
                 }
 
                 
@@ -183,35 +222,35 @@ private class ValueObjectValidationException : Exception
 }
 
                 
-private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<TenantId>
+private class CelsiusSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<Celsius>
 {
-    public override TenantId Read(
+    public override Celsius Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
         System.Text.Json.JsonSerializerOptions options
     )
     {
         if (reader.TokenType == System.Text.Json.JsonTokenType.Null) {
-            return new TenantId();
+            return new Celsius();
         }
 
-        var underlyingType = TenantId.UnderlyingType;
+        var underlyingType = Celsius.UnderlyingType;
         object? underlyingValue;
     
         switch (Type.GetTypeCode(underlyingType)) {
             case TypeCode.Boolean:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.True && reader.TokenType != System.Text.Json.JsonTokenType.False)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                 underlyingValue = reader.GetBoolean();
                 break;
             case TypeCode.Byte:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                 underlyingValue = reader.GetByte();
                 break;
             case TypeCode.Char:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                 var charStr = reader.GetString();
                 if (string.IsNullOrEmpty(charStr) || charStr.Length != 1)
                     throw new System.Text.Json.JsonException($"Cannot convert '{charStr}' to char.");
@@ -219,97 +258,97 @@ private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.J
                 break;
             case TypeCode.Decimal:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                 underlyingValue = reader.GetDecimal();
                 break;
             case TypeCode.Double:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                 underlyingValue = reader.GetDouble();
                 break;
             case TypeCode.Single:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                 underlyingValue = reader.GetSingle();
                 break;
             case TypeCode.Int16:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                 underlyingValue = reader.GetInt16();
                 break;
             case TypeCode.Int32:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                 underlyingValue = reader.GetInt32();
                 break;
             case TypeCode.Int64:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                 underlyingValue = reader.GetInt64();
                 break;
             case TypeCode.String:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                 underlyingValue = reader.GetString();
                 break;
             case TypeCode.DateTime:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                 underlyingValue = reader.GetDateTime();
                 break;
             default:
                 if (underlyingType == typeof(Guid)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                     var guidStr = reader.GetString();
                     if (!Guid.TryParse(guidStr, out var guidValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{guidStr}' to Guid.");
                     underlyingValue = guidValue;
                 } else if (underlyingType == typeof(DateTimeOffset)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                     underlyingValue = reader.GetDateTimeOffset();
                 } else if (underlyingType == typeof(TimeSpan)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                     var tsStr = reader.GetString();
                     if (!TimeSpan.TryParse(tsStr, out var tsValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{tsStr}' to TimeSpan.");
                     underlyingValue = tsValue;
                 } else if (underlyingType == typeof(TimeOnly)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                     var timeStr = reader.GetString();
                     if (!TimeOnly.TryParse(timeStr, out var timeValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{timeStr}' to TimeOnly.");
                     underlyingValue = timeValue;
                 } else if (underlyingType == typeof(Uri)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
                     var uriStr = reader.GetString();
                     if (!Uri.TryCreate(uriStr, UriKind.RelativeOrAbsolute, out var uriValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{uriStr}' to Uri.");
                     underlyingValue = uriValue;
                 } else {
-                    throw new System.Text.Json.JsonException($"Unsupported underlying type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported underlying type for Celsius.");
                 }
                 break;
         }
     
         try {
-            return TenantId.From((System.Guid)underlyingValue!);
+            return Celsius.From((System.Decimal)underlyingValue!);
         } catch (System.Exception e) {
-            throw new System.Text.Json.JsonException("Could not create an initialized instance of TenantId.", e);
+            throw new System.Text.Json.JsonException("Could not create an initialized instance of Celsius.", e);
         }
     }
     
     public override void Write(
         System.Text.Json.Utf8JsonWriter writer,
-        TenantId value,
+        Celsius value,
         System.Text.Json.JsonSerializerOptions options
     )
     {
-        var underlyingType = TenantId.UnderlyingType;
+        var underlyingType = Celsius.UnderlyingType;
         object? underlyingValue = value.IsInitialized()
             ? value.Value
             : null;
@@ -365,7 +404,7 @@ private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.J
                 } else if (underlyingType == typeof(Uri)) {
                     writer.WriteStringValue(((Uri)underlyingValue).ToString());
                 } else {
-                    throw new System.Text.Json.JsonException($"Unsupported underlying type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported underlying type for Celsius.");
                 }
                 break;
         }
@@ -373,7 +412,7 @@ private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.J
 }
 
                 
-private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
+private class CelsiusTypeConverter : System.ComponentModel.TypeConverter
 {
     public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
     {
@@ -389,23 +428,23 @@ private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
 
         var underlyingValue = GetUnderlyingValue(value);
 
-        return underlyingValue == default ? Empty : From((System.Guid)underlyingValue);
+        return underlyingValue == default ? Empty : From((System.Decimal)underlyingValue);
     }
 
     private object? GetUnderlyingValue(object? value) {{
         if (value == null) {{
-            return default(System.Guid);
+            return default(System.Decimal);
         }}
 
-        if (value is System.Guid v) {
+        if (value is System.Decimal v) {
             return v;
         }
         
-        if (Type.GetTypeCode(typeof(System.Guid)) == TypeCode.Object) {
-            throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'System.Guid'.");
+        if (Type.GetTypeCode(typeof(System.Decimal)) == TypeCode.Object) {
+            throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'System.Decimal'.");
         }
         
-        return Convert.ChangeType(value, typeof(System.Guid));
+        return Convert.ChangeType(value, typeof(System.Decimal));
     }}
     
     public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
@@ -420,7 +459,7 @@ private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
             throw new NotSupportedException($"Cannot convert to type '{destinationType}'.");
         }
 
-        if (value is TenantId vo)
+        if (value is Celsius vo)
         {
             return vo.Value;
         }

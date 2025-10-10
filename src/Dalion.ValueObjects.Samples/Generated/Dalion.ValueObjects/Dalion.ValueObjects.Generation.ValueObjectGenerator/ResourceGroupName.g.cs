@@ -240,6 +240,10 @@ private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serial
         System.Text.Json.JsonSerializerOptions options
     )
     {
+        if (reader.TokenType == System.Text.Json.JsonTokenType.Null) {
+            return new ResourceGroupName();
+        }
+
         var underlyingType = ResourceGroupName.UnderlyingType;
         object? underlyingValue;
     
@@ -355,9 +359,14 @@ private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serial
     )
     {
         var underlyingType = ResourceGroupName.UnderlyingType;
-        object underlyingValue = value.IsInitialized()
+        object? underlyingValue = value.IsInitialized()
             ? value.Value
-            : ResourceGroupName.Empty.Value;
+            : null;
+
+        if (underlyingValue == null) {
+            writer.WriteNullValue();
+            return;
+        }
     
         switch (Type.GetTypeCode(underlyingType)) {
             case TypeCode.Boolean:

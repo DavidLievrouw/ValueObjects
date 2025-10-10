@@ -355,7 +355,7 @@ public partial class LegacyPhoneNumberTests
 
             var serialized = JsonSerializer.Serialize(original, JsonOptions);
 
-            Assert.Equal("\"\"", serialized);
+            Assert.Equal("null", serialized);
 
             var deserialized = JsonSerializer.Deserialize<LegacyPhoneNumber>(
                 serialized,
@@ -372,7 +372,7 @@ public partial class LegacyPhoneNumberTests
 
             var serialized = JsonSerializer.Serialize(original, JsonOptions);
 
-            Assert.Equal("\"\"", serialized);
+            Assert.Equal("null", serialized);
 
             var deserialized = JsonSerializer.Deserialize<LegacyPhoneNumber>(
                 serialized,
@@ -389,7 +389,7 @@ public partial class LegacyPhoneNumberTests
 
             var serialized = JsonSerializer.Serialize(container, JsonOptions);
 
-            Assert.Equal("{\"id\":\"one\",\"data\":\"\"}", serialized);
+            Assert.Equal("{\"id\":\"one\",\"data\":null}", serialized);
         }
 
         [Fact]
@@ -399,13 +399,13 @@ public partial class LegacyPhoneNumberTests
 
             var serialized = JsonSerializer.Serialize(container, JsonOptions);
 
-            Assert.Equal("{\"id\":\"one\",\"data\":\"\"}", serialized);
+            Assert.Equal("{\"id\":\"one\",\"data\":null}", serialized);
         }
 
         [Fact]
         public void DeserializesEmptyToEmpty()
         {
-            var serialized = "{\"id\":\"one\",\"data\":\"\"}";
+            var serialized = "{\"id\":\"one\",\"data\":null}";
 
             var deserialized = JsonSerializer.Deserialize<Container>(serialized, JsonOptions);
 

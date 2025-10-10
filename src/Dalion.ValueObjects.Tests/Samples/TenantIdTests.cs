@@ -277,7 +277,7 @@ public partial class TenantIdTests
 
             var serialized = JsonSerializer.Serialize(original);
 
-            Assert.Equal("\"00000000-0000-0000-0000-000000000000\"", serialized);
+            Assert.Equal("null", serialized);
 
             var deserialized = JsonSerializer.Deserialize<TenantId>(serialized);
 
@@ -291,7 +291,7 @@ public partial class TenantIdTests
 
             var serialized = JsonSerializer.Serialize(original);
 
-            Assert.Equal("\"00000000-0000-0000-0000-000000000000\"", serialized);
+            Assert.Equal("null", serialized);
 
             var deserialized = JsonSerializer.Deserialize<TenantId>(serialized);
 
@@ -309,7 +309,7 @@ public partial class TenantIdTests
             
             var serialized = JsonSerializer.Serialize(container);
 
-            Assert.Equal("{\"Id\":\"one\",\"Data\":\"00000000-0000-0000-0000-000000000000\"}", serialized);
+            Assert.Equal("{\"Id\":\"one\",\"Data\":null}", serialized);
         }
 
         [Fact]
@@ -323,13 +323,13 @@ public partial class TenantIdTests
             
             var serialized = JsonSerializer.Serialize(container);
 
-            Assert.Equal("{\"Id\":\"one\",\"Data\":\"00000000-0000-0000-0000-000000000000\"}", serialized);
+            Assert.Equal("{\"Id\":\"one\",\"Data\":null}", serialized);
         }
 
         [Fact]
         public void DeserializesEmptyToEmpty()
         {
-            var serialized = "{\"Id\":\"one\",\"Data\":\"00000000-0000-0000-0000-000000000000\"}";
+            var serialized = "{\"Id\":\"one\",\"Data\":null}";
 
             var deserialized = JsonSerializer.Deserialize<Container>(serialized);
 

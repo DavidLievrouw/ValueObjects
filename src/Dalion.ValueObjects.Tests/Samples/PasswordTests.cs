@@ -301,7 +301,7 @@ public partial class PasswordTests
 
             var serialized = JsonSerializer.Serialize(original);
 
-            Assert.Equal("\"\"", serialized);
+            Assert.Equal("null", serialized);
 
             var deserialized = JsonSerializer.Deserialize<Password>(serialized);
 
@@ -315,7 +315,7 @@ public partial class PasswordTests
 
             var serialized = JsonSerializer.Serialize(original);
 
-            Assert.Equal("\"\"", serialized);
+            Assert.Equal("null", serialized);
 
             var deserialized = JsonSerializer.Deserialize<Password>(serialized);
 
@@ -329,7 +329,7 @@ public partial class PasswordTests
 
             var serialized = JsonSerializer.Serialize(container);
 
-            Assert.Equal("{\"Id\":\"one\",\"Data\":\"\"}", serialized);
+            Assert.Equal("{\"Id\":\"one\",\"Data\":null}", serialized);
         }
 
         [Fact]
@@ -339,13 +339,13 @@ public partial class PasswordTests
 
             var serialized = JsonSerializer.Serialize(container);
 
-            Assert.Equal("{\"Id\":\"one\",\"Data\":\"\"}", serialized);
+            Assert.Equal("{\"Id\":\"one\",\"Data\":null}", serialized);
         }
 
         [Fact]
         public void DeserializesEmptyToEmpty()
         {
-            var serialized = "{\"Id\":\"one\",\"Data\":\"\"}";
+            var serialized = "{\"Id\":\"one\",\"Data\":null}";
 
             var deserialized = JsonSerializer.Deserialize<Container>(serialized);
 

@@ -81,6 +81,10 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
         System.Text.Json.JsonSerializerOptions options
     )
     {
+        if (reader.TokenType == System.Text.Json.JsonTokenType.Null) {
+            return new {{className}}();
+        }
+
         var underlyingType = {{className}}.UnderlyingType;
         object? underlyingValue;
     
@@ -196,9 +200,14 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
     )
     {
         var underlyingType = {{className}}.UnderlyingType;
-        object underlyingValue = value.IsInitialized()
+        object? underlyingValue = value.IsInitialized()
             ? value.Value
-            : {{className}}.Empty.Value;
+            : null;
+
+        if (underlyingValue == null) {
+            writer.WriteNullValue();
+            return;
+        }
     
         switch (Type.GetTypeCode(underlyingType)) {
             case TypeCode.Boolean:
