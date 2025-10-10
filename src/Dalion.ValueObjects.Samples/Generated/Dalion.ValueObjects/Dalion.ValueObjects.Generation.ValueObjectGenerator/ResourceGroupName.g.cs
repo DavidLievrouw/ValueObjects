@@ -24,7 +24,8 @@
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
-                private ResourceGroupName(System.String value, bool validation = true) {
+                private ResourceGroupName(System.String? value, bool validation = true) {
+                    value = NormalizeInput(value);
                     if (validation) {
                         
                   var validationResult = Validate(value);

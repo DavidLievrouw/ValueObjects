@@ -24,6 +24,7 @@
                 }
 
                 private Celsius(System.Decimal value, bool validation = true) {
+                    
                     if (validation) {
                         
                   var validationResult = Validate(value);

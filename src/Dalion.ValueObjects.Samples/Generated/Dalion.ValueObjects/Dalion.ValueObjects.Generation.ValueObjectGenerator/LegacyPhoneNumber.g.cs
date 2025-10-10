@@ -24,7 +24,8 @@
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
-                private LegacyPhoneNumber(System.String value, bool validation = true) {
+                private LegacyPhoneNumber(System.String? value, bool validation = true) {
+                    
                     if (validation) {
                         
                     }

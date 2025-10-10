@@ -34,7 +34,9 @@ public readonly partial record struct ResourceGroupName
 
         return Validation.Ok;
     }
-
+    
+    private static string? NormalizeInput(string? input) => input?.ToLowerInvariant().Trim();
+    
     [GeneratedRegex(ResourceGroupNamePattern)]
     private static partial Regex ValidResourceGroupName();
 }

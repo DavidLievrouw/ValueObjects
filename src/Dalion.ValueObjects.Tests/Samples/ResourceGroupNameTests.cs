@@ -22,7 +22,7 @@ public partial class ResourceGroupNameTests
         public void From_CreatesResourceGroupNameWithValue()
         {
             var actual = ResourceGroupName.From("theValue");
-            Assert.Equal("theValue", actual.Value);
+            Assert.Equal("thevalue", actual.Value);
         }
 
         [Fact]
@@ -69,7 +69,7 @@ public partial class ResourceGroupNameTests
             var success = ResourceGroupName.TryFrom("theValue", out var actual);
 
             Assert.True(success);
-            Assert.Equal("theValue", actual.Value);
+            Assert.Equal("thevalue", actual.Value);
         }
 
         [Fact]
@@ -109,12 +109,26 @@ public partial class ResourceGroupNameTests
         }
     }
 
+    public class NormalizeInput : ResourceGroupNameTests
+    {
+        [Theory]
+        [InlineData("Casing", "casing")]
+        [InlineData(" \t trimming ", "trimming")]
+        [InlineData(" \t All-rules ", "all-rules")]
+        public void NormalizesInput(string candidate, string expected)
+        {
+            var actual = ResourceGroupName.From(candidate);
+
+            Assert.Equal(expected, actual.Value);
+        }
+    }
+
     public class Value : ResourceGroupNameTests
     {
         [Fact]
         public void ReturnsUnderlyingValue()
         {
-            var expected = "theValue";
+            var expected = "the-value";
 
             var actual = ResourceGroupName.From(expected);
 
@@ -148,10 +162,10 @@ public partial class ResourceGroupNameTests
         public void CompareTo_IsCaseSensitive()
         {
             var a = ResourceGroupName.From("aaa");
-            var A = ResourceGroupName.From("AAA");
+            var capitalA = "AAA";
 
-            Assert.True(a.CompareTo(A) < 0);
-            Assert.True(A.CompareTo(a) > 0);
+            Assert.True(a.CompareTo(capitalA) < 0);
+            Assert.True(capitalA.CompareTo(a) > 0);
         }
     }
 

@@ -334,6 +334,11 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 member.Identifier.Text == "Validate"
                 && member.Modifiers.Any(SyntaxKind.PrivateKeyword)
                 && member.Modifiers.Any(SyntaxKind.StaticKeyword)
+                && member.ParameterList.Parameters.Count == 1
+                && SymbolEqualityComparer.Default.Equals(
+                    target.SemanticModel.GetTypeInfo(member.ParameterList.Parameters[0].Type!).Type!,
+                    target.SemanticModel.Compilation.GetTypeByMetadataName(valueType.FullName!)
+                )
             );
 
         var ctorValidation =
@@ -349,7 +354,28 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
             validateMethod == null
                 ? "return result.IsInitialized();"
                 : "return result.IsInitialized() && Validate(result._value).IsSuccess;";
-
+        
+        var normalizeMethod = target
+            .SyntaxInformation.Members.OfType<MethodDeclarationSyntax>()
+            .FirstOrDefault(member =>
+                member.Identifier.Text == "NormalizeInput"
+                && member.Modifiers.Any(SyntaxKind.PrivateKeyword)
+                && member.Modifiers.Any(SyntaxKind.StaticKeyword)
+                && member.ParameterList.Parameters.Count == 1
+                && SymbolEqualityComparer.Default.Equals(
+                    target.SemanticModel.GetTypeInfo(member.ParameterList.Parameters[0].Type!).Type!,
+                    target.SemanticModel.Compilation.GetTypeByMetadataName(valueType.FullName!)
+                )
+                && SymbolEqualityComparer.Default.Equals(
+                    target.SemanticModel.GetTypeInfo(member.ReturnType).Type!,
+                    target.SemanticModel.Compilation.GetTypeByMetadataName(valueType.FullName!)
+                )
+            );
+        var inputNormalization =
+            normalizeMethod == null
+                ? ""
+                : "value = NormalizeInput(value);";
+        
         var stringComparison =
             config.CaseSensitivity == StringCaseSensitivity.CaseInsensitive
                 ? "OrdinalIgnoreCase"
@@ -512,7 +538,8 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 }}
 
                 [System.Diagnostics.DebuggerStepThrough]
-                private {typeName}({valueTypeName} value, bool validation = true) {{
+                private {typeName}({valueTypeName}? value, bool validation = true) {{
+                    {inputNormalization}
                     if (validation) {{
                         {ctorValidation}
                     }}
@@ -555,6 +582,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 }}
 
                 private {typeName}({valueTypeName} value, bool validation = true) {{
+                    {inputNormalization}
                     if (validation) {{
                         {ctorValidation}
                     }}

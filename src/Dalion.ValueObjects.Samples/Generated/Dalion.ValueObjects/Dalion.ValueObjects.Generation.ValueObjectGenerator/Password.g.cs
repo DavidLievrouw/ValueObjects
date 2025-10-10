@@ -24,7 +24,8 @@
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
-                private Password(System.String value, bool validation = true) {
+                private Password(System.String? value, bool validation = true) {
+                    
                     if (validation) {
                         
                   var validationResult = Validate(value);
