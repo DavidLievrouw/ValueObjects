@@ -3,52 +3,53 @@
 
         namespace Dalion.ValueObjects.Samples {
             
-            [System.Diagnostics.DebuggerDisplay("TenantId {Value}")]
-            [System.Text.Json.Serialization.JsonConverter(typeof(TenantIdSystemTextJsonConverter))]
-            [System.ComponentModel.TypeConverter(typeof(TenantIdTypeConverter))]
-            public partial record struct TenantId : IEquatable<TenantId>
-, IEquatable<System.Guid> {
-                private readonly System.Guid _value;
-                private static readonly Type UnderlyingType = typeof(System.Guid);
+            [System.Diagnostics.DebuggerDisplay("LegacyPhoneNumber {Value}")]
+            [System.Text.Json.Serialization.JsonConverter(typeof(LegacyPhoneNumberSystemTextJsonConverter))]
+            [System.ComponentModel.TypeConverter(typeof(LegacyPhoneNumberTypeConverter))]
+            public partial record struct LegacyPhoneNumber : IEquatable<LegacyPhoneNumber>
+, IEquatable<System.String> {
+                private readonly System.String _value;
+                private static readonly Type UnderlyingType = typeof(System.String);
 
-                public System.Guid Value => _value;
+                public System.String Value => _value;
 
                 
                 [System.Diagnostics.DebuggerStepThrough]
                 [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-                public TenantId()
+                public LegacyPhoneNumber()
                 {
-                    _value = default;
+                    _value = System.String.Empty;
                 }
 
-                private TenantId(System.Guid value, bool validation = true) {
+                [System.Diagnostics.DebuggerStepThrough]
+                private LegacyPhoneNumber(System.String value, bool validation = true) {
                     if (validation) {
                         
                     }
-                    _value = value;
+                    _value = value ?? System.String.Empty;
                 }
 
-                public static TenantId From(System.Guid value) {
-                    if (value == default) {
+                public static LegacyPhoneNumber From(System.String? value) {
+                    if (string.IsNullOrWhiteSpace(value)) {
                         return Empty;
                     }
 
-                    return new TenantId(value);
+                    return new LegacyPhoneNumber(value);
                 }
 
-                public static bool TryFrom(System.Guid value, out TenantId result) {
-                    result = value == default ? Empty : new TenantId(value, validation: false);
+                public static bool TryFrom(System.String? value, out LegacyPhoneNumber result) {
+                    result = string.IsNullOrWhiteSpace(value) ? Empty : new LegacyPhoneNumber(value, validation: false);
                     return result.IsInitialized();
                 }
 
 
-                public static TenantId Empty => new TenantId(default, validation: false);
+                public static LegacyPhoneNumber Empty => new LegacyPhoneNumber(System.String.Empty, validation: false);
 
-                public bool IsInitialized() => _value != default;
+                public bool IsInitialized() => !System.String.IsNullOrWhiteSpace(_value);
 
                 
                 /// <inheritdoc />
-                public bool Equals(TenantId? other)
+                public bool Equals(LegacyPhoneNumber? other)
                 {
                     if (other is null) return false;
 
@@ -62,11 +63,13 @@
                         return false;
                     }
             
-                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other.Value.Value);
+                    return System.String.IsNullOrWhiteSpace(other.Value.Value)
+                        ? System.String.IsNullOrWhiteSpace(this._value)
+                        : System.String.Equals(this._value, other.Value.Value, System.StringComparison.Ordinal);
                 }
 
                 /// <inheritdoc />
-                public bool Equals(TenantId other)
+                public bool Equals(LegacyPhoneNumber other)
                 {
                     if (!other.IsInitialized())
                     {
@@ -78,10 +81,12 @@
                         return false;
                     }
             
-                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other.Value);
+                    return System.String.IsNullOrWhiteSpace(other.Value)
+                        ? System.String.IsNullOrWhiteSpace(this._value)
+                        : System.String.Equals(this._value, other.Value, System.StringComparison.Ordinal);
                 }
             
-                public bool Equals(TenantId? other, IEqualityComparer<TenantId> comparer)
+                public bool Equals(LegacyPhoneNumber? other, IEqualityComparer<LegacyPhoneNumber> comparer)
                 {
                     if (other is null) return false;
                     return comparer.Equals(this, other.Value);
@@ -90,45 +95,69 @@
                 /// <inheritdoc />
                 public override int GetHashCode() {
                     if (!IsInitialized()) return 0;
-                    return EqualityComparer<System.Guid>.Default.GetHashCode(this._value);
+                    return StringComparer.Ordinal.GetHashCode(this._value);
                 }
 
                 
                 /// <inheritdoc />
-                public bool Equals(System.Guid other)
+                public bool Equals(System.String? other)
                 {
-                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other);
+                    return System.String.IsNullOrWhiteSpace(other)
+                        ? System.String.IsNullOrWhiteSpace(this._value)
+                        : System.String.Equals(this._value, other, System.StringComparison.Ordinal);
+                }
+            
+                public bool Equals(System.String? primitive, StringComparer comparer)
+                {
+                    return comparer.Equals(this.Value, primitive);
                 }
 
                 
+    public static bool operator ==(LegacyPhoneNumber left, System.String? right) => left.Value.Equals(right);
 
-                
+    public static bool operator ==(System.String? left, LegacyPhoneNumber right) => right.Value.Equals(left);
+
+    public static bool operator !=(System.String? left, LegacyPhoneNumber right) => !(left == right);
+
+    public static bool operator !=(LegacyPhoneNumber left, System.String? right) => !(left == right);
+
 
                 
 
                 
                 /// <summary>
-                ///     An explicit conversion from <see cref="System.Guid" /> to <see cref="TenantId" />.
+                ///     An implicit conversion from <see cref="LegacyPhoneNumber" /> to <see cref="System.String" />.
+                /// </summary>
+                /// <param name="id">The value to convert.</param>
+                /// <returns>The System.String representation of the value object.</returns>
+                public static implicit operator System.String(LegacyPhoneNumber id)
+                {
+                    return id.Value;
+                }
+
+                
+                /// <summary>
+                ///     An explicit conversion from <see cref="System.String" /> to <see cref="LegacyPhoneNumber" />.
                 /// </summary>
                 /// <param name="value">The value to convert.</param>
-                /// <returns>The <see cref="TenantId" /> instance created from the input value.</returns>
-                public static explicit operator TenantId(System.Guid value)
+                /// <returns>The <see cref="LegacyPhoneNumber" /> instance created from the input value.</returns>
+                public static implicit operator LegacyPhoneNumber(System.String value)
                 {
-                    return TenantId.From(value);
+                    return LegacyPhoneNumber.From(value);
                 }
 
                 
                 /// <inheritdoc />
                 public override string ToString()
-                {
+                {{
                     return Value.ToString() ?? "";
-                }
+                }}
 
                 /// <inheritdoc cref="M:System.String.ToString(System.IFormatProvider)" />
                 public string ToString(IFormatProvider? provider)
-                {
-                    return Value.ToString(format: null, provider: provider) ?? "";
-                }
+                {{
+                    return Value.ToString(provider: provider) ?? "";
+                }}
 
 
                 
@@ -181,31 +210,31 @@ private class ValueObjectValidationException : Exception
 }
 
                 
-private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<TenantId>
+private class LegacyPhoneNumberSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<LegacyPhoneNumber>
 {
-    public override TenantId Read(
+    public override LegacyPhoneNumber Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
         System.Text.Json.JsonSerializerOptions options
     )
     {
-        var underlyingType = TenantId.UnderlyingType;
+        var underlyingType = LegacyPhoneNumber.UnderlyingType;
         object? underlyingValue;
     
         switch (Type.GetTypeCode(underlyingType)) {
             case TypeCode.Boolean:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.True && reader.TokenType != System.Text.Json.JsonTokenType.False)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                 underlyingValue = reader.GetBoolean();
                 break;
             case TypeCode.Byte:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                 underlyingValue = reader.GetByte();
                 break;
             case TypeCode.Char:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                 var charStr = reader.GetString();
                 if (string.IsNullOrEmpty(charStr) || charStr.Length != 1)
                     throw new System.Text.Json.JsonException($"Cannot convert '{charStr}' to char.");
@@ -213,100 +242,100 @@ private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.J
                 break;
             case TypeCode.Decimal:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                 underlyingValue = reader.GetDecimal();
                 break;
             case TypeCode.Double:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                 underlyingValue = reader.GetDouble();
                 break;
             case TypeCode.Single:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                 underlyingValue = reader.GetSingle();
                 break;
             case TypeCode.Int16:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                 underlyingValue = reader.GetInt16();
                 break;
             case TypeCode.Int32:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                 underlyingValue = reader.GetInt32();
                 break;
             case TypeCode.Int64:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                 underlyingValue = reader.GetInt64();
                 break;
             case TypeCode.String:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                 underlyingValue = reader.GetString();
                 break;
             case TypeCode.DateTime:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                 underlyingValue = reader.GetDateTime();
                 break;
             default:
                 if (underlyingType == typeof(Guid)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                     var guidStr = reader.GetString();
                     if (!Guid.TryParse(guidStr, out var guidValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{guidStr}' to Guid.");
                     underlyingValue = guidValue;
                 } else if (underlyingType == typeof(DateTimeOffset)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                     underlyingValue = reader.GetDateTimeOffset();
                 } else if (underlyingType == typeof(TimeSpan)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                     var tsStr = reader.GetString();
                     if (!TimeSpan.TryParse(tsStr, out var tsValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{tsStr}' to TimeSpan.");
                     underlyingValue = tsValue;
                 } else if (underlyingType == typeof(TimeOnly)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                     var timeStr = reader.GetString();
                     if (!TimeOnly.TryParse(timeStr, out var timeValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{timeStr}' to TimeOnly.");
                     underlyingValue = timeValue;
                 } else if (underlyingType == typeof(Uri)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for TenantId.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for LegacyPhoneNumber.");
                     var uriStr = reader.GetString();
                     if (!Uri.TryCreate(uriStr, UriKind.RelativeOrAbsolute, out var uriValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{uriStr}' to Uri.");
                     underlyingValue = uriValue;
                 } else {
-                    throw new System.Text.Json.JsonException($"Unsupported underlying type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported underlying type for LegacyPhoneNumber.");
                 }
                 break;
         }
     
         try {
-            return TenantId.From((System.Guid)underlyingValue!);
+            return LegacyPhoneNumber.From((System.String)underlyingValue!);
         } catch (System.Exception e) {
-            throw new System.Text.Json.JsonException("Could not create an initialized instance of TenantId.", e);
+            throw new System.Text.Json.JsonException("Could not create an initialized instance of LegacyPhoneNumber.", e);
         }
     }
     
     public override void Write(
         System.Text.Json.Utf8JsonWriter writer,
-        TenantId value,
+        LegacyPhoneNumber value,
         System.Text.Json.JsonSerializerOptions options
     )
     {
-        var underlyingType = TenantId.UnderlyingType;
+        var underlyingType = LegacyPhoneNumber.UnderlyingType;
         object underlyingValue = value.IsInitialized()
             ? value.Value
-            : TenantId.Empty.Value;
+            : LegacyPhoneNumber.Empty.Value;
     
         switch (Type.GetTypeCode(underlyingType)) {
             case TypeCode.Boolean:
@@ -354,7 +383,7 @@ private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.J
                 } else if (underlyingType == typeof(Uri)) {
                     writer.WriteStringValue(((Uri)underlyingValue).ToString());
                 } else {
-                    throw new System.Text.Json.JsonException($"Unsupported underlying type for TenantId.");
+                    throw new System.Text.Json.JsonException($"Unsupported underlying type for LegacyPhoneNumber.");
                 }
                 break;
         }
@@ -362,7 +391,7 @@ private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.J
 }
 
                 
-private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
+private class LegacyPhoneNumberTypeConverter : System.ComponentModel.TypeConverter
 {
     public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
     {
@@ -378,23 +407,23 @@ private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
 
         var underlyingValue = GetUnderlyingValue(value);
 
-        return underlyingValue == default ? Empty : From((System.Guid)underlyingValue);
+        return underlyingValue == default ? Empty : From((System.String)underlyingValue);
     }
 
     private object? GetUnderlyingValue(object? value) {{
         if (value == null) {{
-            return default(System.Guid);
+            return default(System.String);
         }}
 
-        if (value is System.Guid v) {
+        if (value is System.String v) {
             return v;
         }
         
-        if (Type.GetTypeCode(typeof(System.Guid)) == TypeCode.Object) {
-            throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'System.Guid'.");
+        if (Type.GetTypeCode(typeof(System.String)) == TypeCode.Object) {
+            throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'System.String'.");
         }
         
-        return Convert.ChangeType(value, typeof(System.Guid));
+        return Convert.ChangeType(value, typeof(System.String));
     }}
     
     public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
@@ -409,7 +438,7 @@ private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
             throw new NotSupportedException($"Cannot convert to type '{destinationType}'.");
         }
 
-        if (value is TenantId vo)
+        if (value is LegacyPhoneNumber vo)
         {
             return vo.Value;
         }

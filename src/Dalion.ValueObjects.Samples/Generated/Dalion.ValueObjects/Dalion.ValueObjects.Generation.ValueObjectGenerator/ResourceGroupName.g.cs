@@ -55,7 +55,7 @@
                 /// <inheritdoc />
                 public bool Equals(ResourceGroupName? other)
                 {
-                    if (other == null) return false;
+                    if (other is null) return false;
 
                     if (!other.Value.IsInitialized())
                     {
@@ -92,7 +92,7 @@
             
                 public bool Equals(ResourceGroupName? other, IEqualityComparer<ResourceGroupName> comparer)
                 {
-                    if (other == null) return false;
+                    if (other is null) return false;
                     return comparer.Equals(this, other.Value);
                 }
             

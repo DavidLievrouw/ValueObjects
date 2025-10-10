@@ -260,7 +260,7 @@ public partial class PasswordTests
         [Fact]
         public void WhenNonsense_ThrowsJsonException()
         {
-            var nonsense = "\"{}\"";
+            var nonsense = "{}";
 
             Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Password>(nonsense));
         }

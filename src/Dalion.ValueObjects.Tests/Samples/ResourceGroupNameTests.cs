@@ -313,6 +313,17 @@ public partial class ResourceGroupNameTests
 
             Assert.Equal(value, actual);
         }
+        
+        [Fact]
+        public void IsExplicitlyConvertibleToPrimitive()
+        {
+            var value = Guid.NewGuid().ToString();
+            var obj = ResourceGroupName.From(value);
+
+            var actual = (string)obj;
+
+            Assert.Equal(value, actual);
+        }
 
         [Fact]
         public void IsExplicitlyConvertibleFromPrimitive()
@@ -332,7 +343,7 @@ public partial class ResourceGroupNameTests
         [Fact]
         public void WhenNonsense_ThrowsJsonException()
         {
-            var nonsense = "\"{}\"";
+            var nonsense = "{}";
 
             Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<ResourceGroupName>(nonsense));
         }

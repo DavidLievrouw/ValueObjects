@@ -55,7 +55,7 @@
                 /// <inheritdoc />
                 public bool Equals(Password? other)
                 {
-                    if (other == null) return false;
+                    if (other is null) return false;
 
                     if (!other.Value.IsInitialized())
                     {
@@ -92,7 +92,7 @@
             
                 public bool Equals(Password? other, IEqualityComparer<Password> comparer)
                 {
-                    if (other == null) return false;
+                    if (other is null) return false;
                     return comparer.Equals(this, other.Value);
                 }
             

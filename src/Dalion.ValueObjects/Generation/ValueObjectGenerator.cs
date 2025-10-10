@@ -352,7 +352,7 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                 /// <inheritdoc />
                 public bool Equals({className}? other)
                 {{
-                    if (other == null) return false;
+                    if (other is null) return false;
 
                     if (!other.Value.IsInitialized())
                     {{
@@ -389,7 +389,7 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
             
                 public bool Equals({className}? other, IEqualityComparer<{className}> comparer)
                 {{
-                    if (other == null) return false;
+                    if (other is null) return false;
                     return comparer.Equals(this, other.Value);
                 }}
             
@@ -402,7 +402,7 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
                 /// <inheritdoc />
                 public bool Equals({className}? other)
                 {{
-                    if (other == null) return false;
+                    if (other is null) return false;
 
                     if (!other.Value.IsInitialized())
                     {{
@@ -435,7 +435,7 @@ private class {{className}}SystemTextJsonConverter : System.Text.Json.Serializat
             
                 public bool Equals({className}? other, IEqualityComparer<{className}> comparer)
                 {{
-                    if (other == null) return false;
+                    if (other is null) return false;
                     return comparer.Equals(this, other.Value);
                 }}
             
