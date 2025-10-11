@@ -29,7 +29,7 @@ public partial class ResourceGroupNameTests
         public void CannotCreateUninitializedWithNullValue()
         {
             Action act = () => ResourceGroupName.From(null);
-            
+
             Assert.Throws<InvalidOperationException>(act);
         }
 
@@ -76,7 +76,7 @@ public partial class ResourceGroupNameTests
         public void CannotCreateUninitializedWithNullValue()
         {
             var success = ResourceGroupName.TryFrom(null, out var actual);
-            
+
             Assert.False(success);
             Assert.False(actual.IsInitialized());
         }
@@ -342,7 +342,7 @@ public partial class ResourceGroupNameTests
 
             Assert.Equal(value, actual);
         }
-        
+
         [Fact]
         public void IsExplicitlyConvertibleToUnderlyingType()
         {
@@ -374,15 +374,19 @@ public partial class ResourceGroupNameTests
         {
             var nonsense = "{}";
 
-            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<ResourceGroupName>(nonsense));
+            Assert.Throws<JsonException>(() =>
+                JsonSerializer.Deserialize<ResourceGroupName>(nonsense)
+            );
         }
-        
+
         [Fact]
         public void WhenInvalid_CannotDeserialize()
         {
             var invalid = "\"ab\""; // too short
 
-            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<ResourceGroupName>(invalid));
+            Assert.Throws<JsonException>(() =>
+                JsonSerializer.Deserialize<ResourceGroupName>(invalid)
+            );
         }
 
         [Fact]
@@ -446,11 +450,7 @@ public partial class ResourceGroupNameTests
         [Fact]
         public void SerializesUninitializedToNull()
         {
-            var container = new Container
-            {
-                Id = "one",
-                Data = default
-            };
+            var container = new Container { Id = "one", Data = default };
 
             var serialized = JsonSerializer.Serialize(container);
 
@@ -460,11 +460,7 @@ public partial class ResourceGroupNameTests
         [Fact]
         public void SerializesEmptyToEmpty()
         {
-            var container = new Container
-            {
-                Id = "one",
-                Data = ResourceGroupName.Empty
-            };
+            var container = new Container { Id = "one", Data = ResourceGroupName.Empty };
 
             var serialized = JsonSerializer.Serialize(container);
 
@@ -482,7 +478,7 @@ public partial class ResourceGroupNameTests
             Assert.Equal("one", deserialized.Id);
             Assert.Equal(ResourceGroupName.Empty, deserialized.Data);
             Assert.NotEqual(default, deserialized.Data);
-            
+
             Assert.True(deserialized.Data.IsInitialized());
         }
 
@@ -497,7 +493,7 @@ public partial class ResourceGroupNameTests
             Assert.Equal("one", deserialized.Id);
             Assert.NotEqual(ResourceGroupName.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
-            
+
             Assert.False(deserialized.Data.IsInitialized());
         }
 
@@ -512,7 +508,7 @@ public partial class ResourceGroupNameTests
             Assert.Equal("one", deserialized.Id);
             Assert.NotEqual(ResourceGroupName.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
-            
+
             Assert.False(deserialized.Data.IsInitialized());
         }
 
@@ -528,7 +524,9 @@ public partial class ResourceGroupNameTests
         [Fact]
         public void CanConvertFromUnderlyingType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(ResourceGroupName));
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(
+                typeof(ResourceGroupName)
+            );
             Assert.True(converter.CanConvertFrom(typeof(string)));
 
             var actual = converter.ConvertFrom("test-resource-group-name");
@@ -539,7 +537,9 @@ public partial class ResourceGroupNameTests
         [Fact]
         public void CannotConvertFromUnsupportedType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(ResourceGroupName));
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(
+                typeof(ResourceGroupName)
+            );
             Assert.False(converter.CanConvertFrom(typeof(int)));
 
             Action act = () => converter.ConvertFrom(5);
@@ -550,7 +550,9 @@ public partial class ResourceGroupNameTests
         [Fact]
         public void CanConvertToUnderlyingType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(ResourceGroupName));
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(
+                typeof(ResourceGroupName)
+            );
             Assert.True(converter.CanConvertTo(typeof(string)));
 
             var sut = ResourceGroupName.From("test-resource-group-name");
@@ -562,7 +564,9 @@ public partial class ResourceGroupNameTests
         [Fact]
         public void CannotConvertToUnsupportedType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(ResourceGroupName));
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(
+                typeof(ResourceGroupName)
+            );
             Assert.False(converter.CanConvertTo(typeof(int)));
 
             var sut = ResourceGroupName.From("test-resource-group-name");
@@ -606,7 +610,10 @@ public partial class ResourceGroupNameTests
         {
             var sut = ResourceGroupName.Empty;
 
-            Assert.Equal("ResourceGroupName cannot be null, empty, or whitespace.", sut.GetValidationErrorMessage());
+            Assert.Equal(
+                "ResourceGroupName cannot be null, empty, or whitespace.",
+                sut.GetValidationErrorMessage()
+            );
         }
     }
 
