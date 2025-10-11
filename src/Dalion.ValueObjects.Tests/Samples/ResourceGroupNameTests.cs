@@ -309,7 +309,7 @@ public partial class ResourceGroupNameTests
         }
 
         [Fact]
-        public void WhenValueIsEmpty_IsTrue()
+        public void EmptyIsInitialized()
         {
             var sut = ResourceGroupName.Empty;
 
@@ -375,6 +375,14 @@ public partial class ResourceGroupNameTests
             var nonsense = "{}";
 
             Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<ResourceGroupName>(nonsense));
+        }
+        
+        [Fact]
+        public void WhenInvalid_CannotDeserialize()
+        {
+            var invalid = "\"ab\""; // too short
+
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<ResourceGroupName>(invalid));
         }
 
         [Fact]

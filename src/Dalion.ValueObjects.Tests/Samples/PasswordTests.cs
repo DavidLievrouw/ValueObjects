@@ -235,7 +235,7 @@ public partial class PasswordTests
         }
 
         [Fact]
-        public void WhenValueIsEmpty_IsTrue()
+        public void EmptyIsInitialized()
         {
             var sut = Password.Empty;
 
@@ -278,6 +278,14 @@ public partial class PasswordTests
             var nonsense = "{}";
 
             Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Password>(nonsense));
+        }
+        
+        [Fact]
+        public void WhenInvalid_CannotDeserialize()
+        {
+            var invalid = "\"shoRt1!\""; // too short
+
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Password>(invalid));
         }
 
         [Fact]

@@ -210,7 +210,7 @@ public partial class TenantIdTests
         }
 
         [Fact]
-        public void WhenValueIsEmpty_IsTrue()
+        public void EmptyIsInitialized()
         {
             var sut = TenantId.Empty;
             

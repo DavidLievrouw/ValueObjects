@@ -253,7 +253,7 @@ public partial class LegacyPhoneNumberTests
         }
 
         [Fact]
-        public void WhenValueIsEmpty_IsTrue()
+        public void EmptyIsInitialized()
         {
             var sut = LegacyPhoneNumber.Empty;
 

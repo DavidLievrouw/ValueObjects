@@ -273,7 +273,7 @@ public partial class CelsiusTests
         }
 
         [Fact]
-        public void WhenValueIsZero_IsTrue()
+        public void ZeroIsInitialized()
         {
             var sut = Celsius.Zero;
 
@@ -328,6 +328,14 @@ public partial class CelsiusTests
             var nonsense = "\"nonsense\"";
 
             Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Celsius>(nonsense));
+        }
+        
+        [Fact]
+        public void WhenInvalid_CannotDeserialize()
+        {
+            var invalid = "-99999"; // lower than absolute zero
+
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Celsius>(invalid));
         }
 
         [Fact]
