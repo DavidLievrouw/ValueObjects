@@ -204,18 +204,6 @@ public partial class LegacyPhoneNumberTests
         }
 
         [Fact]
-        public void HasEqualityMethodsForUnderlyingType()
-        {
-            var first = LegacyPhoneNumber.From("+31 488 24 55 33");
-            var second = "+31 488 24 55 33";
-
-            Assert.True(first.Equals(second));
-
-            var third = "+44 1.5458.55.44.8";
-            Assert.False(first.Equals(third));
-        }
-
-        [Fact]
         public void HasEqualityOperatorsForUnderlyingType()
         {
             var first = LegacyPhoneNumber.From("+31 488 24 55 33");

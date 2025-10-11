@@ -487,8 +487,12 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 }}";
 
         var equalityUnderlyingType =
-            valueType == typeof(string)
-                ? $@"
+            (
+                config.UnderlyingTypeEqualityGeneration
+                & UnderlyingTypeEqualityGeneration.GenerateMethods
+            ) == UnderlyingTypeEqualityGeneration.GenerateMethods
+                ? valueType == typeof(string)
+                    ? $@"
                 /// <inheritdoc />
                 public bool Equals({valueTypeName}? other)
                 {{
@@ -501,12 +505,13 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 {{
                     return comparer.Equals(this.Value, underlyingValue);
                 }}"
-                : $@"
+                    : $@"
                 /// <inheritdoc />
                 public bool Equals({valueTypeName} other)
                 {{
                     return EqualityComparer<{valueTypeName}>.Default.Equals(this._value, other);
-                }}";
+                }}"
+                : "";
 
         var equalityOperators =
             (
@@ -693,7 +698,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 {{
                     return {typeName}.From(value);
                 }}";
-        
+
         var validationClasses =
             @"
 private class Validation
@@ -746,7 +751,8 @@ private class ValueObjectValidationException : Exception
         : base(message, innerException) { }
 }";
 
-        var validationMembers = @"
+        var validationMembers =
+            @"
 public bool IsValid() => _validation.IsSuccess;
 public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _validation.ErrorMessage;
 ";
@@ -970,7 +976,7 @@ namespace {ns} {{
             CastOperator toUnderlyingTypeCasting = CastOperator.None,
             CastOperator fromUnderlyingTypeCasting = CastOperator.None,
             StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods,
+            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.GenerateOperators,
             string emptyValueName = ""Empty""
         )
             : base(
@@ -992,7 +998,7 @@ namespace {ns} {{
             CastOperator toUnderlyingTypeCasting = CastOperator.None,
             CastOperator fromUnderlyingTypeCasting = CastOperator.None,
             StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods,
+            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.GenerateOperators,
             string emptyValueName = ""Empty""
         ) {{ }}
     }}

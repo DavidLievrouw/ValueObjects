@@ -175,19 +175,6 @@ public partial class TenantIdTests
             // ReSharper disable once SuspiciousTypeConversion.Global
             Assert.False(first.Equals(second));
         }
-
-        [Fact]
-        public void HasEqualityMethodsForUnderlyingType()
-        {
-            var backingValue = Guid.NewGuid();
-            var first = TenantId.From(backingValue);
-            var second = backingValue;
-
-            Assert.True(first.Equals(second));
-            
-            var third = Guid.NewGuid();
-            Assert.False(first.Equals(third));
-        }
     }
     
     public class IsInitialized : TenantIdTests

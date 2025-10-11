@@ -33,7 +33,7 @@ namespace Dalion.ValueObjects.Samples {
             CastOperator toUnderlyingTypeCasting = CastOperator.None,
             CastOperator fromUnderlyingTypeCasting = CastOperator.None,
             StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods,
+            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.GenerateOperators,
             string emptyValueName = "Empty"
         )
             : base(
@@ -55,7 +55,7 @@ namespace Dalion.ValueObjects.Samples {
             CastOperator toUnderlyingTypeCasting = CastOperator.None,
             CastOperator fromUnderlyingTypeCasting = CastOperator.None,
             StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods,
+            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.GenerateOperators,
             string emptyValueName = "Empty"
         ) { }
     }

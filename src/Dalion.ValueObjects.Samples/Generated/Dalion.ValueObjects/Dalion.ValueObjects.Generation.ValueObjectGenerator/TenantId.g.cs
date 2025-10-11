@@ -7,7 +7,7 @@
             [System.Text.Json.Serialization.JsonConverter(typeof(TenantIdSystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof(TenantIdTypeConverter))]
             public partial record struct TenantId : IEquatable<TenantId>
-, IEquatable<System.Guid> {
+ {
                 private readonly System.Guid _value;
                 private readonly bool _initialized;
 #pragma warning disable CS0414
@@ -106,11 +106,6 @@
                 }
 
                 
-                /// <inheritdoc />
-                public bool Equals(System.Guid other)
-                {
-                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other);
-                }
 
                 
 

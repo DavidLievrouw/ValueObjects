@@ -6,7 +6,8 @@
 [ValueObject<decimal>(
     fromUnderlyingTypeCasting: CastOperator.Explicit,
     toUnderlyingTypeCasting: CastOperator.Explicit,
-    emptyValueName: "Zero"
+    emptyValueName: "Zero",
+    underlyingTypeEqualityGeneration: UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods
 )]
 public readonly partial record struct Celsius
 {

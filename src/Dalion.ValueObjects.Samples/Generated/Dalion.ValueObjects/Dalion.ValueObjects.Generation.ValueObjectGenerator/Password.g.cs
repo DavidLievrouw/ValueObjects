@@ -131,18 +131,6 @@
                 }
 
                 
-                /// <inheritdoc />
-                public bool Equals(System.String? other)
-                {
-                    return System.String.IsNullOrEmpty(other)
-                        ? this._isNullOrEmpty
-                        : System.String.Equals(this._value, other, System.StringComparison.Ordinal);
-                }
-            
-                public bool Equals(System.String? underlyingValue, StringComparer comparer)
-                {
-                    return comparer.Equals(this.Value, underlyingValue);
-                }
 
                 
 

@@ -7,7 +7,7 @@
             [System.Text.Json.Serialization.JsonConverter(typeof(LegacyPhoneNumberSystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof(LegacyPhoneNumberTypeConverter))]
             public partial record struct LegacyPhoneNumber : IEquatable<LegacyPhoneNumber>
-, IEquatable<System.String> {
+ {
                 private readonly System.String _value;
                 private readonly bool _initialized;
 #pragma warning disable CS0414
@@ -123,18 +123,6 @@
                 }
 
                 
-                /// <inheritdoc />
-                public bool Equals(System.String? other)
-                {
-                    return System.String.IsNullOrEmpty(other)
-                        ? this._isNullOrEmpty
-                        : System.String.Equals(this._value, other, System.StringComparison.Ordinal);
-                }
-            
-                public bool Equals(System.String? underlyingValue, StringComparer comparer)
-                {
-                    return comparer.Equals(this.Value, underlyingValue);
-                }
 
                 
     public static bool operator ==(LegacyPhoneNumber left, System.String? right) => left.Value.Equals(right);
