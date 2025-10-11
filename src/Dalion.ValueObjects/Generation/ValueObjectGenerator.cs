@@ -613,6 +613,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
 
                 public static {typeName} From({valueTypeName} value) {{
                     if (value == default) {{
+                        {ctorValidation}
                         return {emptyValueName};
                     }}
 
@@ -645,8 +646,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         ""Cannot compare to object as it is not of type {typeName}"",
                         nameof(other)
                     );
-                }}
-"
+                }}"
             : $@"
                 public int CompareTo({typeName} other) => this.Value.CompareTo(other.Value);
 

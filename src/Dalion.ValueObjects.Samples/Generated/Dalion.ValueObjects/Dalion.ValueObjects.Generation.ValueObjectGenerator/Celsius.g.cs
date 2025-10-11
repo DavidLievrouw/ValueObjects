@@ -46,6 +46,11 @@
 
                 public static Celsius From(System.Decimal value) {
                     if (value == default) {
+                        
+                  var validationResult = Validate(value);
+                  if (!validationResult.IsSuccess) {
+                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
+                  }
                         return Zero;
                     }
 

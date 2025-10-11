@@ -173,7 +173,6 @@
                     );
                 }
 
-
                 
                 /// <summary>
                 ///     An implicit conversion from <see cref="ResourceGroupName" /> to <see cref="System.String" />.
