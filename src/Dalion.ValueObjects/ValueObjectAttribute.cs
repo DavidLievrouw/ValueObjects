@@ -30,7 +30,7 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
     /// <param name="underlyingTypeEqualityGeneration">
     ///     Specifies whether to generate underlying type comparison operators, allowing this type to be compared for equality to the
     ///     underlying type.
-    ///     Defaults to <see cref="UnderlyingTypeEqualityGeneration.GenerateOperators" />
+    ///     Defaults to <see cref="UnderlyingTypeEqualityGeneration.Omit" />
     /// </param>
     /// <param name="emptyValueName">
     ///     The name of the static property representing an empty value object, if applicable.
@@ -41,8 +41,7 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
         CastOperator toUnderlyingTypeCasting = CastOperator.None,
         CastOperator fromUnderlyingTypeCasting = CastOperator.None,
         StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration =
-            UnderlyingTypeEqualityGeneration.GenerateOperators,
+        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit,
         string emptyValueName = "Empty"
     )
         : base(
@@ -86,7 +85,7 @@ public class ValueObjectAttribute : Attribute
     /// <param name="underlyingTypeEqualityGeneration">
     ///     Specifies whether to generate underlying value comparison operators, allowing this type to be compared for equality to the
     ///     underlying type.
-    ///     Defaults to <see cref="UnderlyingTypeEqualityGeneration.GenerateOperators" />
+    ///     Defaults to <see cref="UnderlyingTypeEqualityGeneration.Omit" />
     /// </param>
     /// <param name="emptyValueName">
     ///     The name of the static property representing an empty value object, if applicable.
@@ -98,8 +97,7 @@ public class ValueObjectAttribute : Attribute
         CastOperator toUnderlyingTypeCasting = CastOperator.None,
         CastOperator fromUnderlyingTypeCasting = CastOperator.None,
         StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration =
-            UnderlyingTypeEqualityGeneration.GenerateOperators,
+        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit,
         string emptyValueName = "Empty"
     ) { }
 }

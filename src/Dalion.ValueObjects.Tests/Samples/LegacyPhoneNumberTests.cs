@@ -204,7 +204,7 @@ public partial class LegacyPhoneNumberTests
         }
 
         [Fact]
-        public void HasEqualityOperatorsForUnderlyingType()
+        public void DoesNotHaveEqualityOperatorsForUnderlyingType_ButCastsImplicitly()
         {
             var first = LegacyPhoneNumber.From("+31 488 24 55 33");
             var second = "+31 488 24 55 33";

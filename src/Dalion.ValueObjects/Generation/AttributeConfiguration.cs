@@ -12,8 +12,7 @@ internal class AttributeConfiguration
         CastOperator toUnderlyingTypeCasting = CastOperator.None,
         CastOperator fromUnderlyingTypeCasting = CastOperator.None,
         StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration =
-            UnderlyingTypeEqualityGeneration.GenerateOperators,
+        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit,
         string emptyValueName = "Empty"
     )
     {
@@ -66,8 +65,7 @@ internal class AttributeConfiguration
         var toUnderlyingTypeCasting = CastOperator.None;
         var fromUnderlyingTypeCasting = CastOperator.None;
         var stringCaseSensitivity = StringCaseSensitivity.CaseSensitive;
-        var underlyingTypeEqualityGeneration =
-            UnderlyingTypeEqualityGeneration.GenerateOperators;
+        var underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit;
         var emptyValueName = "Empty";
         foreach (var arg in argumentExpressions.Value)
         {

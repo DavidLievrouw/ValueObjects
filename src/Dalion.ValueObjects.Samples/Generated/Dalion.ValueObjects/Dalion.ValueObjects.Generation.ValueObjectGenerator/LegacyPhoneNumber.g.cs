@@ -125,14 +125,6 @@
                 
 
                 
-    public static bool operator ==(LegacyPhoneNumber left, System.String? right) => left.Value.Equals(right);
-
-    public static bool operator ==(System.String? left, LegacyPhoneNumber right) => right.Value.Equals(left);
-
-    public static bool operator !=(System.String? left, LegacyPhoneNumber right) => !(left == right);
-
-    public static bool operator !=(LegacyPhoneNumber left, System.String? right) => !(left == right);
-
 
                 
 
