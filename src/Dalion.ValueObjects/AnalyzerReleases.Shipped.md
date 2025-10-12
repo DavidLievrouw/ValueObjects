@@ -9,4 +9,3 @@ Rule ID | Category | Severity | Notes
 DVO001 | Usage | Error    | DoNotUseNewAnalyzer
 DVO002 | Usage | Error    | UseOnReadOnlyRecordStruct
 DVO003 | Usage | Error    | DoNotUseTwoWayImplicitConversion
-DVO004 | Usage | Error    | UseNamedAttributeArguments

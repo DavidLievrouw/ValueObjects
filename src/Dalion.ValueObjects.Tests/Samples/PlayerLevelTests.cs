@@ -86,7 +86,7 @@ public partial class PlayerLevelTests
             Assert.False(success);
         }
     }
-
+    
     public class Value : PlayerLevelTests
     {
         [Fact]
@@ -631,6 +631,6 @@ public partial class PlayerLevelTests
         }
     }
 
-    [ValueObject<decimal>(emptyValueName: "Unspecified", comparison: ComparisonGeneration.Omit)]
+    [ValueObject<decimal>(ComparisonGeneration.Omit, emptyValueName: "Unspecified")]
     public readonly partial record struct OtherPlayerLevel;
 }

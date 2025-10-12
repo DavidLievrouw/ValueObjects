@@ -67,36 +67,73 @@ internal class AttributeConfiguration
         var stringCaseSensitivity = StringCaseSensitivity.CaseSensitive;
         var underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit;
         var emptyValueName = "Empty";
+        var pos = 0;
         foreach (var arg in argumentExpressions.Value)
         {
-            var name = arg.GetFirstToken().ValueText;
-            var value = arg.GetLastToken().ValueText;
-
-            switch (name)
+            if (arg.NameColon != null)
             {
-                case "comparison":
-                    comparison = (ComparisonGeneration)
-                        Enum.Parse(typeof(ComparisonGeneration), value);
-                    break;
-                case "toUnderlyingTypeCasting":
-                    toUnderlyingTypeCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
-                    break;
-                case "fromUnderlyingTypeCasting":
-                    fromUnderlyingTypeCasting = (CastOperator)
-                        Enum.Parse(typeof(CastOperator), value);
-                    break;
-                case "underlyingTypeEqualityGeneration":
-                    underlyingTypeEqualityGeneration = (UnderlyingTypeEqualityGeneration)
-                        Enum.Parse(typeof(UnderlyingTypeEqualityGeneration), value);
-                    break;
-                case "stringCaseSensitivity":
-                    stringCaseSensitivity = (StringCaseSensitivity)
-                        Enum.Parse(typeof(StringCaseSensitivity), value);
-                    break;
-                case "emptyValueName":
-                    emptyValueName = value;
-                    break;
+                // Named argument
+                var name = arg.GetFirstToken().ValueText;
+                var value = arg.GetLastToken().ValueText;
+
+                switch (name)
+                {
+                    case "comparison":
+                        comparison = (ComparisonGeneration)
+                            Enum.Parse(typeof(ComparisonGeneration), value);
+                        break;
+                    case "toUnderlyingTypeCasting":
+                        toUnderlyingTypeCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
+                        break;
+                    case "fromUnderlyingTypeCasting":
+                        fromUnderlyingTypeCasting = (CastOperator)
+                            Enum.Parse(typeof(CastOperator), value);
+                        break;
+                    case "underlyingTypeEqualityGeneration":
+                        underlyingTypeEqualityGeneration = (UnderlyingTypeEqualityGeneration)
+                            Enum.Parse(typeof(UnderlyingTypeEqualityGeneration), value);
+                        break;
+                    case "stringCaseSensitivity":
+                        stringCaseSensitivity = (StringCaseSensitivity)
+                            Enum.Parse(typeof(StringCaseSensitivity), value);
+                        break;
+                    case "emptyValueName":
+                        emptyValueName = value;
+                        break;
+                }
             }
+            else
+            {
+                // Positional argument
+                var value = arg.GetLastToken().ValueText;
+                switch (pos)
+                {
+                    case 0:
+                        comparison = (ComparisonGeneration)
+                            Enum.Parse(typeof(ComparisonGeneration), value);
+                        break;
+                    case 1:
+                        toUnderlyingTypeCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
+                        break;
+                    case 2:
+                        fromUnderlyingTypeCasting = (CastOperator)
+                            Enum.Parse(typeof(CastOperator), value);
+                        break;
+                    case 3:
+                        stringCaseSensitivity = (StringCaseSensitivity)
+                            Enum.Parse(typeof(StringCaseSensitivity), value);
+                        break;
+                    case 4:
+                        underlyingTypeEqualityGeneration = (UnderlyingTypeEqualityGeneration)
+                            Enum.Parse(typeof(UnderlyingTypeEqualityGeneration), value);
+                        break;
+                    case 5:
+                        emptyValueName = value;
+                        break;
+                }
+            }
+
+            pos++;
         }
 
         return new AttributeConfiguration(
