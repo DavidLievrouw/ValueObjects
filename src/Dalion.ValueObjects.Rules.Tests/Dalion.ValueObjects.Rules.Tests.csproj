@@ -21,4 +21,9 @@
     <ProjectReference Include="..\Dalion.ValueObjects\Dalion.ValueObjects.csproj" />
     <ProjectReference Include="..\Dalion.ValueObjects.Samples\Dalion.ValueObjects.Samples.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\Dalion.ValueObjects\ValueObjectAttribute.cs">
+      <Link>ValueObjectAttribute.cs</Link>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
