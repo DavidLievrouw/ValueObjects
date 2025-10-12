@@ -10,7 +10,8 @@ namespace Dalion.ValueObjects.Samples;
     toUnderlyingTypeCasting: CastOperator.Implicit,
     comparison: ComparisonGeneration.UseUnderlying,
     stringCaseSensitivity: StringCaseSensitivity.CaseInsensitive,
-    underlyingTypeEqualityGeneration: UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods
+    underlyingTypeEqualityGeneration: UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods,
+    fluentValidationExtensionsGeneration: FluentValidationExtensionsGeneration.GenerateAll
 )]
 public readonly partial record struct ResourceGroupName
 {

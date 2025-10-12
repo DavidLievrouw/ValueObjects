@@ -2,6 +2,8 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FluentValidation;
+using FluentValidation.Results;
 using Xunit;
 
 namespace Dalion.ValueObjects.Samples;
@@ -32,12 +34,12 @@ public partial class LegacyPhoneNumberTests
         public void CanCreateUninitializedWithNullValue()
         {
             var actual = LegacyPhoneNumber.From(null);
-            
+
             var empty = LegacyPhoneNumber.Empty;
             Assert.False(actual.Equals(empty));
             Assert.False(actual == empty);
             Assert.True(actual != empty);
-            
+
             Assert.False(actual.IsInitialized());
         }
 
@@ -51,7 +53,7 @@ public partial class LegacyPhoneNumberTests
             Assert.True(actual == empty);
             Assert.False(actual != empty);
             Assert.Equal(actual.GetHashCode(), empty.GetHashCode());
-            
+
             Assert.True(actual.IsInitialized());
         }
     }
@@ -66,12 +68,12 @@ public partial class LegacyPhoneNumberTests
             Assert.True(success);
             Assert.Equal("+31 488 24 55 33", actual.Value);
         }
-        
+
         [Fact]
         public void CanCreateUninitializedWithNullValue()
         {
             var success = LegacyPhoneNumber.TryFrom(null, out var actual);
-            
+
             Assert.False(success);
             Assert.False(actual.IsInitialized());
         }
@@ -82,13 +84,13 @@ public partial class LegacyPhoneNumberTests
             var success = LegacyPhoneNumber.TryFrom(string.Empty, out var actual);
 
             Assert.True(success);
-            
+
             var empty = LegacyPhoneNumber.Empty;
             Assert.True(actual.Equals(empty));
             Assert.True(actual == empty);
             Assert.False(actual != empty);
             Assert.Equal(actual.GetHashCode(), empty.GetHashCode());
-            
+
             Assert.True(actual.IsInitialized());
         }
     }
@@ -309,7 +311,7 @@ public partial class LegacyPhoneNumberTests
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
             };
         }
 
@@ -421,7 +423,7 @@ public partial class LegacyPhoneNumberTests
             Assert.Equal("one", deserialized.Id);
             Assert.Equal(LegacyPhoneNumber.Empty, deserialized.Data);
             Assert.NotEqual(default, deserialized.Data);
-            
+
             Assert.True(deserialized.Data.IsInitialized());
         }
 
@@ -436,7 +438,7 @@ public partial class LegacyPhoneNumberTests
             Assert.Equal("one", deserialized.Id);
             Assert.NotEqual(LegacyPhoneNumber.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
-            
+
             Assert.False(deserialized.Data.IsInitialized());
         }
 
@@ -451,7 +453,7 @@ public partial class LegacyPhoneNumberTests
             Assert.Equal("one", deserialized.Id);
             Assert.NotEqual(LegacyPhoneNumber.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
-            
+
             Assert.False(deserialized.Data.IsInitialized());
         }
 
@@ -510,7 +512,7 @@ public partial class LegacyPhoneNumberTests
             Assert.Throws<NotSupportedException>(act);
         }
     }
-    
+
     public class IsValid : LegacyPhoneNumberTests
     {
         [Fact]
@@ -538,6 +540,69 @@ public partial class LegacyPhoneNumberTests
             var sut = LegacyPhoneNumber.From("+44 1.5458.55.44.8");
 
             Assert.Null(sut.GetValidationErrorMessage());
+        }
+    }
+
+    public class FluentValidationExtensions : LegacyPhoneNumberTests
+    {
+        public class MustBeInitialized : FluentValidationExtensions
+        {
+            private readonly Func<ValidationResult> _act;
+            private LegacyPhoneNumber _vo;
+
+            public MustBeInitialized()
+            {
+                _vo = LegacyPhoneNumber.From("+44 1.5458.55.44.8");
+                _act = () =>
+                    new ContainerValidator().Validate(new Container { Id = "one", Data = _vo });
+            }
+
+            [Fact]
+            public void WhenValid_ReturnsValid()
+            {
+                _vo = LegacyPhoneNumber.From("+44 1.5458.55.44.8");
+
+                var result = _act();
+
+                Assert.True(result.IsValid);
+            }
+
+            [Fact]
+            public void WhenUninitialized_ReturnsInvalid()
+            {
+                _vo = default;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+            }
+
+            [Fact]
+            public void HasValidationErrorMessage()
+            {
+                _vo = default;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+                Assert.Equal("LegacyPhoneNumber must be initialized.", result.Errors[0].ErrorMessage);
+            }
+
+            internal class ContainerValidator : AbstractValidator<Container>
+            {
+                public ContainerValidator()
+                {
+                    RuleFor(c => c.Data).MustBeInitialized();
+                }
+            }
+        }
+
+        internal class Container
+        {
+            public required string Id { get; set; }
+            public LegacyPhoneNumber Data { get; set; }
         }
     }
 

@@ -13,6 +13,7 @@ internal class AttributeConfiguration
         CastOperator fromUnderlyingTypeCasting,
         StringCaseSensitivity stringCaseSensitivity,
         UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration,
+        FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration,
         string emptyValueName
     )
     {
@@ -22,6 +23,7 @@ internal class AttributeConfiguration
         FromUnderlyingTypeCasting = fromUnderlyingTypeCasting;
         CaseSensitivity = stringCaseSensitivity;
         UnderlyingTypeEqualityGeneration = underlyingTypeEqualityGeneration;
+        FluentValidationExtensionsGeneration = fluentValidationExtensionsGeneration;
         EmptyValueName = emptyValueName;
     }
 
@@ -31,6 +33,7 @@ internal class AttributeConfiguration
     public CastOperator FromUnderlyingTypeCasting { get; }
     public StringCaseSensitivity CaseSensitivity { get; }
     public UnderlyingTypeEqualityGeneration UnderlyingTypeEqualityGeneration { get; }
+    public FluentValidationExtensionsGeneration FluentValidationExtensionsGeneration { get; }
     public string EmptyValueName { get; }
 
     public static AttributeConfiguration FromAttributeData(AttributeData attributeData)
@@ -66,6 +69,7 @@ internal class AttributeConfiguration
         var fromUnderlyingTypeCasting = ValueObjectAttribute.DefaultFromUnderlyingTypeCasting;
         var stringCaseSensitivity = ValueObjectAttribute.DefaultStringCaseSensitivity;
         var underlyingTypeEqualityGeneration = ValueObjectAttribute.DefaultUnderlyingTypeEqualityGeneration;
+        var fluentValidationExtensionsGeneration = ValueObjectAttribute.DefaultFluentValidationExtensionsGeneration;
         var emptyValueName = ValueObjectAttribute.DefaultEmptyValueName;
         
         var pos = 0;
@@ -98,6 +102,10 @@ internal class AttributeConfiguration
                         stringCaseSensitivity = (StringCaseSensitivity)
                             Enum.Parse(typeof(StringCaseSensitivity), value);
                         break;
+                    case "fluentValidationExtensionsGeneration":
+                        fluentValidationExtensionsGeneration = (FluentValidationExtensionsGeneration)
+                            Enum.Parse(typeof(FluentValidationExtensionsGeneration), value);
+                        break;
                     case "emptyValueName":
                         emptyValueName = value;
                         break;
@@ -129,6 +137,10 @@ internal class AttributeConfiguration
                             Enum.Parse(typeof(UnderlyingTypeEqualityGeneration), value);
                         break;
                     case 5:
+                        fluentValidationExtensionsGeneration = (FluentValidationExtensionsGeneration)
+                            Enum.Parse(typeof(FluentValidationExtensionsGeneration), value);
+                        break;
+                    case 6:
                         emptyValueName = value;
                         break;
                 }
@@ -144,6 +156,7 @@ internal class AttributeConfiguration
             fromUnderlyingTypeCasting,
             stringCaseSensitivity,
             underlyingTypeEqualityGeneration,
+            fluentValidationExtensionsGeneration,
             emptyValueName
         );
     }

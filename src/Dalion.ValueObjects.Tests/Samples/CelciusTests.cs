@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
 using System.Text.Json;
+using FluentValidation;
+using FluentValidation.Results;
 using Xunit;
 
 namespace Dalion.ValueObjects.Samples;
@@ -329,7 +331,7 @@ public partial class CelsiusTests
 
             Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Celsius>(nonsense));
         }
-        
+
         [Fact]
         public void WhenInvalid_CannotDeserialize()
         {
@@ -549,6 +551,144 @@ public partial class CelsiusTests
             var sut = Celsius.From(backingValue);
 
             Assert.Null(sut.GetValidationErrorMessage());
+        }
+    }
+
+    public class FluentValidationExtensions : CelsiusTests
+    {
+        public class MustBeInitializedAndValid : FluentValidationExtensions
+        {
+            private readonly Func<ValidationResult> _act;
+            private Celsius _vo;
+
+            public MustBeInitializedAndValid()
+            {
+                _vo = Celsius.From(24.2m);
+                _act = () =>
+                    new ContainerValidator().Validate(new Container { Id = "one", Data = _vo });
+            }
+
+            [Fact]
+            public void WhenValid_ReturnsValid()
+            {
+                _vo = Celsius.From(24.2m);
+
+                var result = _act();
+
+                Assert.True(result.IsValid);
+            }
+
+            [Fact]
+            public void WhenInvalid_ReturnsInvalid()
+            {
+                Celsius.TryFrom(-300, out _vo); // lower than absolute zero
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+            }
+
+            [Fact]
+            public void WhenUninitialized_ReturnsInvalid()
+            {
+                _vo = default;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+            }
+
+            [Fact]
+            public void HasValidationErrorMessage()
+            {
+                Celsius.TryFrom(-300, out _vo); // lower than absolute zero
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+                Assert.Equal("Temperature cannot be below absolute zero (-273.15°C).", result.Errors[0].ErrorMessage);
+            }
+
+            internal class ContainerValidator : AbstractValidator<Container>
+            {
+                public ContainerValidator()
+                {
+                    RuleFor(c => c.Data).MustBeInitializedAndValid();
+                }
+            }
+        }
+
+        public class MustBeInitialized : FluentValidationExtensions
+        {
+            private readonly Func<ValidationResult> _act;
+            private Celsius _vo;
+
+            public MustBeInitialized()
+            {
+                _vo = Celsius.From(24.2m);
+                _act = () =>
+                    new ContainerValidator().Validate(new Container { Id = "one", Data = _vo });
+            }
+
+            [Fact]
+            public void WhenValid_ReturnsValid()
+            {
+                _vo = Celsius.From(24.2m);
+
+                var result = _act();
+
+                Assert.True(result.IsValid);
+            }
+
+            [Fact]
+            public void WhenInvalid_ReturnsValid()
+            {
+                Celsius.TryFrom(-300, out _vo); // lower than absolute zero
+
+                var result = _act();
+
+                Assert.True(result.IsValid);
+            }
+
+            [Fact]
+            public void WhenUninitialized_ReturnsInvalid()
+            {
+                _vo = default;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+            }
+
+            [Fact]
+            public void HasValidationErrorMessage()
+            {
+                _vo = default;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+                Assert.Equal("Celsius must be initialized.", result.Errors[0].ErrorMessage);
+            }
+
+            internal class ContainerValidator : AbstractValidator<Container>
+            {
+                public ContainerValidator()
+                {
+                    RuleFor(c => c.Data).MustBeInitialized();
+                }
+            }
+        }
+
+        internal class Container
+        {
+            public required string Id { get; set; }
+            public Celsius Data { get; set; }
         }
     }
 

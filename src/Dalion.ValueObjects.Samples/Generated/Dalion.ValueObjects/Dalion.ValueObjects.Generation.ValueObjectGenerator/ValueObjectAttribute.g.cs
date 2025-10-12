@@ -13,7 +13,8 @@ namespace Dalion.ValueObjects.Samples
         /// </summary>
         /// <param name = "comparison">
         ///     Species which comparison code is generated—defaults to
-        ///     <see cref = "ComparisonGeneration.UseUnderlying"/> which hoists any IComparable implementations from the underlying type.
+        ///     <see cref = "ComparisonGeneration.UseUnderlying"/> which hoists any IComparable implementations from the underlying
+        ///     type.
         /// </param>
         /// <param name = "toUnderlyingTypeCasting">
         ///     Controls how cast operators are generated for casting from the Value Object to the underlying type.
@@ -30,15 +31,20 @@ namespace Dalion.ValueObjects.Samples
         ///     Defaults to <see cref = "StringCaseSensitivity.CaseSensitive"/>.
         /// </param>
         /// <param name = "underlyingTypeEqualityGeneration">
-        ///     Specifies whether to generate underlying type comparison operators, allowing this type to be compared for equality to the
+        ///     Specifies whether to generate underlying type comparison operators, allowing this type to be compared for equality
+        ///     to the
         ///     underlying type.
         ///     Defaults to <see cref = "UnderlyingTypeEqualityGeneration.Omit"/>
+        /// </param>
+        /// <param name = "fluentValidationExtensionsGeneration">
+        ///     Specifies whether to generate FluentValidation extension methods for this value object.
+        ///     Defaults to <see cref = "FluentValidationExtensionsGeneration.Omit"/>.
         /// </param>
         /// <param name = "emptyValueName">
         ///     The name of the static property representing an empty value object, if applicable.
         ///     Defaults to "Empty".
         /// </param>
-        public ValueObjectAttribute(ComparisonGeneration comparison = DefaultComparison, CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting, CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting, StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity, UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration, string emptyValueName = DefaultEmptyValueName) : base(typeof(T), comparison, toUnderlyingTypeCasting, fromUnderlyingTypeCasting, stringCaseSensitivity, underlyingTypeEqualityGeneration, emptyValueName)
+        public ValueObjectAttribute(ComparisonGeneration comparison = DefaultComparison, CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting, CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting, StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity, UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration, FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration = DefaultFluentValidationExtensionsGeneration, string emptyValueName = DefaultEmptyValueName) : base(typeof(T), comparison, toUnderlyingTypeCasting, fromUnderlyingTypeCasting, stringCaseSensitivity, underlyingTypeEqualityGeneration, fluentValidationExtensionsGeneration, emptyValueName)
         {
         }
     }
@@ -55,6 +61,7 @@ namespace Dalion.ValueObjects.Samples
         internal const CastOperator DefaultFromUnderlyingTypeCasting = CastOperator.None;
         internal const StringCaseSensitivity DefaultStringCaseSensitivity = StringCaseSensitivity.CaseSensitive;
         internal const UnderlyingTypeEqualityGeneration DefaultUnderlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit;
+        internal const FluentValidationExtensionsGeneration DefaultFluentValidationExtensionsGeneration = FluentValidationExtensionsGeneration.Omit;
         internal const string DefaultEmptyValueName = "Empty";
         /// <summary>
         ///     Configures aspects of this individual value object.
@@ -62,7 +69,8 @@ namespace Dalion.ValueObjects.Samples
         /// <param name = "underlyingType">The type of the underlying value that is being wrapped.</param>
         /// <param name = "comparison">
         ///     Species which comparison code is generated—defaults to
-        ///     <see cref = "ComparisonGeneration.UseUnderlying"/> which hoists any IComparable implementations from the underlying type.
+        ///     <see cref = "ComparisonGeneration.UseUnderlying"/> which hoists any IComparable implementations from the underlying
+        ///     type.
         /// </param>
         /// <param name = "toUnderlyingTypeCasting">
         ///     Specifies the type of casting from wrapper to the underlying type - defaults to
@@ -77,15 +85,20 @@ namespace Dalion.ValueObjects.Samples
         ///     Defaults to <see cref = "StringCaseSensitivity.CaseSensitive"/>.
         /// </param>
         /// <param name = "underlyingTypeEqualityGeneration">
-        ///     Specifies whether to generate underlying value comparison operators, allowing this type to be compared for equality to the
+        ///     Specifies whether to generate underlying value comparison operators, allowing this type to be compared for equality
+        ///     to the
         ///     underlying type.
         ///     Defaults to <see cref = "UnderlyingTypeEqualityGeneration.Omit"/>
+        /// </param>
+        /// <param name = "fluentValidationExtensionsGeneration">
+        ///     Specifies whether to generate FluentValidation extension methods for this value object.
+        ///     Defaults to <see cref = "FluentValidationExtensionsGeneration.Omit"/>.
         /// </param>
         /// <param name = "emptyValueName">
         ///     The name of the static property representing an empty value object, if applicable.
         ///     Defaults to "Empty".
         /// </param>
-        public ValueObjectAttribute(Type? underlyingType = null !, ComparisonGeneration comparison = DefaultComparison, CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting, CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting, StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity, UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration, string emptyValueName = DefaultEmptyValueName)
+        public ValueObjectAttribute(Type? underlyingType = null !, ComparisonGeneration comparison = DefaultComparison, CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting, CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting, StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity, UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration, FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration = DefaultFluentValidationExtensionsGeneration, string emptyValueName = DefaultEmptyValueName)
         {
         }
     }
@@ -162,5 +175,29 @@ namespace Dalion.ValueObjects.Samples
         ///     Generate both operators and methods.
         /// </summary>
         GenerateOperatorsAndMethods = GenerateOperators | GenerateMethods,
+    }
+
+    /// <summary>
+    ///     Defines if FluentValidation extension methods are generated.
+    /// </summary>
+    [Flags]
+    public enum FluentValidationExtensionsGeneration
+    {
+        /// <summary>
+        ///     Do not generate.
+        /// </summary>
+        Omit = 0,
+        /// <summary>
+        ///     Generate MustBeInitialized extension method.
+        /// </summary>
+        GenerateMustBeInitialized = 1 << 0,
+        /// <summary>
+        ///     Generate MustBeInitializedAndValid extension method.
+        /// </summary>
+        GenerateMustBeInitializedAndValid = 1 << 1,
+        /// <summary>
+        ///     Generate all methods.
+        /// </summary>
+        GenerateAll = GenerateMustBeInitialized | GenerateMustBeInitializedAndValid,
     }
 }

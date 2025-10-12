@@ -1,4 +1,7 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel;
+using System.Text.Json;
+using FluentValidation;
+using FluentValidation.Results;
 using Xunit;
 
 namespace Dalion.ValueObjects.Samples;
@@ -15,7 +18,7 @@ public partial class TenantIdTests
             Assert.Fail("Should not be allowed to new up, but got: " + actual);
         }*/
     }
-    
+
     public class From : TenantIdTests
     {
         [Fact]
@@ -36,20 +39,20 @@ public partial class TenantIdTests
             Assert.True(actual == empty);
             Assert.False(actual != empty);
             Assert.Equal(actual.GetHashCode(), empty.GetHashCode());
-            
+
             Assert.True(actual.IsInitialized());
         }
-    } 
-    
+    }
+
     public class TryFrom : TenantIdTests
     {
         [Fact]
         public void TryFrom_CreatesTenantIdWithValue()
         {
             var backingValue = Guid.NewGuid();
-            
+
             var success = TenantId.TryFrom(backingValue, out var actual);
-            
+
             Assert.True(success);
             Assert.Equal(backingValue, actual.Value);
         }
@@ -58,15 +61,15 @@ public partial class TenantIdTests
         public void CanCreateEmpty()
         {
             var success = TenantId.TryFrom(Guid.Empty, out var actual);
-            
+
             Assert.True(success);
-            
+
             var empty = TenantId.Empty;
             Assert.True(actual.Equals(empty));
             Assert.True(actual == empty);
             Assert.False(actual != empty);
             Assert.Equal(actual.GetHashCode(), empty.GetHashCode());
-            
+
             Assert.True(actual.IsInitialized());
         }
     }
@@ -77,9 +80,9 @@ public partial class TenantIdTests
         public void ReturnsUnderlyingValue()
         {
             var expected = Guid.NewGuid();
-            
+
             var actual = TenantId.From(expected);
-            
+
             Assert.Equal(expected, actual.Value);
         }
 
@@ -149,7 +152,7 @@ public partial class TenantIdTests
             var backingValue = Guid.NewGuid();
             var first = TenantId.From(backingValue);
             TenantId second = default;
-            
+
             Assert.False(first.Equals(second));
             Assert.False(first == second);
             Assert.True(first != second);
@@ -176,7 +179,7 @@ public partial class TenantIdTests
             Assert.False(first.Equals(second));
         }
     }
-    
+
     public class IsInitialized : TenantIdTests
     {
         [Fact]
@@ -184,7 +187,7 @@ public partial class TenantIdTests
         {
             var backingValue = Guid.NewGuid();
             var sut = TenantId.From(backingValue);
-            
+
             Assert.True(sut.IsInitialized());
         }
 
@@ -192,7 +195,7 @@ public partial class TenantIdTests
         public void WhenValueIsDefault_IsFalse()
         {
             TenantId sut = default;
-            
+
             Assert.False(sut.IsInitialized());
         }
 
@@ -200,7 +203,7 @@ public partial class TenantIdTests
         public void EmptyIsInitialized()
         {
             var sut = TenantId.Empty;
-            
+
             Assert.True(sut.IsInitialized());
         }
     }
@@ -211,9 +214,9 @@ public partial class TenantIdTests
         public void ReturnsValue()
         {
             var value = Guid.NewGuid();
-            
+
             var actual = TenantId.From(value).ToString();
-            
+
             Assert.Equal(value.ToString(), actual);
         }
     }
@@ -224,9 +227,9 @@ public partial class TenantIdTests
         public void IsExplicitlyConvertibleFromUnderlyingType()
         {
             var value = Guid.NewGuid();
-            
+
             var actual = (TenantId)value;
-            
+
             var expected = TenantId.From(value);
             Assert.Equal(expected, actual);
         }
@@ -241,7 +244,7 @@ public partial class TenantIdTests
 
             Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<TenantId>(nonsense));
         }
-        
+
         [Fact]
         public void WhenEmptyString_ThrowsJsonException()
         {
@@ -305,12 +308,8 @@ public partial class TenantIdTests
         [Fact]
         public void SerializesUninitializedToNull()
         {
-            var container = new Container
-            {
-                Id = "one",
-                Data = default
-            };
-            
+            var container = new Container { Id = "one", Data = default };
+
             var serialized = JsonSerializer.Serialize(container);
 
             Assert.Equal("{\"Id\":\"one\",\"Data\":null}", serialized);
@@ -319,15 +318,14 @@ public partial class TenantIdTests
         [Fact]
         public void SerializesEmptyToEmpty()
         {
-            var container = new Container
-            {
-                Id = "one",
-                Data = TenantId.Empty
-            };
-            
+            var container = new Container { Id = "one", Data = TenantId.Empty };
+
             var serialized = JsonSerializer.Serialize(container);
 
-            Assert.Equal("{\"Id\":\"one\",\"Data\":\"00000000-0000-0000-0000-000000000000\"}", serialized);
+            Assert.Equal(
+                "{\"Id\":\"one\",\"Data\":\"00000000-0000-0000-0000-000000000000\"}",
+                serialized
+            );
         }
 
         [Fact]
@@ -341,7 +339,7 @@ public partial class TenantIdTests
             Assert.Equal("one", deserialized.Id);
             Assert.Equal(TenantId.Empty, deserialized.Data);
             Assert.NotEqual(default, deserialized.Data);
-            
+
             Assert.True(deserialized.Data.IsInitialized());
         }
 
@@ -356,7 +354,7 @@ public partial class TenantIdTests
             Assert.Equal("one", deserialized.Id);
             Assert.NotEqual(TenantId.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
-            
+
             Assert.False(deserialized.Data.IsInitialized());
         }
 
@@ -371,23 +369,23 @@ public partial class TenantIdTests
             Assert.Equal("one", deserialized.Id);
             Assert.NotEqual(TenantId.Empty, deserialized.Data);
             Assert.Equal(default, deserialized.Data);
-            
+
             Assert.False(deserialized.Data.IsInitialized());
         }
-        
+
         internal class Container
         {
             public required string Id { get; set; }
             public TenantId Data { get; set; }
         }
     }
-    
+
     public class TypeConversion : TenantIdTests
     {
         [Fact]
         public void CanConvertFromUnderlyingType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(TenantId));
+            var converter = TypeDescriptor.GetConverter(typeof(TenantId));
             Assert.True(converter.CanConvertFrom(typeof(Guid)));
 
             var backingValue = Guid.NewGuid();
@@ -399,7 +397,7 @@ public partial class TenantIdTests
         [Fact]
         public void CannotConvertFromUnsupportedType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(TenantId));
+            var converter = TypeDescriptor.GetConverter(typeof(TenantId));
             Assert.False(converter.CanConvertFrom(typeof(int)));
 
             Action act = () => converter.ConvertFrom(5);
@@ -410,7 +408,7 @@ public partial class TenantIdTests
         [Fact]
         public void CanConvertToUnderlyingType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(TenantId));
+            var converter = TypeDescriptor.GetConverter(typeof(TenantId));
             Assert.True(converter.CanConvertTo(typeof(Guid)));
 
             var backingValue = Guid.NewGuid();
@@ -423,7 +421,7 @@ public partial class TenantIdTests
         [Fact]
         public void CannotConvertToUnsupportedType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(TenantId));
+            var converter = TypeDescriptor.GetConverter(typeof(TenantId));
             Assert.False(converter.CanConvertTo(typeof(int)));
 
             var backingValue = Guid.NewGuid();
@@ -433,7 +431,7 @@ public partial class TenantIdTests
             Assert.Throws<NotSupportedException>(act);
         }
     }
-    
+
     public class IsValid : TenantIdTests
     {
         [Fact]
@@ -465,7 +463,81 @@ public partial class TenantIdTests
             Assert.Null(sut.GetValidationErrorMessage());
         }
     }
-    
+
+    public class FluentValidationExtensions : TenantIdTests
+    {
+        public class MustBeInitializedAndValid : FluentValidationExtensions
+        {
+            private readonly Func<ValidationResult> _act;
+            private TenantId _vo;
+
+            public MustBeInitializedAndValid()
+            {
+                _vo = TenantId.From(Guid.NewGuid());
+                _act = () =>
+                    new ContainerValidator().Validate(new Container { Id = "one", Data = _vo });
+            }
+
+            [Fact]
+            public void WhenValid_ReturnsValid()
+            {
+                _vo = TenantId.From(Guid.NewGuid());
+
+                var result = _act();
+
+                Assert.True(result.IsValid);
+            }
+
+            [Fact]
+            public void WhenInvalid_ReturnsInvalid()
+            {
+                _vo = default; // The only invalid state for TenantId
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+            }
+
+            [Fact]
+            public void WhenUninitialized_ReturnsInvalid()
+            {
+                _vo = default;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+            }
+
+            [Fact]
+            public void HasValidationErrorMessage()
+            {
+                _vo = default;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+                Assert.Equal("TenantId must be initialized.", result.Errors[0].ErrorMessage);
+            }
+
+            internal class ContainerValidator : AbstractValidator<Container>
+            {
+                public ContainerValidator()
+                {
+                    RuleFor(c => c.Data).MustBeInitializedAndValid();
+                }
+            }
+        }
+
+        internal class Container
+        {
+            public required string Id { get; set; }
+            public TenantId Data { get; set; }
+        }
+    }
+
     [ValueObject<Guid>(
         fromUnderlyingTypeCasting: CastOperator.Explicit,
         toUnderlyingTypeCasting: CastOperator.None,

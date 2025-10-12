@@ -5,7 +5,8 @@
 /// </summary>
 [ValueObject<int>(
     comparison: ComparisonGeneration.Omit,
-    emptyValueName: "Unspecified"
+    emptyValueName: "Unspecified",
+    fluentValidationExtensionsGeneration: FluentValidationExtensionsGeneration.GenerateAll
 )]
 public readonly partial record struct PlayerLevel
 {

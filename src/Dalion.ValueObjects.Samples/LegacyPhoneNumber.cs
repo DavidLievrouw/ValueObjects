@@ -6,6 +6,7 @@
 [ValueObject<string>(
     fromUnderlyingTypeCasting: CastOperator.Explicit,
     toUnderlyingTypeCasting: CastOperator.Implicit,
-    comparison: ComparisonGeneration.Omit
+    comparison: ComparisonGeneration.Omit,
+    fluentValidationExtensionsGeneration: FluentValidationExtensionsGeneration.GenerateMustBeInitialized
 )]
 public readonly partial record struct LegacyPhoneNumber;

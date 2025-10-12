@@ -1,4 +1,6 @@
-﻿namespace Dalion.ValueObjects.Samples;
+﻿using System.Globalization;
+
+namespace Dalion.ValueObjects.Samples;
 
 /// <summary>
 ///     A temperature in Celsius.
@@ -7,7 +9,8 @@
     fromUnderlyingTypeCasting: CastOperator.Explicit,
     toUnderlyingTypeCasting: CastOperator.Explicit,
     emptyValueName: "Zero",
-    underlyingTypeEqualityGeneration: UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods
+    underlyingTypeEqualityGeneration: UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods,
+    fluentValidationExtensionsGeneration: FluentValidationExtensionsGeneration.GenerateAll
 )]
 public readonly partial record struct Celsius
 {
@@ -17,6 +20,8 @@ public readonly partial record struct Celsius
     {
         return input >= AbsoluteZero
             ? Validation.Ok
-            : Validation.Invalid($"Temperature cannot be below absolute zero ({AbsoluteZero}°C).");
+            : Validation.Invalid(
+                $"Temperature cannot be below absolute zero ({AbsoluteZero.ToString(CultureInfo.InvariantCulture)}°C)."
+            );
     }
 }

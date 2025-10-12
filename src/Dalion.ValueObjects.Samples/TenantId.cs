@@ -7,6 +7,7 @@
     fromUnderlyingTypeCasting: CastOperator.Explicit,
     toUnderlyingTypeCasting: CastOperator.None,
     comparison: ComparisonGeneration.Omit,
-    underlyingTypeEqualityGeneration: UnderlyingTypeEqualityGeneration.Omit
+    underlyingTypeEqualityGeneration: UnderlyingTypeEqualityGeneration.Omit,
+    fluentValidationExtensionsGeneration: FluentValidationExtensionsGeneration.GenerateMustBeInitializedAndValid
 )]
 public readonly partial record struct TenantId;

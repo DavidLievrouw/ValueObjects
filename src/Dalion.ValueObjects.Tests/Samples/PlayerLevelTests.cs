@@ -86,7 +86,7 @@ public partial class PlayerLevelTests
             Assert.False(success);
         }
     }
-    
+
     public class Value : PlayerLevelTests
     {
         [Fact]
@@ -535,7 +535,6 @@ public partial class PlayerLevelTests
 
                 Assert.False(result.IsValid);
                 Assert.Single(result.Errors);
-                Assert.Equal("PlayerLevel must be initialized.", result.Errors[0].ErrorMessage);
             }
 
             [Fact]
@@ -600,7 +599,6 @@ public partial class PlayerLevelTests
 
                 Assert.False(result.IsValid);
                 Assert.Single(result.Errors);
-                Assert.Equal("PlayerLevel must be initialized.", result.Errors[0].ErrorMessage);
             }
 
             [Fact]

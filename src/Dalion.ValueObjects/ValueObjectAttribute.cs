@@ -14,7 +14,8 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
     /// </summary>
     /// <param name="comparison">
     ///     Species which comparison code is generated—defaults to
-    ///     <see cref="ComparisonGeneration.UseUnderlying" /> which hoists any IComparable implementations from the underlying type.
+    ///     <see cref="ComparisonGeneration.UseUnderlying" /> which hoists any IComparable implementations from the underlying
+    ///     type.
     /// </param>
     /// <param name="toUnderlyingTypeCasting">
     ///     Controls how cast operators are generated for casting from the Value Object to the underlying type.
@@ -31,9 +32,14 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
     ///     Defaults to <see cref="StringCaseSensitivity.CaseSensitive" />.
     /// </param>
     /// <param name="underlyingTypeEqualityGeneration">
-    ///     Specifies whether to generate underlying type comparison operators, allowing this type to be compared for equality to the
+    ///     Specifies whether to generate underlying type comparison operators, allowing this type to be compared for equality
+    ///     to the
     ///     underlying type.
     ///     Defaults to <see cref="UnderlyingTypeEqualityGeneration.Omit" />
+    /// </param>
+    /// <param name="fluentValidationExtensionsGeneration">
+    ///     Specifies whether to generate FluentValidation extension methods for this value object.
+    ///     Defaults to <see cref="FluentValidationExtensionsGeneration.Omit" />.
     /// </param>
     /// <param name="emptyValueName">
     ///     The name of the static property representing an empty value object, if applicable.
@@ -45,6 +51,8 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
         CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting,
         StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity,
         UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration,
+        FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration =
+            DefaultFluentValidationExtensionsGeneration,
         string emptyValueName = DefaultEmptyValueName
     )
         : base(
@@ -54,8 +62,11 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
             fromUnderlyingTypeCasting,
             stringCaseSensitivity,
             underlyingTypeEqualityGeneration,
+            fluentValidationExtensionsGeneration,
             emptyValueName
-        ) { }
+        )
+    {
+    }
 }
 
 /// <summary>
@@ -69,16 +80,23 @@ public class ValueObjectAttribute : Attribute
     internal const CastOperator DefaultToUnderlyingTypeCasting = CastOperator.None;
     internal const CastOperator DefaultFromUnderlyingTypeCasting = CastOperator.None;
     internal const StringCaseSensitivity DefaultStringCaseSensitivity = StringCaseSensitivity.CaseSensitive;
-    internal const UnderlyingTypeEqualityGeneration DefaultUnderlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit;
+
+    internal const UnderlyingTypeEqualityGeneration DefaultUnderlyingTypeEqualityGeneration =
+        UnderlyingTypeEqualityGeneration.Omit;
+
+    internal const FluentValidationExtensionsGeneration DefaultFluentValidationExtensionsGeneration =
+        FluentValidationExtensionsGeneration.Omit;
+
     internal const string DefaultEmptyValueName = "Empty";
-    
+
     /// <summary>
     ///     Configures aspects of this individual value object.
     /// </summary>
     /// <param name="underlyingType">The type of the underlying value that is being wrapped.</param>
     /// <param name="comparison">
     ///     Species which comparison code is generated—defaults to
-    ///     <see cref="ComparisonGeneration.UseUnderlying" /> which hoists any IComparable implementations from the underlying type.
+    ///     <see cref="ComparisonGeneration.UseUnderlying" /> which hoists any IComparable implementations from the underlying
+    ///     type.
     /// </param>
     /// <param name="toUnderlyingTypeCasting">
     ///     Specifies the type of casting from wrapper to the underlying type - defaults to
@@ -93,9 +111,14 @@ public class ValueObjectAttribute : Attribute
     ///     Defaults to <see cref="StringCaseSensitivity.CaseSensitive" />.
     /// </param>
     /// <param name="underlyingTypeEqualityGeneration">
-    ///     Specifies whether to generate underlying value comparison operators, allowing this type to be compared for equality to the
+    ///     Specifies whether to generate underlying value comparison operators, allowing this type to be compared for equality
+    ///     to the
     ///     underlying type.
     ///     Defaults to <see cref="UnderlyingTypeEqualityGeneration.Omit" />
+    /// </param>
+    /// <param name="fluentValidationExtensionsGeneration">
+    ///     Specifies whether to generate FluentValidation extension methods for this value object.
+    ///     Defaults to <see cref="FluentValidationExtensionsGeneration.Omit" />.
     /// </param>
     /// <param name="emptyValueName">
     ///     The name of the static property representing an empty value object, if applicable.
@@ -108,8 +131,12 @@ public class ValueObjectAttribute : Attribute
         CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting,
         StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity,
         UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration,
+        FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration =
+            DefaultFluentValidationExtensionsGeneration,
         string emptyValueName = DefaultEmptyValueName
-    ) { }
+    )
+    {
+    }
 }
 
 /// <summary>
@@ -131,7 +158,7 @@ public enum CastOperator
     ///     Implicit cast operators are generated.
     /// </summary>
     Implicit = 2,
-}    
+}
 
 /// <summary>
 ///     The generation of comparison code for a Value Object.
@@ -191,4 +218,31 @@ public enum UnderlyingTypeEqualityGeneration
     ///     Generate both operators and methods.
     /// </summary>
     GenerateOperatorsAndMethods = GenerateOperators | GenerateMethods,
+}
+
+/// <summary>
+///     Defines if FluentValidation extension methods are generated.
+/// </summary>
+[Flags]
+public enum FluentValidationExtensionsGeneration
+{
+    /// <summary>
+    ///     Do not generate.
+    /// </summary>
+    Omit = 0,
+
+    /// <summary>
+    ///     Generate MustBeInitialized extension method.
+    /// </summary>
+    GenerateMustBeInitialized = 1 << 0,
+
+    /// <summary>
+    ///     Generate MustBeInitializedAndValid extension method.
+    /// </summary>
+    GenerateMustBeInitializedAndValid = 1 << 1,
+
+    /// <summary>
+    ///     Generate all methods.
+    /// </summary>
+    GenerateAll = GenerateMustBeInitialized | GenerateMustBeInitializedAndValid,
 }

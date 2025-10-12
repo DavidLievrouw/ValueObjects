@@ -1,4 +1,7 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel;
+using System.Text.Json;
+using FluentValidation;
+using FluentValidation.Results;
 using Xunit;
 
 namespace Dalion.ValueObjects.Samples;
@@ -524,9 +527,7 @@ public partial class ResourceGroupNameTests
         [Fact]
         public void CanConvertFromUnderlyingType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(
-                typeof(ResourceGroupName)
-            );
+            var converter = TypeDescriptor.GetConverter(typeof(ResourceGroupName));
             Assert.True(converter.CanConvertFrom(typeof(string)));
 
             var actual = converter.ConvertFrom("test-resource-group-name");
@@ -537,9 +538,7 @@ public partial class ResourceGroupNameTests
         [Fact]
         public void CannotConvertFromUnsupportedType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(
-                typeof(ResourceGroupName)
-            );
+            var converter = TypeDescriptor.GetConverter(typeof(ResourceGroupName));
             Assert.False(converter.CanConvertFrom(typeof(int)));
 
             Action act = () => converter.ConvertFrom(5);
@@ -550,9 +549,7 @@ public partial class ResourceGroupNameTests
         [Fact]
         public void CanConvertToUnderlyingType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(
-                typeof(ResourceGroupName)
-            );
+            var converter = TypeDescriptor.GetConverter(typeof(ResourceGroupName));
             Assert.True(converter.CanConvertTo(typeof(string)));
 
             var sut = ResourceGroupName.From("test-resource-group-name");
@@ -564,9 +561,7 @@ public partial class ResourceGroupNameTests
         [Fact]
         public void CannotConvertToUnsupportedType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(
-                typeof(ResourceGroupName)
-            );
+            var converter = TypeDescriptor.GetConverter(typeof(ResourceGroupName));
             Assert.False(converter.CanConvertTo(typeof(int)));
 
             var sut = ResourceGroupName.From("test-resource-group-name");
@@ -614,6 +609,144 @@ public partial class ResourceGroupNameTests
                 "ResourceGroupName cannot be null, empty, or whitespace.",
                 sut.GetValidationErrorMessage()
             );
+        }
+    }
+
+    public class FluentValidationExtensions : ResourceGroupNameTests
+    {
+        public class MustBeInitializedAndValid : FluentValidationExtensions
+        {
+            private readonly Func<ValidationResult> _act;
+            private ResourceGroupName _vo;
+
+            public MustBeInitializedAndValid()
+            {
+                _vo = ResourceGroupName.From("abc123");
+                _act = () =>
+                    new ContainerValidator().Validate(new Container { Id = "one", Data = _vo });
+            }
+
+            [Fact]
+            public void WhenValid_ReturnsValid()
+            {
+                _vo = ResourceGroupName.From("abc123");
+
+                var result = _act();
+
+                Assert.True(result.IsValid);
+            }
+
+            [Fact]
+            public void WhenInvalid_ReturnsInvalid()
+            {
+                _vo = ResourceGroupName.Empty;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+            }
+
+            [Fact]
+            public void WhenUninitialized_ReturnsInvalid()
+            {
+                _vo = default;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+            }
+
+            [Fact]
+            public void HasValidationErrorMessage()
+            {
+                _vo = ResourceGroupName.Empty;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+                Assert.Equal("ResourceGroupName cannot be null, empty, or whitespace.", result.Errors[0].ErrorMessage);
+            }
+
+            internal class ContainerValidator : AbstractValidator<Container>
+            {
+                public ContainerValidator()
+                {
+                    RuleFor(c => c.Data).MustBeInitializedAndValid();
+                }
+            }
+        }
+
+        public class MustBeInitialized : FluentValidationExtensions
+        {
+            private readonly Func<ValidationResult> _act;
+            private ResourceGroupName _vo;
+
+            public MustBeInitialized()
+            {
+                _vo = ResourceGroupName.From("abc123");
+                _act = () =>
+                    new ContainerValidator().Validate(new Container { Id = "one", Data = _vo });
+            }
+
+            [Fact]
+            public void WhenValid_ReturnsValid()
+            {
+                _vo = ResourceGroupName.From("abc123");
+
+                var result = _act();
+
+                Assert.True(result.IsValid);
+            }
+
+            [Fact]
+            public void WhenInvalid_ReturnsValid()
+            {
+                _vo = ResourceGroupName.Empty;
+
+                var result = _act();
+
+                Assert.True(result.IsValid);
+            }
+
+            [Fact]
+            public void WhenUninitialized_ReturnsInvalid()
+            {
+                _vo = default;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+            }
+
+            [Fact]
+            public void HasValidationErrorMessage()
+            {
+                _vo = default;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+                Assert.Equal("ResourceGroupName must be initialized.", result.Errors[0].ErrorMessage);
+            }
+
+            internal class ContainerValidator : AbstractValidator<Container>
+            {
+                public ContainerValidator()
+                {
+                    RuleFor(c => c.Data).MustBeInitialized();
+                }
+            }
+        }
+
+        internal class Container
+        {
+            public required string Id { get; set; }
+            public ResourceGroupName Data { get; set; }
         }
     }
 
