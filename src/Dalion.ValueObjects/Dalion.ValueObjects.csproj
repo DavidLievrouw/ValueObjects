@@ -58,4 +58,7 @@
     <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
     <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ValueObjectAttribute.cs" />
+  </ItemGroup>
 </Project>

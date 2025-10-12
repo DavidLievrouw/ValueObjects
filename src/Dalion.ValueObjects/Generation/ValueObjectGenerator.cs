@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Dalion.ValueObjects.Generation;
 
@@ -985,10 +987,40 @@ public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _va
         return new string('}', count);
     }
 
-    private static void EnsureValueObjectAttribute(
-        IncrementalGeneratorInitializationContext context
-    )
+    private static SourceText WithNamespace(CompilationUnitSyntax root, string newNs)
     {
+        // Remove existing file-scoped namespace declaration (if any)
+        var members = root.Members;
+        var fileScopedNamespace = members
+            .OfType<FileScopedNamespaceDeclarationSyntax>()
+            .FirstOrDefault();
+
+        if (fileScopedNamespace != null)
+        {
+            members = fileScopedNamespace.Members;
+        }
+
+        // Create a new namespace declaration with the specified namespace name
+        var newNamespace = SyntaxFactory
+            .NamespaceDeclaration(SyntaxFactory.ParseName(newNs))
+            .WithMembers(members)
+            .NormalizeWhitespace();
+
+        // Create a new compilation unit preserving existing usings but replacing members with the new namespace
+        var newCompilationUnit = SyntaxFactory
+            .CompilationUnit()
+            .WithUsings(root.Usings)
+            .WithMembers(SyntaxFactory.SingletonList<MemberDeclarationSyntax>(newNamespace))
+            .NormalizeWhitespace();
+
+        // Convert to source text
+        var sourceCode = newCompilationUnit.ToFullString();
+        return SourceText.From(sourceCode, Encoding.UTF8);
+    }
+
+    private void EnsureValueObjectAttribute(IncrementalGeneratorInitializationContext context)
+    {
+        // Get namespace from build properties
         var namespaceName = context.AnalyzerConfigOptionsProvider.Select(
             (p, _) =>
                 p.GlobalOptions.TryGetValue("build_property.RootNamespace", out var ns)
@@ -1000,89 +1032,44 @@ public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _va
                 : typeof(ValueObjectAttribute).Namespace
         );
 
-        var alreadyExistsDetection = context.CompilationProvider.Select((p, _) => p);
-
         context.RegisterSourceOutput(
-            namespaceName.Combine(alreadyExistsDetection),
-            (spc, tuple) =>
+            namespaceName,
+            (spc, ns) =>
             {
-                var (ns, exitingType) = tuple;
-
-                if (
-                    exitingType.GetTypeByMetadataName(ns + "." + nameof(ValueObjectAttribute))
-                    is not null
-                )
+                var attributeContent = GetEmbeddedResource($"{nameof(ValueObjectAttribute)}.cs");
+                if (attributeContent == null)
                 {
                     return;
                 }
+                
+                var tree = CSharpSyntaxTree.ParseText(attributeContent);
+                var root = (CompilationUnitSyntax)tree.GetRoot();
+                var fixedSource = WithNamespace(root, ns);
 
-                spc.AddSource(
-                    $"{nameof(ValueObjectAttribute)}.g.cs",
-                    $@"
-#nullable disable
-
-namespace {ns} {{
-    [System.Flags]
-    public enum UnderlyingTypeEqualityGeneration {{
-        Omit = 0,
-        GenerateOperators = 1 << 0,
-        GenerateMethods = 1 << 1,
-        GenerateOperatorsAndMethods = GenerateOperators | GenerateMethods
-    }}
-
-    public enum ComparisonGeneration {{
-        Omit = 0,
-        UseUnderlying = 1
-    }}
-
-    public enum CastOperator {{
-        None = 0,
-        Explicit = 1,
-        Implicit = 2
-    }}
-
-    public enum StringCaseSensitivity {{
-        CaseSensitive = 0,
-        CaseInsensitive = 1
-    }}
-
-    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct)]
-    public class ValueObjectAttribute<T> : ValueObjectAttribute {{
-        public ValueObjectAttribute(
-            ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
-            CastOperator toUnderlyingTypeCasting = CastOperator.None,
-            CastOperator fromUnderlyingTypeCasting = CastOperator.None,
-            StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit,
-            string emptyValueName = ""Empty""
-        )
-            : base(
-                typeof(T),
-                comparison,
-                toUnderlyingTypeCasting,
-                fromUnderlyingTypeCasting,
-                stringCaseSensitivity,
-                underlyingTypeEqualityGeneration,
-                emptyValueName
-            ) {{ }}
-    }}
-
-    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct)]
-    public class ValueObjectAttribute : System.Attribute {{
-        public ValueObjectAttribute(
-            Type underlyingType = null,
-            ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
-            CastOperator toUnderlyingTypeCasting = CastOperator.None,
-            CastOperator fromUnderlyingTypeCasting = CastOperator.None,
-            StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-            UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit,
-            string emptyValueName = ""Empty""
-        ) {{ }}
-    }}
-}}
-"
-                );
+                spc.AddSource($"{nameof(ValueObjectAttribute)}.g.cs", fixedSource);
             }
         );
+    }
+
+    private static string? GetEmbeddedResource(string resourceName)
+    {
+        var assembly = typeof(ValueObjectAttribute).Assembly;
+        var fullResourceName = assembly
+            .GetManifestResourceNames()
+            .FirstOrDefault(name => name.EndsWith(resourceName));
+
+        if (fullResourceName == null)
+        {
+            return null;
+        }
+
+        using var stream = assembly.GetManifestResourceStream(fullResourceName);
+        if (stream == null)
+        {
+            return null;
+        }
+
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
 }

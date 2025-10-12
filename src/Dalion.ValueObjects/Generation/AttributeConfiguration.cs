@@ -8,12 +8,12 @@ internal class AttributeConfiguration
 {
     public AttributeConfiguration(
         Type underlyingType,
-        ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
-        CastOperator toUnderlyingTypeCasting = CastOperator.None,
-        CastOperator fromUnderlyingTypeCasting = CastOperator.None,
-        StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit,
-        string emptyValueName = "Empty"
+        ComparisonGeneration comparison,
+        CastOperator toUnderlyingTypeCasting,
+        CastOperator fromUnderlyingTypeCasting,
+        StringCaseSensitivity stringCaseSensitivity,
+        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration,
+        string emptyValueName
     )
     {
         UnderlyingType = underlyingType;
@@ -61,12 +61,13 @@ internal class AttributeConfiguration
             _ => Type.GetType(typeName) ?? typeof(string),
         };
 
-        var comparison = ComparisonGeneration.UseUnderlying;
-        var toUnderlyingTypeCasting = CastOperator.None;
-        var fromUnderlyingTypeCasting = CastOperator.None;
-        var stringCaseSensitivity = StringCaseSensitivity.CaseSensitive;
-        var underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit;
-        var emptyValueName = "Empty";
+        var comparison = ValueObjectAttribute.DefaultComparison;
+        var toUnderlyingTypeCasting = ValueObjectAttribute.DefaultToUnderlyingTypeCasting;
+        var fromUnderlyingTypeCasting = ValueObjectAttribute.DefaultFromUnderlyingTypeCasting;
+        var stringCaseSensitivity = ValueObjectAttribute.DefaultStringCaseSensitivity;
+        var underlyingTypeEqualityGeneration = ValueObjectAttribute.DefaultUnderlyingTypeEqualityGeneration;
+        var emptyValueName = ValueObjectAttribute.DefaultEmptyValueName;
+        
         var pos = 0;
         foreach (var arg in argumentExpressions.Value)
         {

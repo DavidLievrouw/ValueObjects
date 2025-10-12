@@ -2,6 +2,9 @@
 
 namespace Dalion.ValueObjects;
 
+// ReSharper disable once RedundantNullableDirective
+#nullable enable
+
 /// <inheritdoc />
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
 public class ValueObjectAttribute<T> : ValueObjectAttribute
@@ -24,7 +27,7 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
     ///     recommended.
     /// </param>
     /// <param name="stringCaseSensitivity">
-    ///     When using a <see cref="string" /> as a backing value, controls whether comparisons are case sensitive or not.
+    ///     When using a <see cref="string" /> as a backing value, controls whether comparisons are case-sensitive.
     ///     Defaults to <see cref="StringCaseSensitivity.CaseSensitive" />.
     /// </param>
     /// <param name="underlyingTypeEqualityGeneration">
@@ -37,12 +40,12 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
     ///     Defaults to "Empty".
     /// </param>
     public ValueObjectAttribute(
-        ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
-        CastOperator toUnderlyingTypeCasting = CastOperator.None,
-        CastOperator fromUnderlyingTypeCasting = CastOperator.None,
-        StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit,
-        string emptyValueName = "Empty"
+        ComparisonGeneration comparison = DefaultComparison,
+        CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting,
+        CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting,
+        StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity,
+        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration,
+        string emptyValueName = DefaultEmptyValueName
     )
         : base(
             typeof(T),
@@ -62,6 +65,13 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
 public class ValueObjectAttribute : Attribute
 {
+    internal const ComparisonGeneration DefaultComparison = ComparisonGeneration.UseUnderlying;
+    internal const CastOperator DefaultToUnderlyingTypeCasting = CastOperator.None;
+    internal const CastOperator DefaultFromUnderlyingTypeCasting = CastOperator.None;
+    internal const StringCaseSensitivity DefaultStringCaseSensitivity = StringCaseSensitivity.CaseSensitive;
+    internal const UnderlyingTypeEqualityGeneration DefaultUnderlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit;
+    internal const string DefaultEmptyValueName = "Empty";
+    
     /// <summary>
     ///     Configures aspects of this individual value object.
     /// </summary>
@@ -79,7 +89,7 @@ public class ValueObjectAttribute : Attribute
     ///     <see cref="CastOperator.Explicit" />.
     /// </param>
     /// <param name="stringCaseSensitivity">
-    ///     When using a <see cref="string" /> as a backing value, controls whether comparisons are case-sensitive or not.
+    ///     When using a <see cref="string" /> as a backing value, controls whether comparisons are case-sensitive.
     ///     Defaults to <see cref="StringCaseSensitivity.CaseSensitive" />.
     /// </param>
     /// <param name="underlyingTypeEqualityGeneration">
@@ -93,11 +103,92 @@ public class ValueObjectAttribute : Attribute
     /// </param>
     public ValueObjectAttribute(
         Type? underlyingType = null!,
-        ComparisonGeneration comparison = ComparisonGeneration.UseUnderlying,
-        CastOperator toUnderlyingTypeCasting = CastOperator.None,
-        CastOperator fromUnderlyingTypeCasting = CastOperator.None,
-        StringCaseSensitivity stringCaseSensitivity = StringCaseSensitivity.CaseSensitive,
-        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit,
-        string emptyValueName = "Empty"
+        ComparisonGeneration comparison = DefaultComparison,
+        CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting,
+        CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting,
+        StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity,
+        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration,
+        string emptyValueName = DefaultEmptyValueName
     ) { }
+}
+
+/// <summary>
+///     The type of cast operator to generate.
+/// </summary>
+public enum CastOperator
+{
+    /// <summary>
+    ///     No cast operators are generated.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
+    ///     Explicit cast operators are generated.
+    /// </summary>
+    Explicit = 1,
+
+    /// <summary>
+    ///     Implicit cast operators are generated.
+    /// </summary>
+    Implicit = 2,
+}    
+
+/// <summary>
+///     The generation of comparison code for a Value Object.
+/// </summary>
+public enum ComparisonGeneration
+{
+    /// <summary>
+    ///     Omits the IComparable interface and implementation. Useful for opaque types such as tokens or IDs where comparison
+    ///     doesn't make sense.
+    /// </summary>
+    Omit = 0,
+
+    /// <summary>
+    ///     Uses the default IComparable from the underlying type.
+    /// </summary>
+    UseUnderlying = 1,
+}
+
+/// <summary>
+///     Specifies whether to generate string comparers for a value object based on a string primitive type.
+/// </summary>
+public enum StringCaseSensitivity
+{
+    /// <summary>
+    ///     The backing string values are case-sensitive.
+    /// </summary>
+    CaseSensitive = 0,
+
+    /// <summary>
+    ///     The backing string values are case-sensitive.
+    /// </summary>
+    CaseInsensitive = 1,
+}
+
+/// <summary>
+///     Defines if equality operators to the underlying values are generated.
+/// </summary>
+[Flags]
+public enum UnderlyingTypeEqualityGeneration
+{
+    /// <summary>
+    ///     Do not generate.
+    /// </summary>
+    Omit = 0,
+
+    /// <summary>
+    ///     Generate equals operators for the underlying type.
+    /// </summary>
+    GenerateOperators = 1 << 0,
+
+    /// <summary>
+    ///     Generate equals methods for the underlying type.
+    /// </summary>
+    GenerateMethods = 1 << 1,
+
+    /// <summary>
+    ///     Generate both operators and methods.
+    /// </summary>
+    GenerateOperatorsAndMethods = GenerateOperators | GenerateMethods,
 }
