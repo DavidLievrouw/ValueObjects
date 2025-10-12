@@ -73,80 +73,83 @@ internal class AttributeConfiguration
         var emptyValueName = ValueObjectAttribute.DefaultEmptyValueName;
         
         var pos = 0;
-        foreach (var arg in argumentExpressions.Value)
+        if (argumentExpressions.HasValue)
         {
-            if (arg.NameColon != null)
+            foreach (var arg in argumentExpressions.Value)
             {
-                // Named argument
-                var name = arg.GetFirstToken().ValueText;
-                var value = arg.GetLastToken().ValueText;
-
-                switch (name)
+                if (arg.NameColon != null)
                 {
-                    case "comparison":
-                        comparison = (ComparisonGeneration)
-                            Enum.Parse(typeof(ComparisonGeneration), value);
-                        break;
-                    case "toUnderlyingTypeCasting":
-                        toUnderlyingTypeCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
-                        break;
-                    case "fromUnderlyingTypeCasting":
-                        fromUnderlyingTypeCasting = (CastOperator)
-                            Enum.Parse(typeof(CastOperator), value);
-                        break;
-                    case "underlyingTypeEqualityGeneration":
-                        underlyingTypeEqualityGeneration = (UnderlyingTypeEqualityGeneration)
-                            Enum.Parse(typeof(UnderlyingTypeEqualityGeneration), value);
-                        break;
-                    case "stringCaseSensitivity":
-                        stringCaseSensitivity = (StringCaseSensitivity)
-                            Enum.Parse(typeof(StringCaseSensitivity), value);
-                        break;
-                    case "fluentValidationExtensionsGeneration":
-                        fluentValidationExtensionsGeneration = (FluentValidationExtensionsGeneration)
-                            Enum.Parse(typeof(FluentValidationExtensionsGeneration), value);
-                        break;
-                    case "emptyValueName":
-                        emptyValueName = value;
-                        break;
-                }
-            }
-            else
-            {
-                // Positional argument
-                var value = arg.GetLastToken().ValueText;
-                switch (pos)
-                {
-                    case 0:
-                        comparison = (ComparisonGeneration)
-                            Enum.Parse(typeof(ComparisonGeneration), value);
-                        break;
-                    case 1:
-                        toUnderlyingTypeCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
-                        break;
-                    case 2:
-                        fromUnderlyingTypeCasting = (CastOperator)
-                            Enum.Parse(typeof(CastOperator), value);
-                        break;
-                    case 3:
-                        stringCaseSensitivity = (StringCaseSensitivity)
-                            Enum.Parse(typeof(StringCaseSensitivity), value);
-                        break;
-                    case 4:
-                        underlyingTypeEqualityGeneration = (UnderlyingTypeEqualityGeneration)
-                            Enum.Parse(typeof(UnderlyingTypeEqualityGeneration), value);
-                        break;
-                    case 5:
-                        fluentValidationExtensionsGeneration = (FluentValidationExtensionsGeneration)
-                            Enum.Parse(typeof(FluentValidationExtensionsGeneration), value);
-                        break;
-                    case 6:
-                        emptyValueName = value;
-                        break;
-                }
-            }
+                    // Named argument
+                    var name = arg.GetFirstToken().ValueText;
+                    var value = arg.GetLastToken().ValueText;
 
-            pos++;
+                    switch (name)
+                    {
+                        case "comparison":
+                            comparison = (ComparisonGeneration)
+                                Enum.Parse(typeof(ComparisonGeneration), value);
+                            break;
+                        case "toUnderlyingTypeCasting":
+                            toUnderlyingTypeCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
+                            break;
+                        case "fromUnderlyingTypeCasting":
+                            fromUnderlyingTypeCasting = (CastOperator)
+                                Enum.Parse(typeof(CastOperator), value);
+                            break;
+                        case "underlyingTypeEqualityGeneration":
+                            underlyingTypeEqualityGeneration = (UnderlyingTypeEqualityGeneration)
+                                Enum.Parse(typeof(UnderlyingTypeEqualityGeneration), value);
+                            break;
+                        case "stringCaseSensitivity":
+                            stringCaseSensitivity = (StringCaseSensitivity)
+                                Enum.Parse(typeof(StringCaseSensitivity), value);
+                            break;
+                        case "fluentValidationExtensionsGeneration":
+                            fluentValidationExtensionsGeneration = (FluentValidationExtensionsGeneration)
+                                Enum.Parse(typeof(FluentValidationExtensionsGeneration), value);
+                            break;
+                        case "emptyValueName":
+                            emptyValueName = value;
+                            break;
+                    }
+                }
+                else
+                {
+                    // Positional argument
+                    var value = arg.GetLastToken().ValueText;
+                    switch (pos)
+                    {
+                        case 0:
+                            comparison = (ComparisonGeneration)
+                                Enum.Parse(typeof(ComparisonGeneration), value);
+                            break;
+                        case 1:
+                            toUnderlyingTypeCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
+                            break;
+                        case 2:
+                            fromUnderlyingTypeCasting = (CastOperator)
+                                Enum.Parse(typeof(CastOperator), value);
+                            break;
+                        case 3:
+                            stringCaseSensitivity = (StringCaseSensitivity)
+                                Enum.Parse(typeof(StringCaseSensitivity), value);
+                            break;
+                        case 4:
+                            underlyingTypeEqualityGeneration = (UnderlyingTypeEqualityGeneration)
+                                Enum.Parse(typeof(UnderlyingTypeEqualityGeneration), value);
+                            break;
+                        case 5:
+                            fluentValidationExtensionsGeneration = (FluentValidationExtensionsGeneration)
+                                Enum.Parse(typeof(FluentValidationExtensionsGeneration), value);
+                            break;
+                        case 6:
+                            emptyValueName = value;
+                            break;
+                    }
+                }
+
+                pos++;
+            }
         }
 
         return new AttributeConfiguration(
