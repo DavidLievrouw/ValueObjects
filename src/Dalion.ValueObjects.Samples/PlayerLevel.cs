@@ -13,8 +13,8 @@ public readonly partial record struct PlayerLevel
     {
         return input switch
         {
-            0 => Validation.Invalid("Level must be specified."),
-            < 0 => Validation.Invalid("Level cannot be negative."),
+            0 => Validation.Invalid("Player level must be specified."),
+            < 0 => Validation.Invalid("Player level cannot be negative."),
             _ => Validation.Ok,
         };
     }

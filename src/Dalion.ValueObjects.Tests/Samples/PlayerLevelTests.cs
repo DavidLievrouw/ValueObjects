@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
 using System.Text.Json;
+using FluentValidation;
+using FluentValidation.Results;
 using Xunit;
 
 namespace Dalion.ValueObjects.Samples;
@@ -36,7 +38,7 @@ public partial class PlayerLevelTests
             var backingValue = 0;
 
             Action act = () => PlayerLevel.From(backingValue);
-            
+
             Assert.Throws<InvalidOperationException>(act);
         }
 
@@ -256,7 +258,7 @@ public partial class PlayerLevelTests
 
             Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<PlayerLevel>(nonsense));
         }
-        
+
         [Fact]
         public void WhenInvalid_CannotDeserialize()
         {
@@ -479,19 +481,156 @@ public partial class PlayerLevelTests
 
             Assert.Null(sut.GetValidationErrorMessage());
         }
-        
+
         [Fact]
         public void WhenInvalidReturnsMessage()
         {
             var sut = PlayerLevel.Unspecified;
 
-            Assert.Equal("Level must be specified.", sut.GetValidationErrorMessage());
+            Assert.Equal("Player level must be specified.", sut.GetValidationErrorMessage());
         }
     }
 
-    [ValueObject<decimal>(
-        comparison: ComparisonGeneration.Omit,
-        emptyValueName: "Unspecified"
-    )]
+    public class FluentValidationExtensions : PlayerLevelTests
+    {
+        public class MustBeInitializedAndValid : FluentValidationExtensions
+        {
+            private readonly Func<ValidationResult> _act;
+            private PlayerLevel _vo;
+
+            public MustBeInitializedAndValid()
+            {
+                _vo = PlayerLevel.From(1);
+                _act = () =>
+                    new ContainerValidator().Validate(new Container { Id = "one", Data = _vo });
+            }
+
+            [Fact]
+            public void WhenValid_ReturnsValid()
+            {
+                _vo = PlayerLevel.From(3);
+
+                var result = _act();
+
+                Assert.True(result.IsValid);
+            }
+
+            [Fact]
+            public void WhenInvalid_ReturnsInvalid()
+            {
+                _vo = PlayerLevel.Unspecified;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+            }
+
+            [Fact]
+            public void WhenUninitialized_ReturnsInvalid()
+            {
+                _vo = default;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+                Assert.Equal("PlayerLevel must be initialized.", result.Errors[0].ErrorMessage);
+            }
+
+            [Fact]
+            public void HasValidationErrorMessage()
+            {
+                _vo = PlayerLevel.Unspecified;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+                Assert.Equal("Player level must be specified.", result.Errors[0].ErrorMessage);
+            }
+
+            internal class ContainerValidator : AbstractValidator<Container>
+            {
+                public ContainerValidator()
+                {
+                    RuleFor(c => c.Data).MustBeInitializedAndValid();
+                }
+            }
+        }
+
+        public class MustBeInitialized : FluentValidationExtensions
+        {
+            private readonly Func<ValidationResult> _act;
+            private PlayerLevel _vo;
+
+            public MustBeInitialized()
+            {
+                _vo = PlayerLevel.From(1);
+                _act = () =>
+                    new ContainerValidator().Validate(new Container { Id = "one", Data = _vo });
+            }
+
+            [Fact]
+            public void WhenValid_ReturnsValid()
+            {
+                _vo = PlayerLevel.From(3);
+
+                var result = _act();
+
+                Assert.True(result.IsValid);
+            }
+
+            [Fact]
+            public void WhenInvalid_ReturnsValid()
+            {
+                _vo = PlayerLevel.Unspecified;
+
+                var result = _act();
+
+                Assert.True(result.IsValid);
+            }
+
+            [Fact]
+            public void WhenUninitialized_ReturnsInvalid()
+            {
+                _vo = default;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+                Assert.Equal("PlayerLevel must be initialized.", result.Errors[0].ErrorMessage);
+            }
+
+            [Fact]
+            public void HasValidationErrorMessage()
+            {
+                _vo = default;
+
+                var result = _act();
+
+                Assert.False(result.IsValid);
+                Assert.Single(result.Errors);
+                Assert.Equal("PlayerLevel must be initialized.", result.Errors[0].ErrorMessage);
+            }
+
+            internal class ContainerValidator : AbstractValidator<Container>
+            {
+                public ContainerValidator()
+                {
+                    RuleFor(c => c.Data).MustBeInitialized();
+                }
+            }
+        }
+
+        internal class Container
+        {
+            public required string Id { get; set; }
+            public PlayerLevel Data { get; set; }
+        }
+    }
+
+    [ValueObject<decimal>(emptyValueName: "Unspecified", comparison: ComparisonGeneration.Omit)]
     public readonly partial record struct OtherPlayerLevel;
 }

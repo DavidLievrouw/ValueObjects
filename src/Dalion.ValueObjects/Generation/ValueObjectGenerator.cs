@@ -12,6 +12,33 @@ namespace Dalion.ValueObjects.Generation;
 [Generator]
 public class ValueObjectGenerator : IIncrementalGenerator
 {
+    private const string FluentValidationExtensions =
+        @"
+public static class {{typeName}}FluentValidationExtensions
+{
+    public static FluentValidation.IRuleBuilderOptions<T, {{containingTypes}}{{typeName}}> MustBeInitialized<T>(
+        this FluentValidation.IRuleBuilderInitial<T, {{containingTypes}}{{typeName}}> ruleBuilder
+    )
+    {
+        return ruleBuilder
+            .Cascade(FluentValidation.CascadeMode.Stop)
+            .Must(o => o.IsInitialized())
+            .WithMessage($""{nameof({{containingTypes}}{{typeName}})} must be initialized."");
+    }
+
+    public static FluentValidation.IRuleBuilderOptions<T, {{containingTypes}}{{typeName}}> MustBeInitializedAndValid<T>(
+        this FluentValidation.IRuleBuilderInitial<T, {{containingTypes}}{{typeName}}> ruleBuilder
+    )
+    {
+        return ruleBuilder
+            .Cascade(FluentValidation.CascadeMode.Stop)
+            .Must(o => o.IsInitialized())
+            .WithMessage($""{nameof({{containingTypes}}{{typeName}})} must be initialized."")
+            .Must(o => o.IsValid())
+            .WithMessage((_, p) => p.GetValidationErrorMessage());
+    }
+}";
+
     private const string TypeConverterTemplate =
         @"
 private class {{typeName}}TypeConverter : System.ComponentModel.TypeConverter
@@ -311,12 +338,49 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     return;
                 }
 
-                Execute(target, sourceProductionContext);
+                AddGeneratedValueObject(target, sourceProductionContext);
+                AddGeneratedFluentValidationExtensions(target, sourceProductionContext);
             }
         );
     }
 
-    private void Execute(GenerationTarget target, SourceProductionContext context)
+    private void AddGeneratedFluentValidationExtensions(
+        GenerationTarget target,
+        SourceProductionContext context
+    )
+    {
+        var typeName = target.SymbolInformation.Name;
+        var namespaceName = target.SymbolInformation.ContainingNamespace.ToDisplayString();
+
+        var config = target.GetAttributeConfiguration();
+        var valueType = config.UnderlyingType;
+        var valueTypeName = valueType.FullName;
+
+        var containingTypeNames = GetContainingTypeNames(target.SymbolInformation);
+
+        var fluentValidationExtensions = FluentValidationExtensions
+            .Replace(
+                "{{containingTypes}}",
+                containingTypeNames == string.Empty ? string.Empty : containingTypeNames + "."
+            )
+            .Replace("{{typeName}}", typeName)
+            .Replace("{{valueTypeName}}", valueTypeName);
+
+        var code =
+            $@"
+        #nullable enable
+
+        using FluentValidation;
+
+        namespace {namespaceName} {{
+            {fluentValidationExtensions}
+        }}
+        ";
+
+        context.AddSource($"{typeName}FluentValidationExtensions.g.cs", code);
+    }
+
+    private void AddGeneratedValueObject(GenerationTarget target, SourceProductionContext context)
     {
         var typeName = target.SymbolInformation.Name;
         var namespaceName = target.SymbolInformation.ContainingNamespace.ToDisplayString();
@@ -817,7 +881,7 @@ public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _va
             .Replace("{{valueTypeName}}", valueTypeName)
             .Replace("{{emptyValueName}}", emptyValueName);
 
-        var containingTypes = GetContainingTypes(target.SymbolInformation);
+        var containingTypes = GetContainingTypesDeclarations(target.SymbolInformation);
         var closingBraces = GetClosingBraces(target.SymbolInformation);
 
         var generatedClass =
@@ -873,7 +937,20 @@ public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _va
         context.AddSource($"{typeName}.g.cs", generatedClass);
     }
 
-    private static string GetContainingTypes(INamedTypeSymbol symbol)
+    private static string GetContainingTypeNames(INamedTypeSymbol symbol)
+    {
+        var types = new Stack<string>();
+        var current = symbol.ContainingType;
+        while (current != null)
+        {
+            types.Push(current.Name);
+            current = current.ContainingType;
+        }
+
+        return string.Join(".", types);
+    }
+
+    private static string GetContainingTypesDeclarations(INamedTypeSymbol symbol)
     {
         var types = new Stack<string>();
         var current = symbol.ContainingType;
