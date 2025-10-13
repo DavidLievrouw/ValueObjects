@@ -30,7 +30,21 @@
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
-                private Password(System.String? value, bool validation = true) {
+                private Password(System.String? value) {
+                    
+                    if (value == default) {
+                        _initialized = false;
+                        _value = System.String.Empty;
+                    } else {
+                        _initialized = true;
+                        _value = value;
+                    }
+                    _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
+                    _validation = Validate(_value);
+                }
+
+                [System.Diagnostics.DebuggerStepThrough]
+                private Password(System.String? value, bool validation) {
                     
                     if (validation) {
                         
@@ -61,7 +75,7 @@
                         return instance;
                     }
 
-                    return new Password(value);
+                    return new Password(value, validation: true);
                 }
 
                 public static bool TryFrom(System.String? value, out Password result) {

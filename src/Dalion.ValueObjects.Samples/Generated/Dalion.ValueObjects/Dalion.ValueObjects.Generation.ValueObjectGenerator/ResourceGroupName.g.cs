@@ -30,7 +30,21 @@
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
-                private ResourceGroupName(System.String? value, bool validation = true) {
+                private ResourceGroupName(System.String? value) {
+                    value = NormalizeInput(value);
+                    if (value == default) {
+                        _initialized = false;
+                        _value = System.String.Empty;
+                    } else {
+                        _initialized = true;
+                        _value = value;
+                    }
+                    _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
+                    _validation = Validate(_value);
+                }
+
+                [System.Diagnostics.DebuggerStepThrough]
+                private ResourceGroupName(System.String? value, bool validation) {
                     value = NormalizeInput(value);
                     if (validation) {
                         
@@ -61,7 +75,7 @@
                         return instance;
                     }
 
-                    return new ResourceGroupName(value);
+                    return new ResourceGroupName(value, validation: true);
                 }
 
                 public static bool TryFrom(System.String? value, out ResourceGroupName result) {

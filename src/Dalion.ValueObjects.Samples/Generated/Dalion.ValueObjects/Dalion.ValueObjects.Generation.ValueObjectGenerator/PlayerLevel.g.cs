@@ -29,7 +29,15 @@
                     _validation = Validate(_value);
                 }
 
-                private PlayerLevel(System.Int32 value, bool validation = true) {
+                private PlayerLevel(System.Int32 value) {
+                    
+                    _initialized = true;
+                    _value = value;
+                    _isNullOrEmpty = false;
+                    _validation = Validate(_value);
+                }
+
+                private PlayerLevel(System.Int32 value, bool validation) {
                     
                     if (validation) {
                         
@@ -54,7 +62,7 @@
                         return Unspecified;
                     }
 
-                    return new PlayerLevel(value);
+                    return new PlayerLevel(value, validation: true);
                 }
 
                 public static bool TryFrom(System.Int32 value, out PlayerLevel result) {

@@ -57,6 +57,15 @@ public class DoNotUseNewAnalyzer : DiagnosticAnalyzer
             return;
         }
 
+        var isAPublicStaticFieldInAValueObject = IsAPublicStaticFieldInAValueObject(context);
+        if (isAPublicStaticFieldInAValueObject)
+        {
+            if (IsTypeOfValueObject(context, symbol))
+            {
+                return;
+            }
+        }
+
         var diagnostic = DiagnosticsCatalogue.BuildDiagnostic(
             Rule1,
             symbol.Name,
@@ -64,5 +73,23 @@ public class DoNotUseNewAnalyzer : DiagnosticAnalyzer
         );
 
         context.ReportDiagnostic(diagnostic);
+    }
+
+    private static bool IsAPublicStaticFieldInAValueObject(OperationAnalysisContext context)
+    {
+        var cs = context.ContainingSymbol as IFieldSymbol;
+
+        return cs is { DeclaredAccessibility: Accessibility.Public, IsStatic: true };
+    }
+
+    private static bool IsTypeOfValueObject(OperationAnalysisContext context, INamedTypeSymbol target)
+    {
+        if (context.ContainingSymbol is not IFieldSymbol cs)
+        {
+            return false;
+        }
+        
+        var type = cs.ContainingType;
+        return SymbolEqualityComparer.Default.Equals(type, target);
     }
 }

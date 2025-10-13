@@ -554,6 +554,50 @@ public partial class CelsiusTests
         }
     }
 
+    public class Zero : CelsiusTests
+    {
+        [Fact]
+        public void ObjectHasExpectedUnderlyingValue()
+        {
+            var actual = Celsius.Zero.Value;
+            Assert.Equal(0, actual);
+        }
+
+        [Fact]
+        public void ObjectIsInitialized()
+        {
+            Assert.True(Celsius.Zero.IsInitialized());
+        }
+
+        [Fact]
+        public void ObjectIsValid()
+        {
+            Assert.True(Celsius.Zero.IsValid());
+        }
+    }
+
+    public class AbsoluteZero : CelsiusTests
+    {
+        [Fact]
+        public void ObjectHasExpectedUnderlyingValue()
+        {
+            var actual = Celsius.AbsoluteZero.Value;
+            Assert.Equal(-273.15m, actual);
+        }
+
+        [Fact]
+        public void ObjectIsInitialized()
+        {
+            Assert.True(Celsius.AbsoluteZero.IsInitialized());
+        }
+
+        [Fact]
+        public void ObjectIsValid()
+        {
+            Assert.True(Celsius.AbsoluteZero.IsValid());
+        }
+    }
+
     public class FluentValidationExtensions : CelsiusTests
     {
         public class MustBeInitializedAndValid : FluentValidationExtensions
@@ -609,7 +653,10 @@ public partial class CelsiusTests
 
                 Assert.False(result.IsValid);
                 Assert.Single(result.Errors);
-                Assert.Equal("Temperature cannot be below absolute zero (-273.15°C).", result.Errors[0].ErrorMessage);
+                Assert.Equal(
+                    "Temperature cannot be below absolute zero (-273.15°C).",
+                    result.Errors[0].ErrorMessage
+                );
             }
 
             internal class ContainerValidator : AbstractValidator<Container>

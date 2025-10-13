@@ -14,7 +14,7 @@ public class ValueObjectImplicitConversionAnalyzerTests : RuleTests
 [ValueObject<System.Guid>(
     toUnderlyingTypeCasting: CastOperator.Implicit
 )]
-public readonly partial record struct TenantId;
+public readonly partial record struct IdempotencyId;
 "
         );
     }
@@ -30,7 +30,7 @@ public readonly partial record struct TenantId;
     fromUnderlyingTypeCasting: CastOperator.Explicit,
     toUnderlyingTypeCasting: CastOperator.Implicit
 )]
-public readonly partial record struct TenantId;
+public readonly partial record struct IdempotencyId;
 "
         );
     }
@@ -46,7 +46,7 @@ public readonly partial record struct TenantId;
     fromUnderlyingTypeCasting: CastOperator.None,
     toUnderlyingTypeCasting: CastOperator.Implicit
 )]
-public readonly partial record struct TenantId;
+public readonly partial record struct IdempotencyId;
 "
         );
     }
@@ -61,7 +61,7 @@ public readonly partial record struct TenantId;
 [ValueObject<System.Guid>(
     fromUnderlyingTypeCasting: CastOperator.Implicit
 )]
-public readonly partial record struct TenantId;
+public readonly partial record struct IdempotencyId;
 "
         );
     }
@@ -77,7 +77,7 @@ public readonly partial record struct TenantId;
     fromUnderlyingTypeCasting: CastOperator.Implicit,
     toUnderlyingTypeCasting: CastOperator.Explicit
 )]
-public readonly partial record struct TenantId;
+public readonly partial record struct IdempotencyId;
 "
         );
     }
@@ -93,7 +93,7 @@ public readonly partial record struct TenantId;
     fromUnderlyingTypeCasting: CastOperator.Implicit,
     toUnderlyingTypeCasting: CastOperator.None
 )]
-public readonly partial record struct TenantId;
+public readonly partial record struct IdempotencyId;
 "
         );
     }
@@ -109,7 +109,7 @@ public readonly partial record struct TenantId;
     fromUnderlyingTypeCasting: CastOperator.Implicit,
     toUnderlyingTypeCasting: CastOperator.Implicit
 )]
-public readonly partial record struct [|TenantId|];
+public readonly partial record struct [|IdempotencyId|];
 "
         );
     }
@@ -122,7 +122,7 @@ public readonly partial record struct [|TenantId|];
 {GetAttributesForTest()}
 
 [ValueObject<System.Guid>]
-public readonly partial record struct TenantId;
+public readonly partial record struct IdempotencyId;
 "
         );
     }

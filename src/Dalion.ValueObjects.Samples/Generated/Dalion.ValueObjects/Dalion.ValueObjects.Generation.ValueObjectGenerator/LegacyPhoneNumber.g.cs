@@ -30,7 +30,21 @@
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
-                private LegacyPhoneNumber(System.String? value, bool validation = true) {
+                private LegacyPhoneNumber(System.String? value) {
+                    
+                    if (value == default) {
+                        _initialized = false;
+                        _value = System.String.Empty;
+                    } else {
+                        _initialized = true;
+                        _value = value;
+                    }
+                    _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
+                    _validation = Validation.Ok;
+                }
+
+                [System.Diagnostics.DebuggerStepThrough]
+                private LegacyPhoneNumber(System.String? value, bool validation) {
                     
                     if (validation) {
                         
@@ -53,7 +67,7 @@
                         return instance;
                     }
 
-                    return new LegacyPhoneNumber(value);
+                    return new LegacyPhoneNumber(value, validation: true);
                 }
 
                 public static bool TryFrom(System.String? value, out LegacyPhoneNumber result) {

@@ -632,7 +632,21 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 }}
 
                 [System.Diagnostics.DebuggerStepThrough]
-                private {typeName}({valueTypeName}? value, bool validation = true) {{
+                private {typeName}({valueTypeName}? value) {{
+                    {inputNormalization}
+                    if (value == default) {{
+                        _initialized = false;
+                        _value = {valueTypeName}.Empty;
+                    }} else {{
+                        _initialized = true;
+                        _value = value;
+                    }}
+                    _isNullOrEmpty = {valueTypeName}.IsNullOrEmpty(_value);
+                    {validationFieldAssignment}
+                }}
+
+                [System.Diagnostics.DebuggerStepThrough]
+                private {typeName}({valueTypeName}? value, bool validation) {{
                     {inputNormalization}
                     if (validation) {{
                         {ctorValidation}
@@ -655,7 +669,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         return instance;
                     }}
 
-                    return new {typeName}(value);
+                    return new {typeName}(value, validation: true);
                 }}
 
                 public static bool TryFrom({valueTypeName}? value, out {typeName} result) {{
@@ -679,7 +693,15 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     {validationFieldAssignment}
                 }}
 
-                private {typeName}({valueTypeName} value, bool validation = true) {{
+                private {typeName}({valueTypeName} value) {{
+                    {inputNormalization}
+                    _initialized = true;
+                    _value = value;
+                    _isNullOrEmpty = false;
+                    {validationFieldAssignment}
+                }}
+
+                private {typeName}({valueTypeName} value, bool validation) {{
                     {inputNormalization}
                     if (validation) {{
                         {ctorValidation}
@@ -696,7 +718,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         return {emptyValueName};
                     }}
 
-                    return new {typeName}(value);
+                    return new {typeName}(value, validation: true);
                 }}
 
                 public static bool TryFrom({valueTypeName} value, out {typeName} result) {{

@@ -491,6 +491,74 @@ public partial class PlayerLevelTests
         }
     }
 
+    public class Invalid : PlayerLevelTests
+    {
+        [Fact]
+        public void ObjectHasExpectedUnderlyingValue()
+        {
+            var actual = PlayerLevel.Invalid.Value;
+            Assert.Equal(0, actual);
+        }
+
+        [Fact]
+        public void ObjectIsInitialized()
+        {
+            Assert.True(PlayerLevel.Invalid.IsInitialized());
+        }
+
+        [Fact]
+        public void ObjectIsInvalid()
+        {
+            Assert.False(PlayerLevel.Invalid.IsValid());
+        }
+
+        [Fact]
+        public void IsEqualToUnspecified()
+        {
+            var first = PlayerLevel.Unspecified;
+            var second = PlayerLevel.Invalid;
+
+            Assert.True(first.Equals(second));
+            Assert.True(first == second);
+            Assert.False(first != second);
+            Assert.Equal(first.GetHashCode(), second.GetHashCode());
+        }
+    }
+
+    public class Unspecified : PlayerLevelTests
+    {
+        [Fact]
+        public void ObjectHasExpectedUnderlyingValue()
+        {
+            var actual = PlayerLevel.Unspecified.Value;
+            Assert.Equal(0, actual);
+        }
+
+        [Fact]
+        public void ObjectIsInitialized()
+        {
+            Assert.True(PlayerLevel.Unspecified.IsInitialized());
+        }
+
+        [Fact]
+        public void ObjectIsInvalid()
+        {
+            Assert.False(PlayerLevel.Unspecified.IsValid());
+        }
+
+        [Fact]
+        public void IsEqualToInvalid()
+        {
+            var first = PlayerLevel.Unspecified;
+            var second = PlayerLevel.Invalid;
+
+            Assert.True(first.Equals(second));
+            Assert.True(first == second);
+            Assert.False(first != second);
+            Assert.Equal(first.GetHashCode(), second.GetHashCode());
+        }
+    }
+
     public class FluentValidationExtensions : PlayerLevelTests
     {
         public class MustBeInitializedAndValid : FluentValidationExtensions

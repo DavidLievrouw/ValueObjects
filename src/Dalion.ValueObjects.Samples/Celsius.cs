@@ -14,14 +14,16 @@ namespace Dalion.ValueObjects.Samples;
 )]
 public readonly partial record struct Celsius
 {
-    private const decimal AbsoluteZero = -273.15m;
+    private const decimal AbsoluteZeroValue = -273.15m;
+    
+    public static readonly Celsius AbsoluteZero = new(AbsoluteZeroValue);
 
     private static Validation Validate(decimal input)
     {
-        return input >= AbsoluteZero
+        return input >= AbsoluteZeroValue
             ? Validation.Ok
             : Validation.Invalid(
-                $"Temperature cannot be below absolute zero ({AbsoluteZero.ToString(CultureInfo.InvariantCulture)}°C)."
+                $"Temperature cannot be below absolute zero ({AbsoluteZeroValue.ToString(CultureInfo.InvariantCulture)}°C)."
             );
     }
 }

@@ -10,6 +10,8 @@
 )]
 public readonly partial record struct PlayerLevel
 {
+    public static readonly PlayerLevel Invalid = new(0);
+    
     private static Validation Validate(int input)
     {
         return input switch

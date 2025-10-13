@@ -29,7 +29,15 @@
                     _validation = Validation.Ok;
                 }
 
-                private TenantId(System.Guid value, bool validation = true) {
+                private TenantId(System.Guid value) {
+                    
+                    _initialized = true;
+                    _value = value;
+                    _isNullOrEmpty = false;
+                    _validation = Validation.Ok;
+                }
+
+                private TenantId(System.Guid value, bool validation) {
                     
                     if (validation) {
                         
@@ -46,7 +54,7 @@
                         return Empty;
                     }
 
-                    return new TenantId(value);
+                    return new TenantId(value, validation: true);
                 }
 
                 public static bool TryFrom(System.Guid value, out TenantId result) {

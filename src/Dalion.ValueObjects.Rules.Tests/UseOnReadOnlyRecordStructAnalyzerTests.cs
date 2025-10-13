@@ -11,7 +11,7 @@ public class UseOnReadOnlyRecordStructAnalyzerTests : RuleTests
 {GetAttributesForTest()}
 
 [ValueObject<System.Guid>]
-public partial record struct [|TenantId|];
+public partial record struct [|IdempotencyId|];
 ");
     }
 
@@ -22,7 +22,7 @@ public partial record struct [|TenantId|];
 {GetAttributesForTest()}
 
 [ValueObject<System.Guid>]
-public partial struct [|TenantId|];
+public partial struct [|IdempotencyId|];
 ");
     }
 
@@ -33,7 +33,7 @@ public partial struct [|TenantId|];
 {GetAttributesForTest()}
 
 [ValueObject<System.Guid>]
-public readonly partial record struct TenantId;
+public readonly partial record struct IdempotencyId;
 ");
     }
 }

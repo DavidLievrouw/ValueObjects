@@ -29,7 +29,15 @@
                     _validation = Validate(_value);
                 }
 
-                private Celsius(System.Decimal value, bool validation = true) {
+                private Celsius(System.Decimal value) {
+                    
+                    _initialized = true;
+                    _value = value;
+                    _isNullOrEmpty = false;
+                    _validation = Validate(_value);
+                }
+
+                private Celsius(System.Decimal value, bool validation) {
                     
                     if (validation) {
                         
@@ -54,7 +62,7 @@
                         return Zero;
                     }
 
-                    return new Celsius(value);
+                    return new Celsius(value, validation: true);
                 }
 
                 public static bool TryFrom(System.Decimal value, out Celsius result) {
