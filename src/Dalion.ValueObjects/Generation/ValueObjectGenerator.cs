@@ -664,9 +664,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
 
                 public static {typeName} From({valueTypeName}? value) {{
                     if (value is null) {{
-                        {ctorValidation}
-                        var instance = new {typeName}();
-                        return instance;
+                      throw new System.InvalidOperationException(""Cannot create an instance of {typeName} from null."");
                     }}
 
                     return new {typeName}(value, validation: true);
@@ -675,7 +673,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 public static bool TryFrom({valueTypeName}? value, out {typeName} result) {{
                     if (value is null) {{
                         result = new {typeName}();
-                        {tryFromValidation}
+                        return false;
                     }}
 
                     result = string.IsNullOrEmpty(value) ? {emptyValueName} : new {typeName}(value, validation: false);

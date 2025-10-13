@@ -31,16 +31,11 @@ public partial class LegacyPhoneNumberTests
         }
 
         [Fact]
-        public void CanCreateUninitializedWithNullValue()
+        public void CannotCreateUninitializedWithNullValue()
         {
-            var actual = LegacyPhoneNumber.From(null);
+            Action act = () => LegacyPhoneNumber.From(null);
 
-            var empty = LegacyPhoneNumber.Empty;
-            Assert.False(actual.Equals(empty));
-            Assert.False(actual == empty);
-            Assert.True(actual != empty);
-
-            Assert.False(actual.IsInitialized());
+            Assert.Throws<InvalidOperationException>(act);
         }
 
         [Fact]
@@ -70,7 +65,7 @@ public partial class LegacyPhoneNumberTests
         }
 
         [Fact]
-        public void CanCreateUninitializedWithNullValue()
+        public void CannotCreateUninitializedWithNullValue()
         {
             var success = LegacyPhoneNumber.TryFrom(null, out var actual);
 

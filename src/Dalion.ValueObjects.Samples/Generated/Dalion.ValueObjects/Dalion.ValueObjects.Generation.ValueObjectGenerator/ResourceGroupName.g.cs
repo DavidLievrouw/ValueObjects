@@ -66,13 +66,7 @@
 
                 public static ResourceGroupName From(System.String? value) {
                     if (value is null) {
-                        
-                  var validationResult = Validate(value);
-                  if (!validationResult.IsSuccess) {
-                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
-                  }
-                        var instance = new ResourceGroupName();
-                        return instance;
+                      throw new System.InvalidOperationException("Cannot create an instance of ResourceGroupName from null.");
                     }
 
                     return new ResourceGroupName(value, validation: true);
@@ -81,7 +75,7 @@
                 public static bool TryFrom(System.String? value, out ResourceGroupName result) {
                     if (value is null) {
                         result = new ResourceGroupName();
-                        return result.IsInitialized() && Validate(result._value).IsSuccess;
+                        return false;
                     }
 
                     result = string.IsNullOrEmpty(value) ? Empty : new ResourceGroupName(value, validation: false);

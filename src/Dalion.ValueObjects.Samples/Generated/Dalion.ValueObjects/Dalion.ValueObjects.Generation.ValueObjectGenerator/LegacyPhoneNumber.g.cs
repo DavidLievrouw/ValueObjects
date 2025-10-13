@@ -62,9 +62,7 @@
 
                 public static LegacyPhoneNumber From(System.String? value) {
                     if (value is null) {
-                        
-                        var instance = new LegacyPhoneNumber();
-                        return instance;
+                      throw new System.InvalidOperationException("Cannot create an instance of LegacyPhoneNumber from null.");
                     }
 
                     return new LegacyPhoneNumber(value, validation: true);
@@ -73,7 +71,7 @@
                 public static bool TryFrom(System.String? value, out LegacyPhoneNumber result) {
                     if (value is null) {
                         result = new LegacyPhoneNumber();
-                        return result.IsInitialized();
+                        return false;
                     }
 
                     result = string.IsNullOrEmpty(value) ? Empty : new LegacyPhoneNumber(value, validation: false);
