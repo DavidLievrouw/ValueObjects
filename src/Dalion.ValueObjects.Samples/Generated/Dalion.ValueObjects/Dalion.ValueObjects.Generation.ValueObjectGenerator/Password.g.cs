@@ -229,6 +229,18 @@ private class ValueObjectValidationException : Exception
                 
 private class PasswordSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<Password>
 {
+    private static readonly Dictionary<System.String, Password> PasswordConstants;
+
+    static PasswordSystemTextJsonConverter()
+    {
+        PasswordConstants = typeof(Password)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(Password) && f.IsInitOnly)
+            .Select(f => (Password)f.GetValue(null)!)
+            .Where(o => o.IsInitialized())
+            .ToDictionary(o => o.Value, o => o);
+    }
+
     public override Password Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
@@ -342,10 +354,16 @@ private class PasswordSystemTextJsonConverter : System.Text.Json.Serialization.J
     
         try {
             var typedUnderlyingValue = (System.String)underlyingValue!;
-            if (typedUnderlyingValue == default || underlyingValue is System.String suv && suv == System.String.Empty) {
+            if (typedUnderlyingValue.Equals(Password.Empty.Value)) {
                 return Password.Empty;
             }
-            return Password.From(typedUnderlyingValue);
+            if (Password.TryFrom(typedUnderlyingValue, out var result)) {
+                return result;
+            }
+            if (PasswordConstants.TryGetValue(typedUnderlyingValue, out var constant)) {
+                return constant;
+            }
+            throw new System.Text.Json.JsonException($"No matching Password pre-set value found for value '{typedUnderlyingValue}'.");
         } catch (System.Exception e) {
             throw new System.Text.Json.JsonException("Could not create an initialized instance of Password.", e);
         }

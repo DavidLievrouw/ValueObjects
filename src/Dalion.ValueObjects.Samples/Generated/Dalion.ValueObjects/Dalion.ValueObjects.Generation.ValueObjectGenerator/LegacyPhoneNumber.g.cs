@@ -234,6 +234,18 @@ private class ValueObjectValidationException : Exception
                 
 private class LegacyPhoneNumberSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<LegacyPhoneNumber>
 {
+    private static readonly Dictionary<System.String, LegacyPhoneNumber> LegacyPhoneNumberConstants;
+
+    static LegacyPhoneNumberSystemTextJsonConverter()
+    {
+        LegacyPhoneNumberConstants = typeof(LegacyPhoneNumber)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(LegacyPhoneNumber) && f.IsInitOnly)
+            .Select(f => (LegacyPhoneNumber)f.GetValue(null)!)
+            .Where(o => o.IsInitialized())
+            .ToDictionary(o => o.Value, o => o);
+    }
+
     public override LegacyPhoneNumber Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
@@ -347,10 +359,16 @@ private class LegacyPhoneNumberSystemTextJsonConverter : System.Text.Json.Serial
     
         try {
             var typedUnderlyingValue = (System.String)underlyingValue!;
-            if (typedUnderlyingValue == default || underlyingValue is System.String suv && suv == System.String.Empty) {
+            if (typedUnderlyingValue.Equals(LegacyPhoneNumber.Empty.Value)) {
                 return LegacyPhoneNumber.Empty;
             }
-            return LegacyPhoneNumber.From(typedUnderlyingValue);
+            if (LegacyPhoneNumber.TryFrom(typedUnderlyingValue, out var result)) {
+                return result;
+            }
+            if (LegacyPhoneNumberConstants.TryGetValue(typedUnderlyingValue, out var constant)) {
+                return constant;
+            }
+            throw new System.Text.Json.JsonException($"No matching LegacyPhoneNumber pre-set value found for value '{typedUnderlyingValue}'.");
         } catch (System.Exception e) {
             throw new System.Text.Json.JsonException("Could not create an initialized instance of LegacyPhoneNumber.", e);
         }

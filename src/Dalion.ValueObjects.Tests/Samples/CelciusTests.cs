@@ -341,6 +341,18 @@ public partial class CelsiusTests
         }
 
         [Fact]
+        public void WhenInvalid_ButPreSet_CanDeserialize()
+        {
+            var invalid = "-459.67"; // absolute zero in fahrenheit, but not in celsius
+
+            var deserialized = JsonSerializer.Deserialize<Celsius>(invalid);
+            
+            Assert.Equal(Celsius.AbsoluteZeroFahrenheit, deserialized);
+            Assert.True(deserialized.IsInitialized());
+            Assert.False(deserialized.IsValid());
+        }
+
+        [Fact]
         public void WhenEmptyString_ThrowsJsonException()
         {
             var nonsense = "\"\"";

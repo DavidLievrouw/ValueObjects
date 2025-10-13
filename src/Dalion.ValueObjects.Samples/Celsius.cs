@@ -15,8 +15,10 @@ namespace Dalion.ValueObjects.Samples;
 public readonly partial record struct Celsius
 {
     private const decimal AbsoluteZeroValue = -273.15m;
+    private const decimal AbsoluteZeroValueFahrenheit = -459.67m;
     
     public static readonly Celsius AbsoluteZero = new(AbsoluteZeroValue);
+    public static readonly Celsius AbsoluteZeroFahrenheit = new(AbsoluteZeroValueFahrenheit); // Testing purposes
 
     private static Validation Validate(decimal input)
     {

@@ -77,6 +77,18 @@ private class {{typeName}}TypeConverter : System.ComponentModel.TypeConverter
         @"
 private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<{{typeName}}>
 {
+    private static readonly Dictionary<{{valueTypeName}}, {{typeName}}> {{typeName}}Constants;
+
+    static {{typeName}}SystemTextJsonConverter()
+    {
+        {{typeName}}Constants = typeof({{typeName}})
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(f => f.FieldType == typeof({{typeName}}) && f.IsInitOnly)
+            .Select(f => ({{typeName}})f.GetValue(null)!)
+            .Where(o => o.IsInitialized())
+            .ToDictionary(o => o.Value, o => o);
+    }
+
     public override {{typeName}} Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
@@ -190,10 +202,16 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
     
         try {
             var typedUnderlyingValue = ({{valueTypeName}})underlyingValue!;
-            if (typedUnderlyingValue == default || underlyingValue is System.String suv && suv == System.String.Empty) {
+            if (typedUnderlyingValue.Equals({{typeName}}.{{emptyValueName}}.Value)) {
                 return {{typeName}}.{{emptyValueName}};
             }
-            return {{typeName}}.From(typedUnderlyingValue);
+            if ({{typeName}}.TryFrom(typedUnderlyingValue, out var result)) {
+                return result;
+            }
+            if ({{typeName}}Constants.TryGetValue(typedUnderlyingValue, out var constant)) {
+                return constant;
+            }
+            throw new System.Text.Json.JsonException($""No matching {{typeName}} pre-set value found for value '{typedUnderlyingValue}'."");
         } catch (System.Exception e) {
             throw new System.Text.Json.JsonException(""Could not create an initialized instance of {{typeName}}."", e);
         }

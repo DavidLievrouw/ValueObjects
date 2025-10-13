@@ -275,6 +275,18 @@ private class ValueObjectValidationException : Exception
                 
 private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<ResourceGroupName>
 {
+    private static readonly Dictionary<System.String, ResourceGroupName> ResourceGroupNameConstants;
+
+    static ResourceGroupNameSystemTextJsonConverter()
+    {
+        ResourceGroupNameConstants = typeof(ResourceGroupName)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(ResourceGroupName) && f.IsInitOnly)
+            .Select(f => (ResourceGroupName)f.GetValue(null)!)
+            .Where(o => o.IsInitialized())
+            .ToDictionary(o => o.Value, o => o);
+    }
+
     public override ResourceGroupName Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
@@ -388,10 +400,16 @@ private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serial
     
         try {
             var typedUnderlyingValue = (System.String)underlyingValue!;
-            if (typedUnderlyingValue == default || underlyingValue is System.String suv && suv == System.String.Empty) {
+            if (typedUnderlyingValue.Equals(ResourceGroupName.Empty.Value)) {
                 return ResourceGroupName.Empty;
             }
-            return ResourceGroupName.From(typedUnderlyingValue);
+            if (ResourceGroupName.TryFrom(typedUnderlyingValue, out var result)) {
+                return result;
+            }
+            if (ResourceGroupNameConstants.TryGetValue(typedUnderlyingValue, out var constant)) {
+                return constant;
+            }
+            throw new System.Text.Json.JsonException($"No matching ResourceGroupName pre-set value found for value '{typedUnderlyingValue}'.");
         } catch (System.Exception e) {
             throw new System.Text.Json.JsonException("Could not create an initialized instance of ResourceGroupName.", e);
         }

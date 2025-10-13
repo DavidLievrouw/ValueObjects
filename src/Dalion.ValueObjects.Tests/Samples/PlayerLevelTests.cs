@@ -262,9 +262,21 @@ public partial class PlayerLevelTests
         [Fact]
         public void WhenInvalid_CannotDeserialize()
         {
-            var invalid = "-99999"; // lower than absolute zero
+            var invalid = "-99999";
 
             Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<PlayerLevel>(invalid));
+        }
+
+        [Fact]
+        public void WhenInvalid_ButPreSet_CanDeserialize()
+        {
+            var invalid = "0"; // Unspecified
+
+            var deserialized = JsonSerializer.Deserialize<PlayerLevel>(invalid);
+            
+            Assert.Equal(PlayerLevel.Unspecified, deserialized);
+            Assert.True(deserialized.IsInitialized());
+            Assert.False(deserialized.IsValid());
         }
 
         [Fact]

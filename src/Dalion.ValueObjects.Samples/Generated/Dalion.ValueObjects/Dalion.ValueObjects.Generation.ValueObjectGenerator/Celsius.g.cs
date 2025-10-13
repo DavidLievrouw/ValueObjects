@@ -255,6 +255,18 @@ private class ValueObjectValidationException : Exception
                 
 private class CelsiusSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<Celsius>
 {
+    private static readonly Dictionary<System.Decimal, Celsius> CelsiusConstants;
+
+    static CelsiusSystemTextJsonConverter()
+    {
+        CelsiusConstants = typeof(Celsius)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(Celsius) && f.IsInitOnly)
+            .Select(f => (Celsius)f.GetValue(null)!)
+            .Where(o => o.IsInitialized())
+            .ToDictionary(o => o.Value, o => o);
+    }
+
     public override Celsius Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
@@ -368,10 +380,16 @@ private class CelsiusSystemTextJsonConverter : System.Text.Json.Serialization.Js
     
         try {
             var typedUnderlyingValue = (System.Decimal)underlyingValue!;
-            if (typedUnderlyingValue == default || underlyingValue is System.String suv && suv == System.String.Empty) {
+            if (typedUnderlyingValue.Equals(Celsius.Zero.Value)) {
                 return Celsius.Zero;
             }
-            return Celsius.From(typedUnderlyingValue);
+            if (Celsius.TryFrom(typedUnderlyingValue, out var result)) {
+                return result;
+            }
+            if (CelsiusConstants.TryGetValue(typedUnderlyingValue, out var constant)) {
+                return constant;
+            }
+            throw new System.Text.Json.JsonException($"No matching Celsius pre-set value found for value '{typedUnderlyingValue}'.");
         } catch (System.Exception e) {
             throw new System.Text.Json.JsonException("Could not create an initialized instance of Celsius.", e);
         }

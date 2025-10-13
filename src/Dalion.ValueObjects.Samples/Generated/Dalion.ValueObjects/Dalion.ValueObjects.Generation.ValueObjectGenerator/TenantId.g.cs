@@ -207,6 +207,18 @@ private class ValueObjectValidationException : Exception
                 
 private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<TenantId>
 {
+    private static readonly Dictionary<System.Guid, TenantId> TenantIdConstants;
+
+    static TenantIdSystemTextJsonConverter()
+    {
+        TenantIdConstants = typeof(TenantId)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(TenantId) && f.IsInitOnly)
+            .Select(f => (TenantId)f.GetValue(null)!)
+            .Where(o => o.IsInitialized())
+            .ToDictionary(o => o.Value, o => o);
+    }
+
     public override TenantId Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
@@ -320,10 +332,16 @@ private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.J
     
         try {
             var typedUnderlyingValue = (System.Guid)underlyingValue!;
-            if (typedUnderlyingValue == default || underlyingValue is System.String suv && suv == System.String.Empty) {
+            if (typedUnderlyingValue.Equals(TenantId.Empty.Value)) {
                 return TenantId.Empty;
             }
-            return TenantId.From(typedUnderlyingValue);
+            if (TenantId.TryFrom(typedUnderlyingValue, out var result)) {
+                return result;
+            }
+            if (TenantIdConstants.TryGetValue(typedUnderlyingValue, out var constant)) {
+                return constant;
+            }
+            throw new System.Text.Json.JsonException($"No matching TenantId pre-set value found for value '{typedUnderlyingValue}'.");
         } catch (System.Exception e) {
             throw new System.Text.Json.JsonException("Could not create an initialized instance of TenantId.", e);
         }
