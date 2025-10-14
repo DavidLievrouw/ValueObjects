@@ -271,6 +271,19 @@ public partial class PlayerLevelTests
 
             Assert.Equal(value.ToString(CultureInfo.InvariantCulture), actual);
         }
+        
+        [Fact]
+        public void HasIFormattableSupport()
+        {
+            var value = 3;
+
+            var vo = PlayerLevel.From(value);
+            var actual = vo.ToString("000.00", CultureInfo.InvariantCulture);
+
+            var expected = "003.00";
+            Assert.Equal(expected, actual);
+            Assert.IsAssignableFrom<IFormattable>(vo);
+        }
     }
 
     public class Serialization : PlayerLevelTests

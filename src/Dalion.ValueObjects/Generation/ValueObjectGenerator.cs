@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -870,6 +871,33 @@ private class ValueObjectValidationException : Exception
 public bool IsValid() => _validation.IsSuccess;
 public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _validation.ErrorMessage;
 ";
+
+        var formattableToString = typeof(IFormattable).IsAssignableFrom(valueType)
+            ? @"
+                /// <inheritdoc />
+                public override string ToString()
+                {
+                    return Value.ToString(format: null, provider: System.Globalization.CultureInfo.InvariantCulture);
+                }
+
+                /// <inheritdoc cref=""M:System.String.ToString(System.IFormatProvider)"" />
+                public string ToString(IFormatProvider? provider)
+                {
+                    return Value.ToString(format: null, provider: provider) ?? """";
+                }
+
+                /// <inheritdoc />
+                public string ToString(string? format, IFormatProvider? formatProvider)
+                {{
+                    return Value.ToString(format, formatProvider) ?? """";
+                }}"
+            : @"
+                /// <inheritdoc />
+                public override string ToString()
+                {
+                    return Value.ToString();
+                }";
+
         var toStringOverrides =
             valueType == typeof(string)
                 ? @"
@@ -885,24 +913,16 @@ public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _va
                     return Value.ToString(provider: provider) ?? """";
                 }}
 "
-                : @"
-                /// <inheritdoc />
-                public override string ToString()
-                {
-                    return Value is IFormattable f 
-                        ? f.ToString(format: null, formatProvider: System.Globalization.CultureInfo.InvariantCulture)
-                        : Value.ToString() ?? """";
-                }
-
-                /// <inheritdoc cref=""M:System.String.ToString(System.IFormatProvider)"" />
-                public string ToString(IFormatProvider? provider)
-                {
-                    return Value.ToString(format: null, provider: provider) ?? """";
-                }
-";
+                : formattableToString;
 
         var interfaceDefsBuilder = new StringBuilder();
-        interfaceDefsBuilder.AppendLine($": IEquatable<{typeName}>");
+        interfaceDefsBuilder.Append($": IEquatable<{typeName}>");
+
+        if (typeof(IFormattable).IsAssignableFrom(valueType))
+        {
+            interfaceDefsBuilder.Append(", IFormattable");
+        }
+
         if (
             (
                 config.UnderlyingTypeEqualityGeneration

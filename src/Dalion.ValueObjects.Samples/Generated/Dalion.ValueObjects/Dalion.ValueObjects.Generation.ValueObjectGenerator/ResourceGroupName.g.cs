@@ -6,8 +6,7 @@
             [System.Diagnostics.DebuggerDisplay("ResourceGroupName {Value}")]
             [System.Text.Json.Serialization.JsonConverter(typeof(ResourceGroupNameSystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof(ResourceGroupNameTypeConverter))]
-            public partial record struct ResourceGroupName : IEquatable<ResourceGroupName>
-, IEquatable<System.String>, ISpanParsable<ResourceGroupName>, IUtf8SpanParsable<ResourceGroupName>, IComparable<ResourceGroupName>, IComparable {
+            public partial record struct ResourceGroupName : IEquatable<ResourceGroupName>, IEquatable<System.String>, ISpanParsable<ResourceGroupName>, IUtf8SpanParsable<ResourceGroupName>, IComparable<ResourceGroupName>, IComparable {
                 private readonly System.String _value;
                 private readonly bool _initialized;
 #pragma warning disable CS0414

@@ -6,8 +6,7 @@
             [System.Diagnostics.DebuggerDisplay("LegacyPhoneNumber {Value}")]
             [System.Text.Json.Serialization.JsonConverter(typeof(LegacyPhoneNumberSystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof(LegacyPhoneNumberTypeConverter))]
-            public partial record struct LegacyPhoneNumber : IEquatable<LegacyPhoneNumber>
- {
+            public partial record struct LegacyPhoneNumber : IEquatable<LegacyPhoneNumber> {
                 private readonly System.String _value;
                 private readonly bool _initialized;
 #pragma warning disable CS0414

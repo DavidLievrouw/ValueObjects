@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Globalization;
 using System.Text.Json;
 using FluentValidation;
 using FluentValidation.Results;
@@ -218,6 +219,19 @@ public partial class TenantIdTests
             var actual = TenantId.From(value).ToString();
 
             Assert.Equal(value.ToString(), actual);
+        }
+        
+        [Fact]
+        public void HasIFormattableSupport()
+        {
+            var value = Guid.NewGuid();
+
+            var vo = TenantId.From(value);
+            var actual = vo.ToString("P", CultureInfo.InvariantCulture);
+
+            var expected = value.ToString("P", CultureInfo.InvariantCulture);
+            Assert.Equal(expected, actual);
+            Assert.IsAssignableFrom<IFormattable>(vo);
         }
     }
 

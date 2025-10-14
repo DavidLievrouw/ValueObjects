@@ -6,8 +6,7 @@
             [System.Diagnostics.DebuggerDisplay("PlayerLevel {Value}")]
             [System.Text.Json.Serialization.JsonConverter(typeof(PlayerLevelSystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof(PlayerLevelTypeConverter))]
-            public partial record struct PlayerLevel : IEquatable<PlayerLevel>
- {
+            public partial record struct PlayerLevel : IEquatable<PlayerLevel>, IFormattable {
                 private readonly System.Int32 _value;
                 private readonly bool _initialized;
 #pragma warning disable CS0414
@@ -136,9 +135,7 @@
                 /// <inheritdoc />
                 public override string ToString()
                 {
-                    return Value is IFormattable f 
-                        ? f.ToString(format: null, formatProvider: System.Globalization.CultureInfo.InvariantCulture)
-                        : Value.ToString() ?? "";
+                    return Value.ToString(format: null, provider: System.Globalization.CultureInfo.InvariantCulture);
                 }
 
                 /// <inheritdoc cref="M:System.String.ToString(System.IFormatProvider)" />
@@ -147,6 +144,11 @@
                     return Value.ToString(format: null, provider: provider) ?? "";
                 }
 
+                /// <inheritdoc />
+                public string ToString(string? format, IFormatProvider? formatProvider)
+                {{
+                    return Value.ToString(format, formatProvider) ?? "";
+                }}
 
                 
 public bool IsValid() => _validation.IsSuccess;

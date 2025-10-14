@@ -320,6 +320,19 @@ public partial class CelsiusTests
 
             Assert.Equal(value.ToString(CultureInfo.InvariantCulture), actual);
         }
+
+        [Fact]
+        public void HasIFormattableSupport()
+        {
+            var value = 24.2m;
+
+            var vo = Celsius.From(value);
+            var actual = vo.ToString("000.00", CultureInfo.InvariantCulture);
+
+            var expected = "024.20";
+            Assert.Equal(expected, actual);
+            Assert.IsAssignableFrom<IFormattable>(vo);
+        }
     }
 
     public class ConversionOperatorsForUnderlyingType : CelsiusTests
