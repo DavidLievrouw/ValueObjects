@@ -7,6 +7,7 @@
     fromUnderlyingTypeCasting: CastOperator.Explicit,
     toUnderlyingTypeCasting: CastOperator.Implicit,
     comparison: ComparisonGeneration.Omit,
-    fluentValidationExtensionsGeneration: FluentValidationExtensionsGeneration.GenerateMustBeInitialized
+    fluentValidationExtensionsGeneration: FluentValidationExtensionsGeneration.GenerateMustBeInitialized,
+    parsableGeneration: ParsableGeneration.Omit
 )]
 public readonly partial record struct LegacyPhoneNumber;

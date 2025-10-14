@@ -17,7 +17,7 @@ public readonly partial record struct ResourceGroupName
 {
     private const string ResourceGroupNamePattern =
         "^[A-Za-z0-9](?:[A-Za-z0-9_-]{1,61}[A-Za-z0-9])$";
-
+    
     private static Validation Validate(string? input)
     {
         if (string.IsNullOrWhiteSpace(input))
@@ -36,9 +36,12 @@ public readonly partial record struct ResourceGroupName
 
         return Validation.Ok;
     }
-    
-    private static string? NormalizeInput(string? input) => input?.ToLowerInvariant().Trim();
-    
+
+    private static string? NormalizeInput(string? input)
+    {
+        return input?.ToLowerInvariant().Trim();
+    }
+
     [GeneratedRegex(ResourceGroupNamePattern)]
     private static partial Regex ValidResourceGroupName();
 }

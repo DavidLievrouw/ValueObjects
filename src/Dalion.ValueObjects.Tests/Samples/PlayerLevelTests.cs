@@ -33,17 +33,27 @@ public partial class PlayerLevelTests
         }
 
         [Fact]
-        public void CannotCreateUnspecified()
+        public void CanCreateUnspecified()
         {
-            var backingValue = 0;
+            var actual = PlayerLevel.From(0);
 
-            Action act = () => PlayerLevel.From(backingValue);
-
-            Assert.Throws<InvalidOperationException>(act);
+            Assert.Equal(PlayerLevel.Unspecified, actual);
+            Assert.True(actual.IsInitialized());
+            Assert.False(actual.IsValid());
         }
 
         [Theory]
         [InlineData(0)]
+        public void CanCreatePreSetInstance(int preSet)
+        {
+            var actual = PlayerLevel.From(preSet);
+            
+            Assert.Equal(PlayerLevel.Unspecified, actual);
+            Assert.True(actual.IsInitialized());
+            Assert.False(actual.IsValid());
+        }
+
+        [Theory]
         [InlineData(-1)]
         [InlineData(-300)]
         public void CannotCreateInvalidInstance(int invalid)
@@ -68,15 +78,29 @@ public partial class PlayerLevelTests
         }
 
         [Fact]
-        public void CannotCreateUnspecified()
+        public void CanCreateUnspecified()
         {
-            var success = PlayerLevel.TryFrom(0, out _);
+            var success = PlayerLevel.TryFrom(0, out var actual);
 
-            Assert.False(success);
+            Assert.True(success);
+            Assert.Equal(actual, PlayerLevel.Unspecified);
+            Assert.True(actual.IsInitialized());
+            Assert.False(actual.IsValid());
         }
 
         [Theory]
         [InlineData(0)]
+        public void CanCreatePreSetInstance(int preSet)
+        {
+            var success = PlayerLevel.TryFrom(preSet, out var actual);
+            
+            Assert.True(success);
+            Assert.Equal(PlayerLevel.Unspecified, actual);
+            Assert.True(actual.IsInitialized());
+            Assert.False(actual.IsValid());
+        }
+
+        [Theory]
         [InlineData(-1)]
         [InlineData(-300)]
         public void CannotCreateInvalidInstance(int invalid)

@@ -7,7 +7,7 @@
             [System.Text.Json.Serialization.JsonConverter(typeof(ResourceGroupNameSystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof(ResourceGroupNameTypeConverter))]
             public partial record struct ResourceGroupName : IEquatable<ResourceGroupName>
-, IEquatable<System.String>, IComparable<ResourceGroupName>, IComparable {
+, IEquatable<System.String>, ISpanParsable<ResourceGroupName>, IUtf8SpanParsable<ResourceGroupName>, IComparable<ResourceGroupName>, IComparable {
                 private readonly System.String _value;
                 private readonly bool _initialized;
 #pragma warning disable CS0414
@@ -26,7 +26,7 @@
                     _value = System.String.Empty;
                     _initialized = false;
                     _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
-                    _validation = Validate(_value);
+                    _validation ??= Validate(_value);
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
@@ -40,7 +40,7 @@
                         _value = value;
                     }
                     _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
-                    _validation = Validate(_value);
+                    _validation ??= Validate(_value);
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
@@ -48,9 +48,9 @@
                     value = NormalizeInput(value);
                     if (validation) {
                         
-                  var validationResult = Validate(value);
-                  if (!validationResult.IsSuccess) {
-                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
+                  _validation = Validate(value);
+                  if (!_validation.IsSuccess && value != default && !ResourceGroupNamePreSetValueCache.ResourceGroupNamePreSetValues.TryGetValue(value, out _)) {
+                      throw new System.InvalidOperationException(_validation.ErrorMessage);
                   }
                     }
                     if (value == default) {
@@ -61,7 +61,7 @@
                         _value = value;
                     }
                     _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
-                    _validation = Validate(_value);
+                    _validation ??= Validate(_value);
                 }
 
                 public static ResourceGroupName From(System.String? value) {
@@ -79,7 +79,7 @@
                     }
 
                     result = string.IsNullOrEmpty(value) ? Empty : new ResourceGroupName(value, validation: false);
-                    return result.IsInitialized() && Validate(result._value).IsSuccess;
+                    return result.IsInitialized() && (Validate(result._value).IsSuccess || ResourceGroupNamePreSetValueCache.ResourceGroupNamePreSetValues.TryGetValue(value, out _));
                 }
 
 
@@ -273,20 +273,67 @@ private class ValueObjectValidationException : Exception
 }
 
                 
-private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<ResourceGroupName>
-{
-    private static readonly Dictionary<System.String, ResourceGroupName> ResourceGroupNameConstants;
-
-    static ResourceGroupNameSystemTextJsonConverter()
+    /// <inheritdoc />
+    public static ResourceGroupName Parse(string s, IFormatProvider? provider)
     {
-        ResourceGroupNameConstants = typeof(ResourceGroupName)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(ResourceGroupName) && f.IsInitOnly)
-            .Select(f => (ResourceGroupName)f.GetValue(null)!)
-            .Where(o => o.IsInitialized())
-            .ToDictionary(o => o.Value, o => o);
+        return From(s);
     }
 
+    /// <inheritdoc />
+    public static bool TryParse(
+        string? s,
+        IFormatProvider? provider,
+        out ResourceGroupName result
+    )
+    {
+        return TryFrom(s, out result);
+    }
+
+    /// <inheritdoc />
+    public static ResourceGroupName Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
+    {
+        return From(new string(s));
+    }
+
+    /// <inheritdoc />
+    public static bool TryParse(
+        ReadOnlySpan<char> s,
+        IFormatProvider? provider,
+        out ResourceGroupName result
+    )
+    {
+        return TryFrom(new string(s), out result);
+    }
+
+    /// <inheritdoc />
+    public static ResourceGroupName Parse(ReadOnlySpan<byte> utf8Text, IFormatProvider? provider)
+    {
+        var s = System.Text.Encoding.UTF8.GetString(utf8Text);
+        return From(s);
+    }
+
+    /// <inheritdoc />
+    public static bool TryParse(
+        ReadOnlySpan<byte> utf8Text,
+        IFormatProvider? provider,
+        out ResourceGroupName result
+    )
+    {
+        try
+        {
+            var s = System.Text.Encoding.UTF8.GetString(utf8Text);
+            return TryFrom(s, out result);
+        }
+        catch (ArgumentException)
+        {
+            result = default;
+            return false;
+        }
+    }
+
+                
+private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<ResourceGroupName>
+{
     public override ResourceGroupName Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
@@ -406,7 +453,7 @@ private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serial
             if (ResourceGroupName.TryFrom(typedUnderlyingValue, out var result)) {
                 return result;
             }
-            if (ResourceGroupNameConstants.TryGetValue(typedUnderlyingValue, out var constant)) {
+            if (ResourceGroupNamePreSetValueCache.ResourceGroupNamePreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
                 return constant;
             }
             throw new System.Text.Json.JsonException($"No matching ResourceGroupName pre-set value found for value '{typedUnderlyingValue}'.");
@@ -541,6 +588,25 @@ private class ResourceGroupNameTypeConverter : System.ComponentModel.TypeConvert
     }
 }
 
+                
+private static class ResourceGroupNamePreSetValueCache {
+    public static readonly Dictionary<System.String, ResourceGroupName> ResourceGroupNamePreSetValues;
+
+    static ResourceGroupNamePreSetValueCache()
+    {
+        ResourceGroupNamePreSetValues = typeof(ResourceGroupName)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(ResourceGroupName) && f.IsInitOnly)
+            .Select(f => {
+                var val = f.GetValue(null);
+                if (val is null) return ResourceGroupName.Empty;
+                return (ResourceGroupName)val;
+            })
+            .Where(o => o.IsInitialized())
+            .ToDictionary(o => o.Value, o => o);
+        ResourceGroupNamePreSetValues[ResourceGroupName.Empty.Value] = ResourceGroupName.Empty;
+    }
+}
             }
             
         }

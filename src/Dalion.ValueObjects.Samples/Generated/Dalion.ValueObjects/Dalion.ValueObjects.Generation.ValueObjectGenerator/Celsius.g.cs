@@ -7,7 +7,7 @@
             [System.Text.Json.Serialization.JsonConverter(typeof(CelsiusSystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof(CelsiusTypeConverter))]
             public partial record struct Celsius : IEquatable<Celsius>
-, IEquatable<System.Decimal>, IComparable<Celsius>, IComparable {
+, IEquatable<System.Decimal>, ISpanParsable<Celsius>, IUtf8SpanParsable<Celsius>, IComparable<Celsius>, IComparable {
                 private readonly System.Decimal _value;
                 private readonly bool _initialized;
 #pragma warning disable CS0414
@@ -26,7 +26,7 @@
                     _value = default;
                     _initialized = false;
                     _isNullOrEmpty = false;
-                    _validation = Validate(_value);
+                    _validation ??= Validate(_value);
                 }
 
                 private Celsius(System.Decimal value) {
@@ -34,29 +34,29 @@
                     _initialized = true;
                     _value = value;
                     _isNullOrEmpty = false;
-                    _validation = Validate(_value);
+                    _validation ??= Validate(_value);
                 }
 
                 private Celsius(System.Decimal value, bool validation) {
                     
                     if (validation) {
                         
-                  var validationResult = Validate(value);
-                  if (!validationResult.IsSuccess) {
-                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
+                  _validation = Validate(value);
+                  if (!_validation.IsSuccess && value != default && !CelsiusPreSetValueCache.CelsiusPreSetValues.TryGetValue(value, out _)) {
+                      throw new System.InvalidOperationException(_validation.ErrorMessage);
                   }
                     }
                     _initialized = true;
                     _value = value;
                     _isNullOrEmpty = false;
-                    _validation = Validate(_value);
+                    _validation ??= Validate(_value);
                 }
 
                 public static Celsius From(System.Decimal value) {
                     if (value == default) {
                         
                   var validationResult = Validate(value);
-                  if (!validationResult.IsSuccess) {
+                  if (!validationResult.IsSuccess && !CelsiusPreSetValueCache.CelsiusPreSetValues.TryGetValue(value, out _)) {
                       throw new System.InvalidOperationException(validationResult.ErrorMessage);
                   }
                         return Zero;
@@ -67,7 +67,7 @@
 
                 public static bool TryFrom(System.Decimal value, out Celsius result) {
                     result = value == default ? Zero : new Celsius(value, validation: false);
-                    return result.IsInitialized() && Validate(result._value).IsSuccess;
+                    return result.IsInitialized() && (Validate(result._value).IsSuccess || CelsiusPreSetValueCache.CelsiusPreSetValues.TryGetValue(value, out _));
                 }
 
 
@@ -253,20 +253,100 @@ private class ValueObjectValidationException : Exception
 }
 
                 
-private class CelsiusSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<Celsius>
-{
-    private static readonly Dictionary<System.Decimal, Celsius> CelsiusConstants;
-
-    static CelsiusSystemTextJsonConverter()
+    /// <inheritdoc />
+    public static Celsius Parse(string s, IFormatProvider? provider)
     {
-        CelsiusConstants = typeof(Celsius)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(Celsius) && f.IsInitOnly)
-            .Select(f => (Celsius)f.GetValue(null)!)
-            .Where(o => o.IsInitialized())
-            .ToDictionary(o => o.Value, o => o);
+        var v = System.Decimal.Parse(s, provider);
+        return From(v);
     }
 
+    /// <inheritdoc />
+    public static bool TryParse(
+        string? s,
+        IFormatProvider? provider,
+        out Celsius result
+    )
+    {
+        try
+        {
+            var v = s == null ? default : System.Decimal.Parse(s, provider);
+            return TryFrom(v, out result);
+        }
+        catch (ArgumentException)
+        {
+            result = default;
+            return false;
+        }
+        catch (FormatException)
+        {
+            result = default;
+            return false;
+        }
+    }
+
+    /// <inheritdoc />
+    public static Celsius Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
+    {
+        var v = System.Decimal.Parse(s, provider);
+        return From(v);
+    }
+
+    /// <inheritdoc />
+    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out Celsius result)
+    {
+        try
+        {
+            var v = System.Decimal.Parse(new string(s), provider);
+            return TryFrom(v, out result);
+        }
+        catch (ArgumentException)
+        {
+            result = default;
+            return false;
+        }
+        catch (FormatException)
+        {
+            result = default;
+            return false;
+        }
+    }
+
+    /// <inheritdoc />
+    public static Celsius Parse(ReadOnlySpan<byte> utf8Text, IFormatProvider? provider)
+    {
+        var s = System.Text.Encoding.UTF8.GetString(utf8Text);
+        var v = System.Decimal.Parse(s, provider);
+        return From(v);
+    }
+
+    /// <inheritdoc />
+    public static bool TryParse(
+        ReadOnlySpan<byte> utf8Text,
+        IFormatProvider? provider,
+        out Celsius result
+    )
+    {
+        try
+        {
+            var s = System.Text.Encoding.UTF8.GetString(utf8Text);
+            var v = System.Decimal.Parse(s, provider);
+            return TryFrom(v, out result);
+        }
+        catch (ArgumentException)
+        {
+            result = default;
+            return false;
+        }
+        catch (FormatException)
+        {
+            result = default;
+            return false;
+        }
+    }
+
+                
+private class CelsiusSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<Celsius>
+{
     public override Celsius Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
@@ -386,7 +466,7 @@ private class CelsiusSystemTextJsonConverter : System.Text.Json.Serialization.Js
             if (Celsius.TryFrom(typedUnderlyingValue, out var result)) {
                 return result;
             }
-            if (CelsiusConstants.TryGetValue(typedUnderlyingValue, out var constant)) {
+            if (CelsiusPreSetValueCache.CelsiusPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
                 return constant;
             }
             throw new System.Text.Json.JsonException($"No matching Celsius pre-set value found for value '{typedUnderlyingValue}'.");
@@ -521,6 +601,25 @@ private class CelsiusTypeConverter : System.ComponentModel.TypeConverter
     }
 }
 
+                
+private static class CelsiusPreSetValueCache {
+    public static readonly Dictionary<System.Decimal, Celsius> CelsiusPreSetValues;
+
+    static CelsiusPreSetValueCache()
+    {
+        CelsiusPreSetValues = typeof(Celsius)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(Celsius) && f.IsInitOnly)
+            .Select(f => {
+                var val = f.GetValue(null);
+                if (val is null) return Celsius.Zero;
+                return (Celsius)val;
+            })
+            .Where(o => o.IsInitialized())
+            .ToDictionary(o => o.Value, o => o);
+        CelsiusPreSetValues[Celsius.Zero.Value] = Celsius.Zero;
+    }
+}
             }
             
         }

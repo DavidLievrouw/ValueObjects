@@ -14,6 +14,7 @@ internal class AttributeConfiguration
         StringCaseSensitivity stringCaseSensitivity,
         UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration,
         FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration,
+        ParsableGeneration parsableGeneration,
         string emptyValueName
     )
     {
@@ -24,6 +25,7 @@ internal class AttributeConfiguration
         CaseSensitivity = stringCaseSensitivity;
         UnderlyingTypeEqualityGeneration = underlyingTypeEqualityGeneration;
         FluentValidationExtensionsGeneration = fluentValidationExtensionsGeneration;
+        ParsableGeneration = parsableGeneration;
         EmptyValueName = emptyValueName;
     }
 
@@ -34,6 +36,7 @@ internal class AttributeConfiguration
     public StringCaseSensitivity CaseSensitivity { get; }
     public UnderlyingTypeEqualityGeneration UnderlyingTypeEqualityGeneration { get; }
     public FluentValidationExtensionsGeneration FluentValidationExtensionsGeneration { get; }
+    public ParsableGeneration ParsableGeneration { get; }
     public string EmptyValueName { get; }
 
     public static AttributeConfiguration FromAttributeData(AttributeData attributeData)
@@ -70,6 +73,7 @@ internal class AttributeConfiguration
         var stringCaseSensitivity = ValueObjectAttribute.DefaultStringCaseSensitivity;
         var underlyingTypeEqualityGeneration = ValueObjectAttribute.DefaultUnderlyingTypeEqualityGeneration;
         var fluentValidationExtensionsGeneration = ValueObjectAttribute.DefaultFluentValidationExtensionsGeneration;
+        var parsableGeneration = ValueObjectAttribute.DefaultParsableGeneration;
         var emptyValueName = ValueObjectAttribute.DefaultEmptyValueName;
         
         var pos = 0;
@@ -108,6 +112,10 @@ internal class AttributeConfiguration
                             fluentValidationExtensionsGeneration = (FluentValidationExtensionsGeneration)
                                 Enum.Parse(typeof(FluentValidationExtensionsGeneration), value);
                             break;
+                        case "parsableGeneration":
+                            parsableGeneration = (ParsableGeneration)
+                                Enum.Parse(typeof(ParsableGeneration), value);
+                            break;
                         case "emptyValueName":
                             emptyValueName = value;
                             break;
@@ -143,6 +151,10 @@ internal class AttributeConfiguration
                                 Enum.Parse(typeof(FluentValidationExtensionsGeneration), value);
                             break;
                         case 6:
+                            parsableGeneration = (ParsableGeneration)
+                                Enum.Parse(typeof(ParsableGeneration), value);
+                            break;
+                        case 7:
                             emptyValueName = value;
                             break;
                     }
@@ -160,6 +172,7 @@ internal class AttributeConfiguration
             stringCaseSensitivity,
             underlyingTypeEqualityGeneration,
             fluentValidationExtensionsGeneration,
+            parsableGeneration,
             emptyValueName
         );
     }

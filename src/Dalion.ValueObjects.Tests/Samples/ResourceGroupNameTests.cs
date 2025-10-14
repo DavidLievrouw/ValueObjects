@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel;
+using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using FluentValidation;
 using FluentValidation.Results;
@@ -37,16 +39,16 @@ public partial class ResourceGroupNameTests
         }
 
         [Fact]
-        public void CannotCreateEmpty()
+        public void CanCreateEmpty()
         {
-            Action act = () => ResourceGroupName.From(string.Empty);
+            var actual = ResourceGroupName.From(string.Empty);
 
-            Assert.Throws<InvalidOperationException>(act);
+            Assert.Equal(ResourceGroupName.Empty, actual);
+            Assert.True(actual.IsInitialized());
+            Assert.False(actual.IsValid());
         }
 
         [Theory]
-        [InlineData("   ")]
-        [InlineData(" \t  ")]
         [InlineData("a")] // too short
         [InlineData("ab")] // too short
         [InlineData("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl")] // too long
@@ -85,11 +87,14 @@ public partial class ResourceGroupNameTests
         }
 
         [Fact]
-        public void CannotCreateEmpty()
+        public void CanCreateEmpty()
         {
             var success = ResourceGroupName.TryFrom(string.Empty, out var actual);
 
-            Assert.False(success);
+            Assert.True(success);
+            Assert.Equal(ResourceGroupName.Empty, actual.Value);
+            Assert.True(actual.IsInitialized());
+            Assert.False(actual.IsValid());
         }
 
         [Theory]
@@ -118,6 +123,8 @@ public partial class ResourceGroupNameTests
         [InlineData("Casing", "casing")]
         [InlineData(" \t trimming ", "trimming")]
         [InlineData(" \t All-rules ", "all-rules")]
+        [InlineData(" ", "")]
+        [InlineData(" \t   ", "")]
         public void NormalizesInput(string candidate, string expected)
         {
             var actual = ResourceGroupName.From(candidate);
@@ -667,7 +674,10 @@ public partial class ResourceGroupNameTests
 
                 Assert.False(result.IsValid);
                 Assert.Single(result.Errors);
-                Assert.Equal("ResourceGroupName cannot be null, empty, or whitespace.", result.Errors[0].ErrorMessage);
+                Assert.Equal(
+                    "ResourceGroupName cannot be null, empty, or whitespace.",
+                    result.Errors[0].ErrorMessage
+                );
             }
 
             internal class ContainerValidator : AbstractValidator<Container>
@@ -731,7 +741,10 @@ public partial class ResourceGroupNameTests
 
                 Assert.False(result.IsValid);
                 Assert.Single(result.Errors);
-                Assert.Equal("ResourceGroupName must be initialized.", result.Errors[0].ErrorMessage);
+                Assert.Equal(
+                    "ResourceGroupName must be initialized.",
+                    result.Errors[0].ErrorMessage
+                );
             }
 
             internal class ContainerValidator : AbstractValidator<Container>
@@ -747,6 +760,289 @@ public partial class ResourceGroupNameTests
         {
             public required string Id { get; set; }
             public ResourceGroupName Data { get; set; }
+        }
+    }
+
+    public class Parsable : ResourceGroupNameTests
+    {
+        public class FromString : Parsable
+        {
+            [Fact]
+            public void CanParseFromString()
+            {
+                var str = "abc123";
+
+                var actual = ResourceGroupName.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(ResourceGroupName.From("abc123"), actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CannotParseInvalidValue()
+            {
+                var str = "ab"; // too short
+
+                Action act = () => ResourceGroupName.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Throws<InvalidOperationException>(act);
+            }
+
+            [Fact]
+            public void CannotParseNullValue()
+            {
+                Action act = () =>
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+                    ResourceGroupName.Parse((string)null, CultureInfo.InvariantCulture);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+
+                Assert.Throws<InvalidOperationException>(act);
+            }
+
+            [Fact]
+            public void CanParseEmpty()
+            {
+                var str = ResourceGroupName.Empty;
+
+                var actual = ResourceGroupName.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(ResourceGroupName.Empty, actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CanTryParseFromString()
+            {
+                var str = "abc123";
+
+                var success = ResourceGroupName.TryParse(
+                    str,
+                    CultureInfo.InvariantCulture,
+                    out var actual
+                );
+
+                Assert.True(success);
+                Assert.Equal(ResourceGroupName.From("abc123"), actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CannotTryParseNullValue()
+            {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                var success = ResourceGroupName.TryParse(
+                    (string)null,
+                    CultureInfo.InvariantCulture,
+                    out _
+                );
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+
+                Assert.False(success);
+            }
+
+            [Fact]
+            public void CannotTryParseInvalidValue()
+            {
+                var str = "ab"; // too short
+
+                var success = ResourceGroupName.TryParse(
+                    str,
+                    CultureInfo.InvariantCulture,
+                    out var actual
+                );
+
+                Assert.False(success);
+            }
+
+            [Fact]
+            public void CanTryParseEmpty()
+            {
+                var str = "";
+
+                var success = ResourceGroupName.TryParse(
+                    str,
+                    CultureInfo.InvariantCulture,
+                    out var actual
+                );
+
+                Assert.True(success);
+                Assert.Equal(ResourceGroupName.Empty, actual);
+                Assert.True(actual.IsInitialized());
+            }
+        }
+
+        public class FromReadOnlySpanOfChar : Parsable
+        {
+            private static ReadOnlySpan<char> ToReadOnlySpan(string? s)
+            {
+                return s == null ? ReadOnlySpan<char>.Empty : s.AsSpan();
+            }
+
+            [Fact]
+            public void CanParseFromString()
+            {
+                var str = ToReadOnlySpan("abc123");
+
+                var actual = ResourceGroupName.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(ResourceGroupName.From("abc123"), actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CannotParseInvalidValue()
+            {
+                var act = () =>
+                {
+                    var str = ToReadOnlySpan("ab"); // too short
+                    ResourceGroupName.Parse(str, CultureInfo.InvariantCulture);
+                };
+
+                Assert.Throws<InvalidOperationException>(act);
+            }
+
+            [Fact]
+            public void CanParseEmpty()
+            {
+                var str = ToReadOnlySpan("");
+
+                var actual = ResourceGroupName.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(ResourceGroupName.Empty, actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CanTryParseFromString()
+            {
+                var str = ToReadOnlySpan("abc123");
+
+                var success = ResourceGroupName.TryParse(
+                    str,
+                    CultureInfo.InvariantCulture,
+                    out var actual
+                );
+
+                Assert.True(success);
+                Assert.Equal(ResourceGroupName.From("abc123"), actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CannotTryParseInvalidValue()
+            {
+                var str = ToReadOnlySpan("ab"); // too short
+
+                var success = ResourceGroupName.TryParse(str, CultureInfo.InvariantCulture, out _);
+
+                Assert.False(success);
+            }
+
+            [Fact]
+            public void CanTryParseEmpty()
+            {
+                var str = ToReadOnlySpan("");
+
+                var success = ResourceGroupName.TryParse(
+                    str,
+                    CultureInfo.InvariantCulture,
+                    out var actual
+                );
+
+                Assert.True(success);
+                Assert.Equal(ResourceGroupName.Empty, actual);
+                Assert.True(actual.IsInitialized());
+            }
+        }
+
+        public class FromReadOnlySpanOfByte : Parsable
+        {
+            private static ReadOnlySpan<byte> ToReadOnlySpan(string? s)
+            {
+                return s == null ? ReadOnlySpan<byte>.Empty : Encoding.UTF8.GetBytes(s);
+            }
+
+            [Fact]
+            public void CanParseFromString()
+            {
+                var str = ToReadOnlySpan("abc123");
+
+                var actual = ResourceGroupName.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(ResourceGroupName.From("abc123"), actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CannotParseInvalidValue()
+            {
+                var act = () =>
+                {
+                    var str = ToReadOnlySpan("ab"); // too short
+                    ResourceGroupName.Parse(str, CultureInfo.InvariantCulture);
+                };
+
+                Assert.Throws<InvalidOperationException>(act);
+            }
+
+            [Fact]
+            public void CanParseEmpty()
+            {
+                var str = ToReadOnlySpan("");
+
+                var actual = ResourceGroupName.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(ResourceGroupName.Empty, actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CanTryParseFromString()
+            {
+                var str = ToReadOnlySpan("abc123");
+
+                var success = ResourceGroupName.TryParse(
+                    str,
+                    CultureInfo.InvariantCulture,
+                    out var actual
+                );
+
+                Assert.True(success);
+                Assert.Equal(ResourceGroupName.From("abc123"), actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CannotTryParseInvalidValue()
+            {
+                var str = ToReadOnlySpan("ab"); // too short
+
+                var success = ResourceGroupName.TryParse(
+                    str,
+                    CultureInfo.InvariantCulture,
+                    out var actual
+                );
+
+                Assert.False(success);
+            }
+
+            [Fact]
+            public void CanTryParseEmpty()
+            {
+                var str = ToReadOnlySpan("");
+
+                var success = ResourceGroupName.TryParse(
+                    str,
+                    CultureInfo.InvariantCulture,
+                    out var actual
+                );
+
+                Assert.True(success);
+                Assert.Equal(ResourceGroupName.Empty, actual);
+                Assert.True(actual.IsInitialized());
+            }
         }
     }
 

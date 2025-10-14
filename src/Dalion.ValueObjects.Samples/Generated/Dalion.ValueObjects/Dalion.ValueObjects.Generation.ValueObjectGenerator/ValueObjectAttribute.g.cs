@@ -40,11 +40,15 @@ namespace Dalion.ValueObjects.Samples
         ///     Specifies whether to generate FluentValidation extension methods for this value object.
         ///     Defaults to <see cref = "FluentValidationExtensionsGeneration.Omit"/>.
         /// </param>
+        /// <param name = "parsableGeneration">
+        ///     Defines if IParsable implementation and related methods are generated. Defaults to
+        ///     <see cref = "ParsableGeneration.Generate"/>.
+        /// </param>
         /// <param name = "emptyValueName">
         ///     The name of the static property representing an empty value object, if applicable.
         ///     Defaults to "Empty".
         /// </param>
-        public ValueObjectAttribute(ComparisonGeneration comparison = DefaultComparison, CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting, CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting, StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity, UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration, FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration = DefaultFluentValidationExtensionsGeneration, string emptyValueName = DefaultEmptyValueName) : base(typeof(T), comparison, toUnderlyingTypeCasting, fromUnderlyingTypeCasting, stringCaseSensitivity, underlyingTypeEqualityGeneration, fluentValidationExtensionsGeneration, emptyValueName)
+        public ValueObjectAttribute(ComparisonGeneration comparison = DefaultComparison, CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting, CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting, StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity, UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration, FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration = DefaultFluentValidationExtensionsGeneration, ParsableGeneration parsableGeneration = DefaultParsableGeneration, string emptyValueName = DefaultEmptyValueName) : base(typeof(T), comparison, toUnderlyingTypeCasting, fromUnderlyingTypeCasting, stringCaseSensitivity, underlyingTypeEqualityGeneration, fluentValidationExtensionsGeneration, parsableGeneration, emptyValueName)
         {
         }
     }
@@ -62,6 +66,7 @@ namespace Dalion.ValueObjects.Samples
         internal const StringCaseSensitivity DefaultStringCaseSensitivity = StringCaseSensitivity.CaseSensitive;
         internal const UnderlyingTypeEqualityGeneration DefaultUnderlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit;
         internal const FluentValidationExtensionsGeneration DefaultFluentValidationExtensionsGeneration = FluentValidationExtensionsGeneration.Omit;
+        internal const ParsableGeneration DefaultParsableGeneration = ParsableGeneration.Generate;
         internal const string DefaultEmptyValueName = "Empty";
         /// <summary>
         ///     Configures aspects of this individual value object.
@@ -94,11 +99,15 @@ namespace Dalion.ValueObjects.Samples
         ///     Specifies whether to generate FluentValidation extension methods for this value object.
         ///     Defaults to <see cref = "FluentValidationExtensionsGeneration.Omit"/>.
         /// </param>
+        /// <param name = "parsableGeneration">
+        ///     Defines if IParsable implementation and related methods are generated. Defaults to
+        ///     <see cref = "ParsableGeneration.Generate"/>.
+        /// </param>
         /// <param name = "emptyValueName">
         ///     The name of the static property representing an empty value object, if applicable.
         ///     Defaults to "Empty".
         /// </param>
-        public ValueObjectAttribute(Type? underlyingType = null !, ComparisonGeneration comparison = DefaultComparison, CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting, CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting, StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity, UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration, FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration = DefaultFluentValidationExtensionsGeneration, string emptyValueName = DefaultEmptyValueName)
+        public ValueObjectAttribute(Type? underlyingType = null !, ComparisonGeneration comparison = DefaultComparison, CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting, CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting, StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity, UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration, FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration = DefaultFluentValidationExtensionsGeneration, ParsableGeneration parsableGeneration = DefaultParsableGeneration, string emptyValueName = DefaultEmptyValueName)
         {
         }
     }
@@ -199,5 +208,20 @@ namespace Dalion.ValueObjects.Samples
         ///     Generate all methods.
         /// </summary>
         GenerateAll = GenerateMustBeInitialized | GenerateMustBeInitializedAndValid,
+    }
+
+    /// <summary>
+    ///     Defines if IParsable implementation and related methods are generated.
+    /// </summary>
+    public enum ParsableGeneration
+    {
+        /// <summary>
+        ///     Do not generate.
+        /// </summary>
+        Omit = 0,
+        /// <summary>
+        ///     Generate IParsable implementation and related methods.
+        /// </summary>
+        Generate = 1,
     }
 }

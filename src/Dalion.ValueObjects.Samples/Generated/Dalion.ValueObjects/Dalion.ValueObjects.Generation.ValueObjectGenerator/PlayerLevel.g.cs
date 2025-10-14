@@ -26,7 +26,7 @@
                     _value = default;
                     _initialized = false;
                     _isNullOrEmpty = false;
-                    _validation = Validate(_value);
+                    _validation ??= Validate(_value);
                 }
 
                 private PlayerLevel(System.Int32 value) {
@@ -34,29 +34,29 @@
                     _initialized = true;
                     _value = value;
                     _isNullOrEmpty = false;
-                    _validation = Validate(_value);
+                    _validation ??= Validate(_value);
                 }
 
                 private PlayerLevel(System.Int32 value, bool validation) {
                     
                     if (validation) {
                         
-                  var validationResult = Validate(value);
-                  if (!validationResult.IsSuccess) {
-                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
+                  _validation = Validate(value);
+                  if (!_validation.IsSuccess && value != default && !PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(value, out _)) {
+                      throw new System.InvalidOperationException(_validation.ErrorMessage);
                   }
                     }
                     _initialized = true;
                     _value = value;
                     _isNullOrEmpty = false;
-                    _validation = Validate(_value);
+                    _validation ??= Validate(_value);
                 }
 
                 public static PlayerLevel From(System.Int32 value) {
                     if (value == default) {
                         
                   var validationResult = Validate(value);
-                  if (!validationResult.IsSuccess) {
+                  if (!validationResult.IsSuccess && !PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(value, out _)) {
                       throw new System.InvalidOperationException(validationResult.ErrorMessage);
                   }
                         return Unspecified;
@@ -67,7 +67,7 @@
 
                 public static bool TryFrom(System.Int32 value, out PlayerLevel result) {
                     result = value == default ? Unspecified : new PlayerLevel(value, validation: false);
-                    return result.IsInitialized() && Validate(result._value).IsSuccess;
+                    return result.IsInitialized() && (Validate(result._value).IsSuccess || PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(value, out _));
                 }
 
 
@@ -204,20 +204,10 @@ private class ValueObjectValidationException : Exception
 }
 
                 
+
+                
 private class PlayerLevelSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<PlayerLevel>
 {
-    private static readonly Dictionary<System.Int32, PlayerLevel> PlayerLevelConstants;
-
-    static PlayerLevelSystemTextJsonConverter()
-    {
-        PlayerLevelConstants = typeof(PlayerLevel)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(PlayerLevel) && f.IsInitOnly)
-            .Select(f => (PlayerLevel)f.GetValue(null)!)
-            .Where(o => o.IsInitialized())
-            .ToDictionary(o => o.Value, o => o);
-    }
-
     public override PlayerLevel Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
@@ -337,7 +327,7 @@ private class PlayerLevelSystemTextJsonConverter : System.Text.Json.Serializatio
             if (PlayerLevel.TryFrom(typedUnderlyingValue, out var result)) {
                 return result;
             }
-            if (PlayerLevelConstants.TryGetValue(typedUnderlyingValue, out var constant)) {
+            if (PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
                 return constant;
             }
             throw new System.Text.Json.JsonException($"No matching PlayerLevel pre-set value found for value '{typedUnderlyingValue}'.");
@@ -472,6 +462,25 @@ private class PlayerLevelTypeConverter : System.ComponentModel.TypeConverter
     }
 }
 
+                
+private static class PlayerLevelPreSetValueCache {
+    public static readonly Dictionary<System.Int32, PlayerLevel> PlayerLevelPreSetValues;
+
+    static PlayerLevelPreSetValueCache()
+    {
+        PlayerLevelPreSetValues = typeof(PlayerLevel)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(PlayerLevel) && f.IsInitOnly)
+            .Select(f => {
+                var val = f.GetValue(null);
+                if (val is null) return PlayerLevel.Unspecified;
+                return (PlayerLevel)val;
+            })
+            .Where(o => o.IsInitialized())
+            .ToDictionary(o => o.Value, o => o);
+        PlayerLevelPreSetValues[PlayerLevel.Unspecified.Value] = PlayerLevel.Unspecified;
+    }
+}
             }
             
         }

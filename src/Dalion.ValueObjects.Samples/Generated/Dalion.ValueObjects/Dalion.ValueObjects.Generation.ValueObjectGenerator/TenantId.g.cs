@@ -26,7 +26,7 @@
                     _value = default;
                     _initialized = false;
                     _isNullOrEmpty = false;
-                    _validation = Validation.Ok;
+                    _validation ??= Validation.Ok;
                 }
 
                 private TenantId(System.Guid value) {
@@ -34,7 +34,7 @@
                     _initialized = true;
                     _value = value;
                     _isNullOrEmpty = false;
-                    _validation = Validation.Ok;
+                    _validation ??= Validation.Ok;
                 }
 
                 private TenantId(System.Guid value, bool validation) {
@@ -45,7 +45,7 @@
                     _initialized = true;
                     _value = value;
                     _isNullOrEmpty = false;
-                    _validation = Validation.Ok;
+                    _validation ??= Validation.Ok;
                 }
 
                 public static TenantId From(System.Guid value) {
@@ -205,20 +205,10 @@ private class ValueObjectValidationException : Exception
 }
 
                 
+
+                
 private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<TenantId>
 {
-    private static readonly Dictionary<System.Guid, TenantId> TenantIdConstants;
-
-    static TenantIdSystemTextJsonConverter()
-    {
-        TenantIdConstants = typeof(TenantId)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(TenantId) && f.IsInitOnly)
-            .Select(f => (TenantId)f.GetValue(null)!)
-            .Where(o => o.IsInitialized())
-            .ToDictionary(o => o.Value, o => o);
-    }
-
     public override TenantId Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
@@ -338,7 +328,7 @@ private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.J
             if (TenantId.TryFrom(typedUnderlyingValue, out var result)) {
                 return result;
             }
-            if (TenantIdConstants.TryGetValue(typedUnderlyingValue, out var constant)) {
+            if (TenantIdPreSetValueCache.TenantIdPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
                 return constant;
             }
             throw new System.Text.Json.JsonException($"No matching TenantId pre-set value found for value '{typedUnderlyingValue}'.");
@@ -473,6 +463,25 @@ private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
     }
 }
 
+                
+private static class TenantIdPreSetValueCache {
+    public static readonly Dictionary<System.Guid, TenantId> TenantIdPreSetValues;
+
+    static TenantIdPreSetValueCache()
+    {
+        TenantIdPreSetValues = typeof(TenantId)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(TenantId) && f.IsInitOnly)
+            .Select(f => {
+                var val = f.GetValue(null);
+                if (val is null) return TenantId.Empty;
+                return (TenantId)val;
+            })
+            .Where(o => o.IsInitialized())
+            .ToDictionary(o => o.Value, o => o);
+        TenantIdPreSetValues[TenantId.Empty.Value] = TenantId.Empty;
+    }
+}
             }
             
         }

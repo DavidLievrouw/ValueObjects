@@ -41,6 +41,10 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
     ///     Specifies whether to generate FluentValidation extension methods for this value object.
     ///     Defaults to <see cref="FluentValidationExtensionsGeneration.Omit" />.
     /// </param>
+    /// <param name="parsableGeneration">
+    ///     Defines if IParsable implementation and related methods are generated. Defaults to
+    ///     <see cref="ParsableGeneration.Generate" />.
+    /// </param>
     /// <param name="emptyValueName">
     ///     The name of the static property representing an empty value object, if applicable.
     ///     Defaults to "Empty".
@@ -50,9 +54,11 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
         CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting,
         CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting,
         StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity,
-        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration,
+        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration =
+            DefaultUnderlyingTypeEqualityGeneration,
         FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration =
             DefaultFluentValidationExtensionsGeneration,
+        ParsableGeneration parsableGeneration = DefaultParsableGeneration,
         string emptyValueName = DefaultEmptyValueName
     )
         : base(
@@ -63,10 +69,9 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
             stringCaseSensitivity,
             underlyingTypeEqualityGeneration,
             fluentValidationExtensionsGeneration,
+            parsableGeneration,
             emptyValueName
-        )
-    {
-    }
+        ) { }
 }
 
 /// <summary>
@@ -79,13 +84,17 @@ public class ValueObjectAttribute : Attribute
     internal const ComparisonGeneration DefaultComparison = ComparisonGeneration.UseUnderlying;
     internal const CastOperator DefaultToUnderlyingTypeCasting = CastOperator.None;
     internal const CastOperator DefaultFromUnderlyingTypeCasting = CastOperator.None;
-    internal const StringCaseSensitivity DefaultStringCaseSensitivity = StringCaseSensitivity.CaseSensitive;
+    internal const StringCaseSensitivity DefaultStringCaseSensitivity =
+        StringCaseSensitivity.CaseSensitive;
 
     internal const UnderlyingTypeEqualityGeneration DefaultUnderlyingTypeEqualityGeneration =
         UnderlyingTypeEqualityGeneration.Omit;
 
     internal const FluentValidationExtensionsGeneration DefaultFluentValidationExtensionsGeneration =
         FluentValidationExtensionsGeneration.Omit;
+
+    internal const ParsableGeneration DefaultParsableGeneration =
+        ParsableGeneration.Generate;
 
     internal const string DefaultEmptyValueName = "Empty";
 
@@ -120,6 +129,10 @@ public class ValueObjectAttribute : Attribute
     ///     Specifies whether to generate FluentValidation extension methods for this value object.
     ///     Defaults to <see cref="FluentValidationExtensionsGeneration.Omit" />.
     /// </param>
+    /// <param name="parsableGeneration">
+    ///     Defines if IParsable implementation and related methods are generated. Defaults to
+    ///     <see cref="ParsableGeneration.Generate" />.
+    /// </param>
     /// <param name="emptyValueName">
     ///     The name of the static property representing an empty value object, if applicable.
     ///     Defaults to "Empty".
@@ -130,13 +143,13 @@ public class ValueObjectAttribute : Attribute
         CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting,
         CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting,
         StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity,
-        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration,
+        UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration =
+            DefaultUnderlyingTypeEqualityGeneration,
         FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration =
             DefaultFluentValidationExtensionsGeneration,
+        ParsableGeneration parsableGeneration = DefaultParsableGeneration,
         string emptyValueName = DefaultEmptyValueName
-    )
-    {
-    }
+    ) { }
 }
 
 /// <summary>
@@ -245,4 +258,20 @@ public enum FluentValidationExtensionsGeneration
     ///     Generate all methods.
     /// </summary>
     GenerateAll = GenerateMustBeInitialized | GenerateMustBeInitializedAndValid,
+}
+
+/// <summary>
+///     Defines if IParsable implementation and related methods are generated.
+/// </summary>
+public enum ParsableGeneration
+{
+    /// <summary>
+    ///     Do not generate.
+    /// </summary>
+    Omit = 0,
+
+    /// <summary>
+    ///     Generate IParsable implementation and related methods.
+    /// </summary>
+    Generate = 1,
 }

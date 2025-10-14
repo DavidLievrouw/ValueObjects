@@ -26,7 +26,7 @@
                     _value = System.String.Empty;
                     _initialized = false;
                     _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
-                    _validation = Validation.Ok;
+                    _validation ??= Validation.Ok;
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
@@ -40,7 +40,7 @@
                         _value = value;
                     }
                     _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
-                    _validation = Validation.Ok;
+                    _validation ??= Validation.Ok;
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
@@ -57,7 +57,7 @@
                         _value = value;
                     }
                     _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
-                    _validation = Validation.Ok;
+                    _validation ??= Validation.Ok;
                 }
 
                 public static LegacyPhoneNumber From(System.String? value) {
@@ -232,20 +232,10 @@ private class ValueObjectValidationException : Exception
 }
 
                 
+
+                
 private class LegacyPhoneNumberSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<LegacyPhoneNumber>
 {
-    private static readonly Dictionary<System.String, LegacyPhoneNumber> LegacyPhoneNumberConstants;
-
-    static LegacyPhoneNumberSystemTextJsonConverter()
-    {
-        LegacyPhoneNumberConstants = typeof(LegacyPhoneNumber)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(LegacyPhoneNumber) && f.IsInitOnly)
-            .Select(f => (LegacyPhoneNumber)f.GetValue(null)!)
-            .Where(o => o.IsInitialized())
-            .ToDictionary(o => o.Value, o => o);
-    }
-
     public override LegacyPhoneNumber Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
@@ -365,7 +355,7 @@ private class LegacyPhoneNumberSystemTextJsonConverter : System.Text.Json.Serial
             if (LegacyPhoneNumber.TryFrom(typedUnderlyingValue, out var result)) {
                 return result;
             }
-            if (LegacyPhoneNumberConstants.TryGetValue(typedUnderlyingValue, out var constant)) {
+            if (LegacyPhoneNumberPreSetValueCache.LegacyPhoneNumberPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
                 return constant;
             }
             throw new System.Text.Json.JsonException($"No matching LegacyPhoneNumber pre-set value found for value '{typedUnderlyingValue}'.");
@@ -500,6 +490,25 @@ private class LegacyPhoneNumberTypeConverter : System.ComponentModel.TypeConvert
     }
 }
 
+                
+private static class LegacyPhoneNumberPreSetValueCache {
+    public static readonly Dictionary<System.String, LegacyPhoneNumber> LegacyPhoneNumberPreSetValues;
+
+    static LegacyPhoneNumberPreSetValueCache()
+    {
+        LegacyPhoneNumberPreSetValues = typeof(LegacyPhoneNumber)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(LegacyPhoneNumber) && f.IsInitOnly)
+            .Select(f => {
+                var val = f.GetValue(null);
+                if (val is null) return LegacyPhoneNumber.Empty;
+                return (LegacyPhoneNumber)val;
+            })
+            .Where(o => o.IsInitialized())
+            .ToDictionary(o => o.Value, o => o);
+        LegacyPhoneNumberPreSetValues[LegacyPhoneNumber.Empty.Value] = LegacyPhoneNumber.Empty;
+    }
+}
             }
             
         }

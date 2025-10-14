@@ -34,11 +34,13 @@ public partial class PasswordTests
         }
 
         [Fact]
-        public void CannotCreateEmpty()
+        public void CanCreateEmpty()
         {
-            Action act = () => Password.From(string.Empty);
-
-            Assert.Throws<InvalidOperationException>(act);
+            var actual = Password.From(string.Empty);
+            
+            Assert.Equal(Password.Empty, actual);
+            Assert.True(actual.IsInitialized());
+            Assert.False(actual.IsValid());
         }
 
         [Theory]
@@ -80,11 +82,14 @@ public partial class PasswordTests
         }
 
         [Fact]
-        public void CannotCreateEmpty()
+        public void CanCreateEmpty()
         {
             var success = Password.TryFrom(string.Empty, out var actual);
 
-            Assert.False(success);
+            Assert.True(success);
+            Assert.Equal(Password.Empty, actual);
+            Assert.True(actual.IsInitialized());
+            Assert.False(actual.IsValid());
         }
 
         [Theory]

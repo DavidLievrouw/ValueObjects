@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using FluentValidation;
 using FluentValidation.Results;
@@ -51,6 +52,18 @@ public partial class CelsiusTests
         }
 
         [Theory]
+        [InlineData(-459.67)]
+        public void CanCreatePreSetInstance(double preSet)
+        {
+            var dec = (decimal)preSet;
+            var actual = Celsius.From(dec);
+            
+            Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+            Assert.True(actual.IsInitialized());
+            Assert.False(actual.IsValid());
+        }
+
+        [Theory]
         [InlineData(-273.16)] // lower than absolute zero
         [InlineData(-300)] // lower than absolute zero
         public void CannotCreateInvalidInstance(double invalid)
@@ -89,6 +102,19 @@ public partial class CelsiusTests
             Assert.Equal(actual.GetHashCode(), zero.GetHashCode());
 
             Assert.True(actual.IsInitialized());
+        }
+
+        [Theory]
+        [InlineData(-459.67)]
+        public void CanCreatePreSetInstance(double preSet)
+        {
+            var dec = (decimal)preSet;
+            var success = Celsius.TryFrom(dec, out var actual);
+            
+            Assert.True(success);
+            Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+            Assert.True(actual.IsInitialized());
+            Assert.False(actual.IsValid());
         }
 
         [Theory]
@@ -346,7 +372,7 @@ public partial class CelsiusTests
             var invalid = "-459.67"; // absolute zero in fahrenheit, but not in celsius
 
             var deserialized = JsonSerializer.Deserialize<Celsius>(invalid);
-            
+
             Assert.Equal(Celsius.AbsoluteZeroFahrenheit, deserialized);
             Assert.True(deserialized.IsInitialized());
             Assert.False(deserialized.IsValid());
@@ -748,6 +774,366 @@ public partial class CelsiusTests
         {
             public required string Id { get; set; }
             public Celsius Data { get; set; }
+        }
+    }
+
+    public class Parsable : CelsiusTests
+    {
+        public class FromString : Parsable
+        {
+            [Fact]
+            public void CanParseFromString()
+            {
+                var str = "24.2";
+
+                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(Celsius.From(24.2m), actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CannotParseInvalidValue()
+            {
+                var str = "-300"; // lower than absolute zero
+
+                Action act = () => Celsius.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Throws<InvalidOperationException>(act);
+            }
+
+            [Fact]
+            public void CanParseInvalidWhenPreSetValue()
+            {
+                var str = "-459.67"; // invalid, but pre-set value
+
+                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+                Assert.True(actual.IsInitialized());
+                Assert.False(actual.IsValid());
+            }
+
+            [Fact]
+            public void CannotParseNonsenseValue()
+            {
+                var str = "nonsense";
+
+                Action act = () => Celsius.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Throws<FormatException>(act);
+            }
+
+            [Fact]
+            public void CanParseZero()
+            {
+                var str = "0";
+
+                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(Celsius.Zero, actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CanTryParseFromString()
+            {
+                var str = "24.2";
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.True(success);
+                Assert.Equal(Celsius.From(24.2m), actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CannotTryParseNonsenseValue()
+            {
+                var str = "nonsense";
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.False(success);
+            }
+
+            [Fact]
+            public void CannotTryParseInvalidValue()
+            {
+                var str = "-300"; // lower than absolute zero
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.False(success);
+            }
+
+            [Fact]
+            public void CanTryParseInvalidWhenPreSetValue()
+            {
+                var str = "-459.67"; // invalid, but pre-set value
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.True(success);
+                Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CanTryParseZero()
+            {
+                var str = "0";
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.True(success);
+                Assert.Equal(Celsius.Zero, actual);
+                Assert.True(actual.IsInitialized());
+            }
+        }
+
+        public class FromReadOnlySpanOfChar : Parsable
+        {
+            private static ReadOnlySpan<char> ToReadOnlySpan(string? s)
+            {
+                return s is null ? ReadOnlySpan<char>.Empty : s.AsSpan();
+            }
+
+            [Fact]
+            public void CanParseFromString()
+            {
+                var str = ToReadOnlySpan("24.2");
+
+                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(Celsius.From(24.2m), actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CannotParseInvalidValue()
+            {
+                var act = () =>
+                {
+                    var str = ToReadOnlySpan("-300"); // lower than absolute zero
+                    Celsius.Parse(str, CultureInfo.InvariantCulture);
+                };
+
+                Assert.Throws<InvalidOperationException>(act);
+            }
+
+            [Fact]
+            public void CanParseInvalidWhenPreSetValue()
+            {
+                var str = ToReadOnlySpan("-459.67"); // invalid, but pre-set value
+
+                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+                Assert.True(actual.IsInitialized());
+                Assert.False(actual.IsValid());
+            }
+
+            [Fact]
+            public void CannotParseNonsenseValue()
+            {
+                var act = () =>
+                {
+                    var str = ToReadOnlySpan("nonsense");
+                    Celsius.Parse(str, CultureInfo.InvariantCulture);
+                };
+
+                Assert.Throws<FormatException>(act);
+            }
+
+            [Fact]
+            public void CanParseZero()
+            {
+                var str = ToReadOnlySpan("0");
+
+                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(Celsius.Zero, actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CanTryParseFromString()
+            {
+                var str = ToReadOnlySpan("24.2");
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.True(success);
+                Assert.Equal(Celsius.From(24.2m), actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CannotTryParseNonsenseValue()
+            {
+                var str = ToReadOnlySpan("nonsense");
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.False(success);
+            }
+
+            [Fact]
+            public void CannotTryParseInvalidValue()
+            {
+                var str = ToReadOnlySpan("-300"); // lower than absolute zero
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.False(success);
+            }
+
+            [Fact]
+            public void CanTryParseInvalidWhenPreSetValue()
+            {
+                var str = ToReadOnlySpan("-459.67"); // invalid, but pre-set value
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.True(success);
+                Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CanTryParseZero()
+            {
+                var str = ToReadOnlySpan("0");
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.True(success);
+                Assert.Equal(Celsius.Zero, actual);
+                Assert.True(actual.IsInitialized());
+            }
+        }
+
+        public class FromReadOnlySpanOfByte : Parsable
+        {
+            private static ReadOnlySpan<byte> ToReadOnlySpan(string? s)
+            {
+                return s == null ? ReadOnlySpan<byte>.Empty : Encoding.UTF8.GetBytes(s);
+            }
+
+            [Fact]
+            public void CanParseFromString()
+            {
+                var str = ToReadOnlySpan("24.2");
+
+                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(Celsius.From(24.2m), actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CannotParseInvalidValue()
+            {
+                var act = () =>
+                {
+                    var str = ToReadOnlySpan("-300"); // lower than absolute zero
+                    Celsius.Parse(str, CultureInfo.InvariantCulture);
+                };
+
+                Assert.Throws<InvalidOperationException>(act);
+            }
+
+            [Fact]
+            public void CanParseInvalidWhenPreSetValue()
+            {
+                var str = ToReadOnlySpan("-459.67"); // invalid, but pre-set value
+
+                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+                Assert.True(actual.IsInitialized());
+                Assert.False(actual.IsValid());
+            }
+
+            [Fact]
+            public void CannotParseNonsenseValue()
+            {
+                var act = () =>
+                {
+                    var str = ToReadOnlySpan("nonsense");
+                    Celsius.Parse(str, CultureInfo.InvariantCulture);
+                };
+
+                Assert.Throws<FormatException>(act);
+            }
+
+            [Fact]
+            public void CanParseZero()
+            {
+                var str = ToReadOnlySpan("0");
+
+                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(Celsius.Zero, actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CanTryParseFromString()
+            {
+                var str = ToReadOnlySpan("24.2");
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.True(success);
+                Assert.Equal(Celsius.From(24.2m), actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CannotTryParseNonsenseValue()
+            {
+                var str = ToReadOnlySpan("nonsense");
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.False(success);
+            }
+
+            [Fact]
+            public void CannotTryParseInvalidValue()
+            {
+                var str = ToReadOnlySpan("-300"); // lower than absolute zero
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out _);
+
+                Assert.False(success);
+            }
+
+            [Fact]
+            public void CanTryParseInvalidWhenPreSetValue()
+            {
+                var str = ToReadOnlySpan("-459.67"); // invalid, but pre-set value
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.True(success);
+                Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+                Assert.True(actual.IsInitialized());
+            }
+
+            [Fact]
+            public void CanTryParseZero()
+            {
+                var str = ToReadOnlySpan("0");
+
+                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+
+                Assert.True(success);
+                Assert.Equal(Celsius.Zero, actual);
+                Assert.True(actual.IsInitialized());
+            }
         }
     }
 

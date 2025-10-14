@@ -26,7 +26,7 @@
                     _value = System.String.Empty;
                     _initialized = false;
                     _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
-                    _validation = Validate(_value);
+                    _validation ??= Validate(_value);
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
@@ -40,7 +40,7 @@
                         _value = value;
                     }
                     _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
-                    _validation = Validate(_value);
+                    _validation ??= Validate(_value);
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
@@ -48,9 +48,9 @@
                     
                     if (validation) {
                         
-                  var validationResult = Validate(value);
-                  if (!validationResult.IsSuccess) {
-                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
+                  _validation = Validate(value);
+                  if (!_validation.IsSuccess && value != default && !PasswordPreSetValueCache.PasswordPreSetValues.TryGetValue(value, out _)) {
+                      throw new System.InvalidOperationException(_validation.ErrorMessage);
                   }
                     }
                     if (value == default) {
@@ -61,7 +61,7 @@
                         _value = value;
                     }
                     _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
-                    _validation = Validate(_value);
+                    _validation ??= Validate(_value);
                 }
 
                 public static Password From(System.String? value) {
@@ -79,7 +79,7 @@
                     }
 
                     result = string.IsNullOrEmpty(value) ? Empty : new Password(value, validation: false);
-                    return result.IsInitialized() && Validate(result._value).IsSuccess;
+                    return result.IsInitialized() && (Validate(result._value).IsSuccess || PasswordPreSetValueCache.PasswordPreSetValues.TryGetValue(value, out _));
                 }
 
 
@@ -227,20 +227,10 @@ private class ValueObjectValidationException : Exception
 }
 
                 
+
+                
 private class PasswordSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<Password>
 {
-    private static readonly Dictionary<System.String, Password> PasswordConstants;
-
-    static PasswordSystemTextJsonConverter()
-    {
-        PasswordConstants = typeof(Password)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(Password) && f.IsInitOnly)
-            .Select(f => (Password)f.GetValue(null)!)
-            .Where(o => o.IsInitialized())
-            .ToDictionary(o => o.Value, o => o);
-    }
-
     public override Password Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
@@ -360,7 +350,7 @@ private class PasswordSystemTextJsonConverter : System.Text.Json.Serialization.J
             if (Password.TryFrom(typedUnderlyingValue, out var result)) {
                 return result;
             }
-            if (PasswordConstants.TryGetValue(typedUnderlyingValue, out var constant)) {
+            if (PasswordPreSetValueCache.PasswordPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
                 return constant;
             }
             throw new System.Text.Json.JsonException($"No matching Password pre-set value found for value '{typedUnderlyingValue}'.");
@@ -495,6 +485,25 @@ private class PasswordTypeConverter : System.ComponentModel.TypeConverter
     }
 }
 
+                
+private static class PasswordPreSetValueCache {
+    public static readonly Dictionary<System.String, Password> PasswordPreSetValues;
+
+    static PasswordPreSetValueCache()
+    {
+        PasswordPreSetValues = typeof(Password)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(f => f.FieldType == typeof(Password) && f.IsInitOnly)
+            .Select(f => {
+                var val = f.GetValue(null);
+                if (val is null) return Password.Empty;
+                return (Password)val;
+            })
+            .Where(o => o.IsInitialized())
+            .ToDictionary(o => o.Value, o => o);
+        PasswordPreSetValues[Password.Empty.Value] = Password.Empty;
+    }
+}
             }
             
         }
