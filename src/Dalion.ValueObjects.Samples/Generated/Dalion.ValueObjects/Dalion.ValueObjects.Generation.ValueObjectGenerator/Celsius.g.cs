@@ -442,6 +442,13 @@ private class CelsiusSystemTextJsonConverter : System.Text.Json.Serialization.Js
                     if (!Uri.TryCreate(uriStr, UriKind.RelativeOrAbsolute, out var uriValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{uriStr}' to Uri.");
                     underlyingValue = uriValue;
+                } else if (underlyingType == typeof(DateOnly)) {
+                    if (reader.TokenType != System.Text.Json.JsonTokenType.String)
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Celsius.");
+                    var dateStr = reader.GetString();
+                    if (!DateOnly.TryParse(dateStr, out var dateValue))
+                        throw new System.Text.Json.JsonException($"Cannot convert '{dateStr}' to DateOnly.");
+                    underlyingValue = dateValue;
                 } else {
                     throw new System.Text.Json.JsonException($"Unsupported underlying type for Celsius.");
                 }
@@ -526,6 +533,8 @@ private class CelsiusSystemTextJsonConverter : System.Text.Json.Serialization.Js
                     writer.WriteStringValue(((TimeOnly)underlyingValue).ToString());
                 } else if (underlyingType == typeof(Uri)) {
                     writer.WriteStringValue(((Uri)underlyingValue).ToString());
+                } else if (underlyingType == typeof(DateOnly)) {
+                    writer.WriteStringValue(((DateOnly)underlyingValue).ToString());
                 } else {
                     throw new System.Text.Json.JsonException($"Unsupported underlying type for Celsius.");
                 }
