@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -409,10 +408,30 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
 
         var config = target.GetAttributeConfiguration();
         var valueType = config.UnderlyingType;
-        var valueTypeName = valueType.FullName;
         var emptyValueName = config.EmptyValueName;
 
-        var defaultValue = valueType == typeof(string) ? "System.String.Empty" : "default";
+        var defaultValue =
+            valueType.SpecialType == SpecialType.System_String ? "System.String.Empty" : "default";
+
+        var valueTypeName = valueType.SpecialType switch
+        {
+            SpecialType.System_Boolean => "System.Boolean",
+            SpecialType.System_Byte => "System.Byte",
+            SpecialType.System_Char => "System.Char",
+            SpecialType.System_Decimal => "System.Decimal",
+            SpecialType.System_Double => "System.Double",
+            SpecialType.System_Int16 => "System.Int16",
+            SpecialType.System_Int32 => "System.Int32",
+            SpecialType.System_Int64 => "System.Int64",
+            SpecialType.System_SByte => "System.SByte",
+            SpecialType.System_Single => "System.Single",
+            SpecialType.System_String => "System.String",
+            SpecialType.System_UInt16 => "System.UInt16",
+            SpecialType.System_UInt32 => "System.UInt32",
+            SpecialType.System_UInt64 => "System.UInt64",
+            SpecialType.System_DateTime => "System.DateTime",
+            _ => valueType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+        };
 
         var validateMethod = target
             .SyntaxInformation.Members.OfType<MethodDeclarationSyntax>()
@@ -425,7 +444,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     target
                         .SemanticModel.GetTypeInfo(member.ParameterList.Parameters[0].Type!)
                         .Type!,
-                    target.SemanticModel.Compilation.GetTypeByMetadataName(valueType.FullName!)
+                    target.SemanticModel.Compilation.GetTypeByMetadataName(valueTypeName)
                 )
             );
 
@@ -468,11 +487,11 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     target
                         .SemanticModel.GetTypeInfo(member.ParameterList.Parameters[0].Type!)
                         .Type!,
-                    target.SemanticModel.Compilation.GetTypeByMetadataName(valueType.FullName!)
+                    target.SemanticModel.Compilation.GetTypeByMetadataName(valueTypeName)
                 )
                 && SymbolEqualityComparer.Default.Equals(
                     target.SemanticModel.GetTypeInfo(member.ReturnType).Type!,
-                    target.SemanticModel.Compilation.GetTypeByMetadataName(valueType.FullName!)
+                    target.SemanticModel.Compilation.GetTypeByMetadataName(valueTypeName)
                 )
             );
         var inputNormalization = normalizeMethod == null ? "" : "value = NormalizeInput(value);";
@@ -483,7 +502,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 : "Ordinal";
 
         var equality =
-            valueType == typeof(string)
+            valueType.SpecialType == SpecialType.System_String
                 ? $@"
                 /// <inheritdoc />
                 public bool Equals({typeName}? other)
@@ -586,7 +605,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 config.UnderlyingTypeEqualityGeneration
                 & UnderlyingTypeEqualityGeneration.GenerateMethods
             ) == UnderlyingTypeEqualityGeneration.GenerateMethods
-                ? valueType == typeof(string)
+                ? valueType.SpecialType == SpecialType.System_String
                     ? $@"
                 /// <inheritdoc />
                 public bool Equals({valueTypeName}? other)
@@ -613,7 +632,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 config.UnderlyingTypeEqualityGeneration
                 & UnderlyingTypeEqualityGeneration.GenerateOperators
             ) == UnderlyingTypeEqualityGeneration.GenerateOperators
-                ? valueType == typeof(string)
+                ? valueType.SpecialType == SpecialType.System_String
                     ? $@"
     public static bool operator ==({typeName} left, {valueTypeName}? right) => left.Value.Equals(right);
 
@@ -635,7 +654,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 : "";
 
         var creation =
-            valueType == typeof(string)
+            valueType.SpecialType == SpecialType.System_String
                 ? $@"
                 [System.Diagnostics.DebuggerStepThrough]
                 [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
@@ -743,7 +762,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
 
         var comparison =
             config.Comparison == ComparisonGeneration.Omit ? ""
-            : valueType == typeof(string)
+            : valueType.SpecialType == SpecialType.System_String
                 ? $@"
                 public int CompareTo({typeName} other) => this.Value.CompareTo(other.Value);
 
@@ -872,7 +891,13 @@ public bool IsValid() => _validation.IsSuccess;
 public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _validation.ErrorMessage;
 ";
 
-        var formattableToString = typeof(IFormattable).IsAssignableFrom(valueType)
+        var formattableType = target.SemanticModel.Compilation.GetTypeByMetadataName(
+            "System.IFormattable"
+        );
+        var isFormattable =
+            formattableType != null && valueType.AllInterfaces.Contains(formattableType);
+
+        var formattableToString = isFormattable
             ? @"
                 /// <inheritdoc />
                 public override string ToString()
@@ -899,7 +924,7 @@ public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _va
                 }";
 
         var toStringOverrides =
-            valueType == typeof(string)
+            valueType.SpecialType == SpecialType.System_String
                 ? @"
                 /// <inheritdoc />
                 public override string ToString()
@@ -918,7 +943,7 @@ public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _va
         var interfaceDefsBuilder = new StringBuilder();
         interfaceDefsBuilder.Append($": IEquatable<{typeName}>");
 
-        if (typeof(IFormattable).IsAssignableFrom(valueType))
+        if (isFormattable)
         {
             interfaceDefsBuilder.Append(", IFormattable");
         }
@@ -981,7 +1006,7 @@ private static class {typeName}PreSetValueCache {{
 
         var parsable =
             config.ParsableGeneration != ParsableGeneration.Generate ? ""
-            : valueType == typeof(string)
+            : valueType.SpecialType == SpecialType.System_String
                 ? $@"
     /// <inheritdoc />
     public static {typeName} Parse(string s, IFormatProvider? provider)
@@ -1296,7 +1321,7 @@ private static class {typeName}PreSetValueCache {{
 
                 var tree = CSharpSyntaxTree.ParseText(attributeContent);
                 var root = (CompilationUnitSyntax)tree.GetRoot();
-                var fixedSource = WithNamespace(root, ns);
+                var fixedSource = WithNamespace(root, ns ?? "global::");
 
                 spc.AddSource($"{nameof(ValueObjectAttribute)}.g.cs", fixedSource);
             }

@@ -7,7 +7,7 @@ namespace Dalion.ValueObjects.Generation;
 internal class AttributeConfiguration
 {
     public AttributeConfiguration(
-        Type underlyingType,
+        ITypeSymbol underlyingType,
         ComparisonGeneration comparison,
         CastOperator toUnderlyingTypeCasting,
         CastOperator fromUnderlyingTypeCasting,
@@ -29,7 +29,7 @@ internal class AttributeConfiguration
         EmptyValueName = emptyValueName;
     }
 
-    public Type UnderlyingType { get; }
+    public ITypeSymbol UnderlyingType { get; }
     public ComparisonGeneration Comparison { get; }
     public CastOperator ToUnderlyingTypeCasting { get; }
     public CastOperator FromUnderlyingTypeCasting { get; }
@@ -44,28 +44,7 @@ internal class AttributeConfiguration
         var syntaxRef = attributeData.ApplicationSyntaxReference!;
         var attributeSyntax = (AttributeSyntax)syntaxRef.GetSyntax();
         var argumentExpressions = attributeSyntax.ArgumentList?.Arguments!;
-
-        var typeSymbol = attributeData.AttributeClass!.TypeArguments[0];
-        var typeName = typeSymbol.ToDisplayString();
-        var underlyingType = typeName switch
-        {
-            "decimal" or "System.Decimal" => typeof(decimal),
-            "int" or "System.Int32" => typeof(int),
-            "string" or "System.String" => typeof(string),
-            "bool" or "System.Boolean" => typeof(bool),
-            "double" or "System.Double" => typeof(double),
-            "float" or "System.Single" => typeof(float),
-            "long" or "System.Int64" => typeof(long),
-            "short" or "System.Int16" => typeof(short),
-            "byte" or "System.Byte" => typeof(byte),
-            "char" or "System.Char" => typeof(char),
-            "DateTime" or "System.DateTime" => typeof(DateTime),
-            "DateTimeOffset" or "System.DateTimeOffset" => typeof(DateTimeOffset),
-            "Guid" or "System.Guid" => typeof(Guid),
-            "TimeSpan" or "System.TimeSpan" => typeof(TimeSpan),
-            "Uri" or "System.Uri" => typeof(Uri),
-            _ => Type.GetType(typeName) ?? typeof(string),
-        };
+        var underlyingType = attributeData.AttributeClass!.TypeArguments[0];
 
         var comparison = ValueObjectAttribute.DefaultComparison;
         var toUnderlyingTypeCasting = ValueObjectAttribute.DefaultToUnderlyingTypeCasting;
