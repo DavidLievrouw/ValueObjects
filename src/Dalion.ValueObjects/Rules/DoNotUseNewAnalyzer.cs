@@ -11,7 +11,7 @@ namespace Dalion.ValueObjects.Rules;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class DoNotUseNewAnalyzer : DiagnosticAnalyzer
 {
-    private static readonly DiagnosticDescriptor Rule1 = new(
+    private static readonly DiagnosticDescriptor Rule = new(
         RuleIdentifiers.DoNotUseNew,
         "Using new to create Value Objects is prohibited - use the From method for creation",
         "Type '{0}' cannot be constructed with 'new' as it is prohibited",
@@ -23,7 +23,7 @@ public class DoNotUseNewAnalyzer : DiagnosticAnalyzer
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(Rule1);
+        ImmutableArray.Create(Rule);
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -67,7 +67,7 @@ public class DoNotUseNewAnalyzer : DiagnosticAnalyzer
         }
 
         var diagnostic = DiagnosticsCatalogue.BuildDiagnostic(
-            Rule1,
+            Rule,
             symbol.Name,
             context.Operation.Syntax.GetLocation()
         );
