@@ -330,6 +330,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
 
                 AddGeneratedValueObject(target, sourceProductionContext);
                 AddGeneratedFluentValidationExtensions(target, sourceProductionContext);
+                AddGeneratedUnderlyingTypeCreationExtensions(target, sourceProductionContext);
             }
         );
     }
@@ -410,6 +411,55 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
         context.AddSource($"{typeName}FluentValidationExtensions.g.cs", code);
     }
 
+    private void AddGeneratedUnderlyingTypeCreationExtensions(
+        GenerationTarget target,
+        SourceProductionContext context
+    )
+    {
+        var typeName = target.SymbolInformation.Name;
+        var namespaceName = target.SymbolInformation.ContainingNamespace.ToDisplayString();
+
+        var config = target.GetAttributeConfiguration();
+
+        if (
+            config.UnderlyingTypeCreationMethodGeneration == UnderlyingTypeCreationMethodGeneration.Omit
+        )
+        {
+            return;
+        }
+
+        var containingTypeNames = GetContainingTypeNames(target.SymbolInformation);
+        var containingTypes =
+            containingTypeNames == string.Empty ? string.Empty : containingTypeNames + ".";
+
+        var creationMethod =
+            config.UnderlyingType.SpecialType == SpecialType.System_String
+                ? $@"
+                 public static {namespaceName}.{containingTypes}{typeName} {typeName}(this {config.UnderlyingTypeName}? value)
+                 {{
+                     return {namespaceName}.{containingTypes}{typeName}.From(value);
+                 }}"
+                : $@"
+                 public static {namespaceName}.{containingTypes}{typeName} {typeName}(this {config.UnderlyingTypeName} value)
+                 {{
+                     return {namespaceName}.{containingTypes}{typeName}.From(value);
+                 }}";
+
+        var code =
+            $@"
+        #nullable enable
+
+        namespace {namespaceName} {{
+            public static class {typeName}UnderlyingTypeCreationExtensions
+            {{
+                {creationMethod}
+            }}
+        }}
+        ";
+
+        context.AddSource($"{typeName}UnderlyingTypeCreationExtensions.g.cs", code);
+    }
+
     private void AddGeneratedValueObject(GenerationTarget target, SourceProductionContext context)
     {
         var typeName = target.SymbolInformation.Name;
@@ -422,26 +472,6 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
         var defaultValue =
             valueType.SpecialType == SpecialType.System_String ? "System.String.Empty" : "default";
 
-        var valueTypeName = valueType.SpecialType switch
-        {
-            SpecialType.System_Boolean => "System.Boolean",
-            SpecialType.System_Byte => "System.Byte",
-            SpecialType.System_Char => "System.Char",
-            SpecialType.System_Decimal => "System.Decimal",
-            SpecialType.System_Double => "System.Double",
-            SpecialType.System_Int16 => "System.Int16",
-            SpecialType.System_Int32 => "System.Int32",
-            SpecialType.System_Int64 => "System.Int64",
-            SpecialType.System_SByte => "System.SByte",
-            SpecialType.System_Single => "System.Single",
-            SpecialType.System_String => "System.String",
-            SpecialType.System_UInt16 => "System.UInt16",
-            SpecialType.System_UInt32 => "System.UInt32",
-            SpecialType.System_UInt64 => "System.UInt64",
-            SpecialType.System_DateTime => "System.DateTime",
-            _ => valueType.ToDisplayString(),
-        };
-
         var validateMethod = target
             .SyntaxInformation.Members.OfType<MethodDeclarationSyntax>()
             .FirstOrDefault(member =>
@@ -453,7 +483,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     target
                         .SemanticModel.GetTypeInfo(member.ParameterList.Parameters[0].Type!)
                         .Type!,
-                    target.SemanticModel.Compilation.GetTypeByMetadataName(valueTypeName)
+                    target.SemanticModel.Compilation.GetTypeByMetadataName(config.UnderlyingTypeName)
                 )
             );
 
@@ -478,11 +508,11 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     target
                         .SemanticModel.GetTypeInfo(member.ParameterList.Parameters[0].Type!)
                         .Type!,
-                    target.SemanticModel.Compilation.GetTypeByMetadataName(valueTypeName)
+                    target.SemanticModel.Compilation.GetTypeByMetadataName(config.UnderlyingTypeName)
                 )
                 && SymbolEqualityComparer.Default.Equals(
                     target.SemanticModel.GetTypeInfo(member.ReturnType).Type!,
-                    target.SemanticModel.Compilation.GetTypeByMetadataName(valueTypeName)
+                    target.SemanticModel.Compilation.GetTypeByMetadataName(config.UnderlyingTypeName)
                 )
             );
         var inputNormalization = normalizeMethod == null ? "" : "value = NormalizeInput(value);";
@@ -512,7 +542,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
             
                     return other.Value._isNullOrEmpty
                         ? this._isNullOrEmpty
-                        : {valueTypeName}.Equals(this._value, other.Value.Value, System.StringComparison.{stringComparison});
+                        : {config.UnderlyingTypeName}.Equals(this._value, other.Value.Value, System.StringComparison.{stringComparison});
                 }}
 
                 /// <inheritdoc />
@@ -530,7 +560,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
             
                     return other._isNullOrEmpty
                         ? this._isNullOrEmpty
-                        : {valueTypeName}.Equals(this._value, other.Value, System.StringComparison.{stringComparison});
+                        : {config.UnderlyingTypeName}.Equals(this._value, other.Value, System.StringComparison.{stringComparison});
                 }}
             
                 public bool Equals({typeName}? other, IEqualityComparer<{typeName}> comparer)
@@ -560,7 +590,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         return false;
                     }}
             
-                    return EqualityComparer<{valueTypeName}>.Default.Equals(this._value, other.Value.Value);
+                    return EqualityComparer<{config.UnderlyingTypeName}>.Default.Equals(this._value, other.Value.Value);
                 }}
 
                 /// <inheritdoc />
@@ -576,7 +606,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         return false;
                     }}
             
-                    return EqualityComparer<{valueTypeName}>.Default.Equals(this._value, other.Value);
+                    return EqualityComparer<{config.UnderlyingTypeName}>.Default.Equals(this._value, other.Value);
                 }}
             
                 public bool Equals({typeName}? other, IEqualityComparer<{typeName}> comparer)
@@ -588,7 +618,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 /// <inheritdoc />
                 public override int GetHashCode() {{
                     if (!IsInitialized()) return 0;
-                    return EqualityComparer<{valueTypeName}>.Default.GetHashCode(this._value);
+                    return EqualityComparer<{config.UnderlyingTypeName}>.Default.GetHashCode(this._value);
                 }}";
 
         var equalityUnderlyingType =
@@ -599,22 +629,22 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
             ? valueType.SpecialType == SpecialType.System_String
                 ? $@"
                 /// <inheritdoc />
-                public bool Equals({valueTypeName}? other)
+                public bool Equals({config.UnderlyingTypeName}? other)
                 {{
-                    return {valueTypeName}.IsNullOrEmpty(other)
+                    return {config.UnderlyingTypeName}.IsNullOrEmpty(other)
                         ? this._isNullOrEmpty
-                        : {valueTypeName}.Equals(this._value, other, System.StringComparison.{stringComparison});
+                        : {config.UnderlyingTypeName}.Equals(this._value, other, System.StringComparison.{stringComparison});
                 }}
             
-                public bool Equals({valueTypeName}? underlyingValue, StringComparer comparer)
+                public bool Equals({config.UnderlyingTypeName}? underlyingValue, StringComparer comparer)
                 {{
                     return comparer.Equals(this.Value, underlyingValue);
                 }}"
                 : $@"
                 /// <inheritdoc />
-                public bool Equals({valueTypeName} other)
+                public bool Equals({config.UnderlyingTypeName} other)
                 {{
-                    return EqualityComparer<{valueTypeName}>.Default.Equals(this._value, other);
+                    return EqualityComparer<{config.UnderlyingTypeName}>.Default.Equals(this._value, other);
                 }}"
             : "";
 
@@ -625,22 +655,22 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
         ) == UnderlyingTypeEqualityGeneration.GenerateOperators
             ? valueType.SpecialType == SpecialType.System_String
                 ? $@"
-    public static bool operator ==({typeName} left, {valueTypeName}? right) => left.Value.Equals(right);
+    public static bool operator ==({typeName} left, {config.UnderlyingTypeName}? right) => left.Value.Equals(right);
 
-    public static bool operator ==({valueTypeName}? left, {typeName} right) => right.Value.Equals(left);
+    public static bool operator ==({config.UnderlyingTypeName}? left, {typeName} right) => right.Value.Equals(left);
 
-    public static bool operator !=({valueTypeName}? left, {typeName} right) => !(left == right);
+    public static bool operator !=({config.UnderlyingTypeName}? left, {typeName} right) => !(left == right);
 
-    public static bool operator !=({typeName} left, {valueTypeName}? right) => !(left == right);
+    public static bool operator !=({typeName} left, {config.UnderlyingTypeName}? right) => !(left == right);
 "
                 : $@"
-    public static bool operator ==({typeName} left, {valueTypeName} right) => left.Value.Equals(right);
+    public static bool operator ==({typeName} left, {config.UnderlyingTypeName} right) => left.Value.Equals(right);
 
-    public static bool operator ==({valueTypeName} left, {typeName} right) => right.Value.Equals(left);
+    public static bool operator ==({config.UnderlyingTypeName} left, {typeName} right) => right.Value.Equals(left);
 
-    public static bool operator !=({valueTypeName} left, {typeName} right) => !(left == right);
+    public static bool operator !=({config.UnderlyingTypeName} left, {typeName} right) => !(left == right);
 
-    public static bool operator !=({typeName} left, {valueTypeName} right) => !(left == right);
+    public static bool operator !=({typeName} left, {config.UnderlyingTypeName} right) => !(left == right);
 "
             : "";
 
@@ -651,28 +681,28 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
                 public {typeName}()
                 {{
-                    _value = {valueTypeName}.Empty;
+                    _value = {config.UnderlyingTypeName}.Empty;
                     _initialized = false;
-                    _isNullOrEmpty = {valueTypeName}.IsNullOrEmpty(_value);
+                    _isNullOrEmpty = {config.UnderlyingTypeName}.IsNullOrEmpty(_value);
                     {validationFieldAssignment}
                 }}
 
                 [System.Diagnostics.DebuggerStepThrough]
                 [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-                private {typeName}({valueTypeName}? value) {{
+                private {typeName}({config.UnderlyingTypeName}? value) {{
                     {inputNormalization}
                     if (value == default) {{
                         _initialized = false;
-                        _value = {valueTypeName}.Empty;
+                        _value = {config.UnderlyingTypeName}.Empty;
                     }} else {{
                         _initialized = true;
                         _value = value;
                     }}
-                    _isNullOrEmpty = {valueTypeName}.IsNullOrEmpty(_value);
+                    _isNullOrEmpty = {config.UnderlyingTypeName}.IsNullOrEmpty(_value);
                     {validationFieldAssignment}
                 }}
 
-                public static {typeName} From({valueTypeName}? value) {{
+                public static {typeName} From({config.UnderlyingTypeName}? value) {{
                     if (value is null) {{
                         throw new System.InvalidOperationException(""Cannot create an instance of {typeName} from null."");
                     }}
@@ -688,7 +718,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     return vo;
                 }}
 
-                public static bool TryFrom({valueTypeName}? value, out {typeName} result) {{
+                public static bool TryFrom({config.UnderlyingTypeName}? value, out {typeName} result) {{
                     if (value is null) {{
                         result = new {typeName}();
                         return false;
@@ -711,7 +741,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
 
                 [System.Diagnostics.DebuggerStepThrough]
                 [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-                private {typeName}({valueTypeName} value) {{
+                private {typeName}({config.UnderlyingTypeName} value) {{
                     {inputNormalization}
                     _initialized = true;
                     _value = value;
@@ -719,7 +749,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     {validationFieldAssignment}
                 }}
 
-                public static {typeName} From({valueTypeName} value) {{
+                public static {typeName} From({config.UnderlyingTypeName} value) {{
                     if (value == default) {{
                         return {emptyValueName};
                     }}
@@ -735,7 +765,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     return vo;
                 }}
 
-                public static bool TryFrom({valueTypeName} value, out {typeName} result) {{
+                public static bool TryFrom({config.UnderlyingTypeName} value, out {typeName} result) {{
                     result = value == default ? {emptyValueName} : new {typeName}(value);
                     {tryFromValidation}
                 }}
@@ -748,7 +778,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     ? $@"
                 public int CompareTo({typeName} other) => this.Value.CompareTo(other.Value);
 
-                public int CompareTo({valueTypeName}? other) => this.Value.CompareTo(other);
+                public int CompareTo({config.UnderlyingTypeName}? other) => this.Value.CompareTo(other);
             
                 public int CompareTo(object? other)
                 {{
@@ -756,7 +786,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         return 1;
                     if (other is {typeName} other1)
                         return this.CompareTo(other1);
-                    if (other is {valueTypeName} v)
+                    if (other is {config.UnderlyingTypeName} v)
                         return this.CompareTo(v);
                     throw new System.ArgumentException(
                         ""Cannot compare to object as it is not of type {typeName}"",
@@ -766,7 +796,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     : $@"
                 public int CompareTo({typeName} other) => this.Value.CompareTo(other.Value);
 
-                public int CompareTo({valueTypeName} other) => this.Value.CompareTo(other);
+                public int CompareTo({config.UnderlyingTypeName} other) => this.Value.CompareTo(other);
             
                 public int CompareTo(object? other)
                 {{
@@ -774,7 +804,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         return 1;
                     if (other is {typeName} other1)
                         return this.CompareTo(other1);
-                    if (other is {valueTypeName} v)
+                    if (other is {config.UnderlyingTypeName} v)
                         return this.CompareTo(v);
                     throw new System.ArgumentException(
                         ""Cannot compare to object as it is not of type {typeName}"",
@@ -790,11 +820,11 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 ? ""
                 : $@"
                 /// <summary>
-                ///     An implicit conversion from <see cref=""{typeName}"" /> to <see cref=""{valueTypeName}"" />.
+                ///     An implicit conversion from <see cref=""{typeName}"" /> to <see cref=""{config.UnderlyingTypeName}"" />.
                 /// </summary>
                 /// <param name=""id"">The value to convert.</param>
-                /// <returns>The {valueTypeName} representation of the value object.</returns>
-                public static {conversionToUnderlyingTypeModifier} operator {valueTypeName}({typeName} id)
+                /// <returns>The {config.UnderlyingTypeName} representation of the value object.</returns>
+                public static {conversionToUnderlyingTypeModifier} operator {config.UnderlyingTypeName}({typeName} id)
                 {{
                     return id.Value;
                 }}";
@@ -806,11 +836,11 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 ? ""
                 : $@"
                 /// <summary>
-                ///     An explicit conversion from <see cref=""{valueTypeName}"" /> to <see cref=""{typeName}"" />.
+                ///     An explicit conversion from <see cref=""{config.UnderlyingTypeName}"" /> to <see cref=""{typeName}"" />.
                 /// </summary>
                 /// <param name=""value"">The value to convert.</param>
                 /// <returns>The <see cref=""{typeName}"" /> instance created from the input value.</returns>
-                public static {conversionFromUnderlyingTypeModifier} operator {typeName}({valueTypeName} value)
+                public static {conversionFromUnderlyingTypeModifier} operator {typeName}({config.UnderlyingTypeName} value)
                 {{
                     return {typeName}.From(value);
                 }}";
@@ -937,7 +967,7 @@ public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _va
             ) == UnderlyingTypeEqualityGeneration.GenerateMethods
         )
         {
-            interfaceDefsBuilder.Append($", IEquatable<{valueTypeName}>");
+            interfaceDefsBuilder.Append($", IEquatable<{config.UnderlyingTypeName}>");
         }
 
         if (config.ParsableGeneration == ParsableGeneration.Generate)
@@ -957,12 +987,12 @@ public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _va
 
         var jsonConverter = JsonConverterTemplate
             .Replace("{{typeName}}", typeName)
-            .Replace("{{valueTypeName}}", valueTypeName)
+            .Replace("{{valueTypeName}}", config.UnderlyingTypeName)
             .Replace("{{emptyValueName}}", emptyValueName);
 
         var typeConverter = TypeConverterTemplate
             .Replace("{{typeName}}", typeName)
-            .Replace("{{valueTypeName}}", valueTypeName)
+            .Replace("{{valueTypeName}}", config.UnderlyingTypeName)
             .Replace("{{emptyValueName}}", emptyValueName);
 
         var preSetValues = target.SymbolInformation
@@ -976,7 +1006,7 @@ public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _va
         var preSetValueCache =
             $@"
 private static class {typeName}PreSetValueCache {{
-    public static readonly Dictionary<{valueTypeName}, {typeName}> {typeName}PreSetValues = new();
+    public static readonly Dictionary<{config.UnderlyingTypeName}, {typeName}> {typeName}PreSetValues = new();
 
     static {typeName}PreSetValueCache()
     {{
@@ -1053,7 +1083,7 @@ private static class {typeName}PreSetValueCache {{
     /// <inheritdoc />
     public static {typeName} Parse(string s, IFormatProvider? provider)
     {{
-        var v = {valueTypeName}.Parse(s, provider);
+        var v = {config.UnderlyingTypeName}.Parse(s, provider);
         return From(v);
     }}
 
@@ -1066,7 +1096,7 @@ private static class {typeName}PreSetValueCache {{
     {{
         try
         {{
-            var v = s == null ? default : {valueTypeName}.Parse(s, provider);
+            var v = s == null ? default : {config.UnderlyingTypeName}.Parse(s, provider);
             return TryFrom(v, out result);
         }}
         catch (ArgumentException)
@@ -1084,7 +1114,7 @@ private static class {typeName}PreSetValueCache {{
     /// <inheritdoc />
     public static {typeName} Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
     {{
-        var v = {valueTypeName}.Parse(s, provider);
+        var v = {config.UnderlyingTypeName}.Parse(s, provider);
         return From(v);
     }}
 
@@ -1093,7 +1123,7 @@ private static class {typeName}PreSetValueCache {{
     {{
         try
         {{
-            var v = {valueTypeName}.Parse(new string(s), provider);
+            var v = {config.UnderlyingTypeName}.Parse(new string(s), provider);
             return TryFrom(v, out result);
         }}
         catch (ArgumentException)
@@ -1112,7 +1142,7 @@ private static class {typeName}PreSetValueCache {{
     public static {typeName} Parse(ReadOnlySpan<byte> utf8Text, IFormatProvider? provider)
     {{
         var s = System.Text.Encoding.UTF8.GetString(utf8Text);
-        var v = {valueTypeName}.Parse(s, provider);
+        var v = {config.UnderlyingTypeName}.Parse(s, provider);
         return From(v);
     }}
 
@@ -1126,7 +1156,7 @@ private static class {typeName}PreSetValueCache {{
         try
         {{
             var s = System.Text.Encoding.UTF8.GetString(utf8Text);
-            var v = {valueTypeName}.Parse(s, provider);
+            var v = {config.UnderlyingTypeName}.Parse(s, provider);
             return TryFrom(v, out result);
         }}
         catch (ArgumentException)
@@ -1154,15 +1184,15 @@ private static class {typeName}PreSetValueCache {{
             [System.Text.Json.Serialization.JsonConverter(typeof({typeName}SystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof({typeName}TypeConverter))]
             public partial record struct {typeName} {interfaceDefs} {{
-                private readonly {valueTypeName} _value;
+                private readonly {config.UnderlyingTypeName} _value;
                 private readonly bool _initialized;
 #pragma warning disable CS0414
                 private readonly bool _isNullOrEmpty;
 #pragma warning restore CS0414
                 private readonly Validation _validation;
-                private static readonly Type UnderlyingType = typeof({valueTypeName});
+                private static readonly Type UnderlyingType = typeof({config.UnderlyingTypeName});
 
-                public {valueTypeName} Value => _value;
+                public {config.UnderlyingTypeName} Value => _value;
 
                 {creation}
 

@@ -45,6 +45,10 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
     ///     Defines if IParsable implementation and related methods are generated. Defaults to
     ///     <see cref="ParsableGeneration.Generate" />.
     /// </param>
+    /// <param name="underlyingTypeCreationMethodGeneration">
+    ///     Defines if an extension method for value object creation is generated for the underlying type.
+    ///     Defaults to <see cref="UnderlyingTypeCreationMethodGeneration.Omit" />.
+    /// </param>
     /// <param name="emptyValueName">
     ///     The name of the static property representing an empty value object, if applicable.
     ///     Defaults to "Empty".
@@ -59,6 +63,8 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
         FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration =
             DefaultFluentValidationExtensionsGeneration,
         ParsableGeneration parsableGeneration = DefaultParsableGeneration,
+        UnderlyingTypeCreationMethodGeneration underlyingTypeCreationMethodGeneration =
+            DefaultUnderlyingTypeCreationMethodGeneration,
         string emptyValueName = DefaultEmptyValueName
     )
         : base(
@@ -70,8 +76,11 @@ public class ValueObjectAttribute<T> : ValueObjectAttribute
             underlyingTypeEqualityGeneration,
             fluentValidationExtensionsGeneration,
             parsableGeneration,
+            underlyingTypeCreationMethodGeneration,
             emptyValueName
-        ) { }
+        )
+    {
+    }
 }
 
 /// <summary>
@@ -84,6 +93,7 @@ public class ValueObjectAttribute : Attribute
     internal const ComparisonGeneration DefaultComparison = ComparisonGeneration.UseUnderlying;
     internal const CastOperator DefaultToUnderlyingTypeCasting = CastOperator.None;
     internal const CastOperator DefaultFromUnderlyingTypeCasting = CastOperator.None;
+
     internal const StringCaseSensitivity DefaultStringCaseSensitivity =
         StringCaseSensitivity.CaseSensitive;
 
@@ -93,8 +103,10 @@ public class ValueObjectAttribute : Attribute
     internal const FluentValidationExtensionsGeneration DefaultFluentValidationExtensionsGeneration =
         FluentValidationExtensionsGeneration.Omit;
 
-    internal const ParsableGeneration DefaultParsableGeneration =
-        ParsableGeneration.Generate;
+    internal const ParsableGeneration DefaultParsableGeneration = ParsableGeneration.Generate;
+
+    internal const UnderlyingTypeCreationMethodGeneration DefaultUnderlyingTypeCreationMethodGeneration =
+        UnderlyingTypeCreationMethodGeneration.Omit;
 
     internal const string DefaultEmptyValueName = "Empty";
 
@@ -133,6 +145,10 @@ public class ValueObjectAttribute : Attribute
     ///     Defines if IParsable implementation and related methods are generated. Defaults to
     ///     <see cref="ParsableGeneration.Generate" />.
     /// </param>
+    /// <param name="underlyingTypeCreationMethodGeneration">
+    ///     Defines if an extension method for value object creation is generated for the underlying type.
+    ///     Defaults to <see cref="UnderlyingTypeCreationMethodGeneration.Omit" />.
+    /// </param>
     /// <param name="emptyValueName">
     ///     The name of the static property representing an empty value object, if applicable.
     ///     Defaults to "Empty".
@@ -148,8 +164,12 @@ public class ValueObjectAttribute : Attribute
         FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration =
             DefaultFluentValidationExtensionsGeneration,
         ParsableGeneration parsableGeneration = DefaultParsableGeneration,
+        UnderlyingTypeCreationMethodGeneration underlyingTypeCreationMethodGeneration =
+            DefaultUnderlyingTypeCreationMethodGeneration,
         string emptyValueName = DefaultEmptyValueName
-    ) { }
+    )
+    {
+    }
 }
 
 /// <summary>
@@ -272,6 +292,22 @@ public enum ParsableGeneration
 
     /// <summary>
     ///     Generate IParsable implementation and related methods.
+    /// </summary>
+    Generate = 1,
+}
+
+/// <summary>
+///     Defines if an extension method for value object creation is generated for the underlying type.
+/// </summary>
+public enum UnderlyingTypeCreationMethodGeneration
+{
+    /// <summary>
+    ///     Do not generate.
+    /// </summary>
+    Omit = 0,
+
+    /// <summary>
+    ///     Generate Create method.
     /// </summary>
     Generate = 1,
 }

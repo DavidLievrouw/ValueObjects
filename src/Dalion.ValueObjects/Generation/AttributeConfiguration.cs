@@ -15,6 +15,7 @@ internal class AttributeConfiguration
         UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration,
         FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration,
         ParsableGeneration parsableGeneration,
+        UnderlyingTypeCreationMethodGeneration underlyingTypeCreationMethodGeneration,
         string emptyValueName
     )
     {
@@ -26,9 +27,12 @@ internal class AttributeConfiguration
         UnderlyingTypeEqualityGeneration = underlyingTypeEqualityGeneration;
         FluentValidationExtensionsGeneration = fluentValidationExtensionsGeneration;
         ParsableGeneration = parsableGeneration;
+        UnderlyingTypeCreationMethodGeneration = underlyingTypeCreationMethodGeneration;
         EmptyValueName = emptyValueName;
+        UnderlyingTypeName = GetUnderlyingTypeName();
     }
 
+    public string UnderlyingTypeName { get; }
     public ITypeSymbol UnderlyingType { get; }
     public ComparisonGeneration Comparison { get; }
     public CastOperator ToUnderlyingTypeCasting { get; }
@@ -37,7 +41,31 @@ internal class AttributeConfiguration
     public UnderlyingTypeEqualityGeneration UnderlyingTypeEqualityGeneration { get; }
     public FluentValidationExtensionsGeneration FluentValidationExtensionsGeneration { get; }
     public ParsableGeneration ParsableGeneration { get; }
+    public UnderlyingTypeCreationMethodGeneration UnderlyingTypeCreationMethodGeneration { get; }
     public string EmptyValueName { get; }
+
+    private string GetUnderlyingTypeName()
+    {
+        return UnderlyingType.SpecialType switch
+        {
+            SpecialType.System_Boolean => "System.Boolean",
+            SpecialType.System_Byte => "System.Byte",
+            SpecialType.System_Char => "System.Char",
+            SpecialType.System_Decimal => "System.Decimal",
+            SpecialType.System_Double => "System.Double",
+            SpecialType.System_Int16 => "System.Int16",
+            SpecialType.System_Int32 => "System.Int32",
+            SpecialType.System_Int64 => "System.Int64",
+            SpecialType.System_SByte => "System.SByte",
+            SpecialType.System_Single => "System.Single",
+            SpecialType.System_String => "System.String",
+            SpecialType.System_UInt16 => "System.UInt16",
+            SpecialType.System_UInt32 => "System.UInt32",
+            SpecialType.System_UInt64 => "System.UInt64",
+            SpecialType.System_DateTime => "System.DateTime",
+            _ => UnderlyingType.ToDisplayString(),
+        };
+    }
 
     public static AttributeConfiguration FromAttributeData(AttributeData attributeData)
     {
@@ -50,11 +78,15 @@ internal class AttributeConfiguration
         var toUnderlyingTypeCasting = ValueObjectAttribute.DefaultToUnderlyingTypeCasting;
         var fromUnderlyingTypeCasting = ValueObjectAttribute.DefaultFromUnderlyingTypeCasting;
         var stringCaseSensitivity = ValueObjectAttribute.DefaultStringCaseSensitivity;
-        var underlyingTypeEqualityGeneration = ValueObjectAttribute.DefaultUnderlyingTypeEqualityGeneration;
-        var fluentValidationExtensionsGeneration = ValueObjectAttribute.DefaultFluentValidationExtensionsGeneration;
+        var underlyingTypeEqualityGeneration =
+            ValueObjectAttribute.DefaultUnderlyingTypeEqualityGeneration;
+        var fluentValidationExtensionsGeneration =
+            ValueObjectAttribute.DefaultFluentValidationExtensionsGeneration;
         var parsableGeneration = ValueObjectAttribute.DefaultParsableGeneration;
+        var underlyingTypeCreationMethodGeneration =
+            ValueObjectAttribute.DefaultUnderlyingTypeCreationMethodGeneration;
         var emptyValueName = ValueObjectAttribute.DefaultEmptyValueName;
-        
+
         var pos = 0;
         if (argumentExpressions.HasValue)
         {
@@ -73,7 +105,8 @@ internal class AttributeConfiguration
                                 Enum.Parse(typeof(ComparisonGeneration), value);
                             break;
                         case "toUnderlyingTypeCasting":
-                            toUnderlyingTypeCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
+                            toUnderlyingTypeCasting = (CastOperator)
+                                Enum.Parse(typeof(CastOperator), value);
                             break;
                         case "fromUnderlyingTypeCasting":
                             fromUnderlyingTypeCasting = (CastOperator)
@@ -88,12 +121,21 @@ internal class AttributeConfiguration
                                 Enum.Parse(typeof(StringCaseSensitivity), value);
                             break;
                         case "fluentValidationExtensionsGeneration":
-                            fluentValidationExtensionsGeneration = (FluentValidationExtensionsGeneration)
-                                Enum.Parse(typeof(FluentValidationExtensionsGeneration), value);
+                            fluentValidationExtensionsGeneration =
+                                (FluentValidationExtensionsGeneration)
+                                    Enum.Parse(typeof(FluentValidationExtensionsGeneration), value);
                             break;
                         case "parsableGeneration":
                             parsableGeneration = (ParsableGeneration)
                                 Enum.Parse(typeof(ParsableGeneration), value);
+                            break;
+                        case "underlyingTypeCreationMethodGeneration":
+                            underlyingTypeCreationMethodGeneration =
+                                (UnderlyingTypeCreationMethodGeneration)
+                                    Enum.Parse(
+                                        typeof(UnderlyingTypeCreationMethodGeneration),
+                                        value
+                                    );
                             break;
                         case "emptyValueName":
                             emptyValueName = value;
@@ -111,7 +153,8 @@ internal class AttributeConfiguration
                                 Enum.Parse(typeof(ComparisonGeneration), value);
                             break;
                         case 1:
-                            toUnderlyingTypeCasting = (CastOperator)Enum.Parse(typeof(CastOperator), value);
+                            toUnderlyingTypeCasting = (CastOperator)
+                                Enum.Parse(typeof(CastOperator), value);
                             break;
                         case 2:
                             fromUnderlyingTypeCasting = (CastOperator)
@@ -126,14 +169,23 @@ internal class AttributeConfiguration
                                 Enum.Parse(typeof(UnderlyingTypeEqualityGeneration), value);
                             break;
                         case 5:
-                            fluentValidationExtensionsGeneration = (FluentValidationExtensionsGeneration)
-                                Enum.Parse(typeof(FluentValidationExtensionsGeneration), value);
+                            fluentValidationExtensionsGeneration =
+                                (FluentValidationExtensionsGeneration)
+                                    Enum.Parse(typeof(FluentValidationExtensionsGeneration), value);
                             break;
                         case 6:
                             parsableGeneration = (ParsableGeneration)
                                 Enum.Parse(typeof(ParsableGeneration), value);
                             break;
                         case 7:
+                            underlyingTypeCreationMethodGeneration =
+                                (UnderlyingTypeCreationMethodGeneration)
+                                    Enum.Parse(
+                                        typeof(UnderlyingTypeCreationMethodGeneration),
+                                        value
+                                    );
+                            break;
+                        case 8:
                             emptyValueName = value;
                             break;
                     }
@@ -152,6 +204,7 @@ internal class AttributeConfiguration
             underlyingTypeEqualityGeneration,
             fluentValidationExtensionsGeneration,
             parsableGeneration,
+            underlyingTypeCreationMethodGeneration,
             emptyValueName
         );
     }

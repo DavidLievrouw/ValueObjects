@@ -44,11 +44,15 @@ namespace Dalion.ValueObjects.Samples
         ///     Defines if IParsable implementation and related methods are generated. Defaults to
         ///     <see cref = "ParsableGeneration.Generate"/>.
         /// </param>
+        /// <param name = "underlyingTypeCreationMethodGeneration">
+        ///     Defines if an extension method for value object creation is generated for the underlying type.
+        ///     Defaults to <see cref = "UnderlyingTypeCreationMethodGeneration.Omit"/>.
+        /// </param>
         /// <param name = "emptyValueName">
         ///     The name of the static property representing an empty value object, if applicable.
         ///     Defaults to "Empty".
         /// </param>
-        public ValueObjectAttribute(ComparisonGeneration comparison = DefaultComparison, CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting, CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting, StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity, UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration, FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration = DefaultFluentValidationExtensionsGeneration, ParsableGeneration parsableGeneration = DefaultParsableGeneration, string emptyValueName = DefaultEmptyValueName) : base(typeof(T), comparison, toUnderlyingTypeCasting, fromUnderlyingTypeCasting, stringCaseSensitivity, underlyingTypeEqualityGeneration, fluentValidationExtensionsGeneration, parsableGeneration, emptyValueName)
+        public ValueObjectAttribute(ComparisonGeneration comparison = DefaultComparison, CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting, CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting, StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity, UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration, FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration = DefaultFluentValidationExtensionsGeneration, ParsableGeneration parsableGeneration = DefaultParsableGeneration, UnderlyingTypeCreationMethodGeneration underlyingTypeCreationMethodGeneration = DefaultUnderlyingTypeCreationMethodGeneration, string emptyValueName = DefaultEmptyValueName) : base(typeof(T), comparison, toUnderlyingTypeCasting, fromUnderlyingTypeCasting, stringCaseSensitivity, underlyingTypeEqualityGeneration, fluentValidationExtensionsGeneration, parsableGeneration, underlyingTypeCreationMethodGeneration, emptyValueName)
         {
         }
     }
@@ -67,6 +71,7 @@ namespace Dalion.ValueObjects.Samples
         internal const UnderlyingTypeEqualityGeneration DefaultUnderlyingTypeEqualityGeneration = UnderlyingTypeEqualityGeneration.Omit;
         internal const FluentValidationExtensionsGeneration DefaultFluentValidationExtensionsGeneration = FluentValidationExtensionsGeneration.Omit;
         internal const ParsableGeneration DefaultParsableGeneration = ParsableGeneration.Generate;
+        internal const UnderlyingTypeCreationMethodGeneration DefaultUnderlyingTypeCreationMethodGeneration = UnderlyingTypeCreationMethodGeneration.Omit;
         internal const string DefaultEmptyValueName = "Empty";
         /// <summary>
         ///     Configures aspects of this individual value object.
@@ -103,11 +108,15 @@ namespace Dalion.ValueObjects.Samples
         ///     Defines if IParsable implementation and related methods are generated. Defaults to
         ///     <see cref = "ParsableGeneration.Generate"/>.
         /// </param>
+        /// <param name = "underlyingTypeCreationMethodGeneration">
+        ///     Defines if an extension method for value object creation is generated for the underlying type.
+        ///     Defaults to <see cref = "UnderlyingTypeCreationMethodGeneration.Omit"/>.
+        /// </param>
         /// <param name = "emptyValueName">
         ///     The name of the static property representing an empty value object, if applicable.
         ///     Defaults to "Empty".
         /// </param>
-        public ValueObjectAttribute(Type? underlyingType = null !, ComparisonGeneration comparison = DefaultComparison, CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting, CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting, StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity, UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration, FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration = DefaultFluentValidationExtensionsGeneration, ParsableGeneration parsableGeneration = DefaultParsableGeneration, string emptyValueName = DefaultEmptyValueName)
+        public ValueObjectAttribute(Type? underlyingType = null !, ComparisonGeneration comparison = DefaultComparison, CastOperator toUnderlyingTypeCasting = DefaultToUnderlyingTypeCasting, CastOperator fromUnderlyingTypeCasting = DefaultFromUnderlyingTypeCasting, StringCaseSensitivity stringCaseSensitivity = DefaultStringCaseSensitivity, UnderlyingTypeEqualityGeneration underlyingTypeEqualityGeneration = DefaultUnderlyingTypeEqualityGeneration, FluentValidationExtensionsGeneration fluentValidationExtensionsGeneration = DefaultFluentValidationExtensionsGeneration, ParsableGeneration parsableGeneration = DefaultParsableGeneration, UnderlyingTypeCreationMethodGeneration underlyingTypeCreationMethodGeneration = DefaultUnderlyingTypeCreationMethodGeneration, string emptyValueName = DefaultEmptyValueName)
         {
         }
     }
@@ -221,6 +230,21 @@ namespace Dalion.ValueObjects.Samples
         Omit = 0,
         /// <summary>
         ///     Generate IParsable implementation and related methods.
+        /// </summary>
+        Generate = 1,
+    }
+
+    /// <summary>
+    ///     Defines if an extension method for value object creation is generated for the underlying type.
+    /// </summary>
+    public enum UnderlyingTypeCreationMethodGeneration
+    {
+        /// <summary>
+        ///     Do not generate.
+        /// </summary>
+        Omit = 0,
+        /// <summary>
+        ///     Generate Create method.
         /// </summary>
         Generate = 1,
     }

@@ -10,7 +10,8 @@ namespace Dalion.ValueObjects.Samples;
     toUnderlyingTypeCasting: CastOperator.Explicit,
     emptyValueName: "Zero",
     underlyingTypeEqualityGeneration: UnderlyingTypeEqualityGeneration.GenerateOperatorsAndMethods,
-    fluentValidationExtensionsGeneration: FluentValidationExtensionsGeneration.GenerateAll
+    fluentValidationExtensionsGeneration: FluentValidationExtensionsGeneration.GenerateAll,
+    underlyingTypeCreationMethodGeneration: UnderlyingTypeCreationMethodGeneration.Generate
 )]
 public readonly partial record struct Celsius
 {

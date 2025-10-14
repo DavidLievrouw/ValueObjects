@@ -1228,6 +1228,57 @@ public partial class CelsiusTests
         }
     }
 
+    public class CreationMethodFromUnderlyingType : CelsiusTests
+    {
+        [Fact]
+        public void CanCreateValid()
+        {
+            var actual = 32.44m.Celsius();
+            
+            var expected = Celsius.From(32.44m);
+            Assert.Equal(expected, actual);
+            Assert.True(actual.IsValid());
+        }
+
+        [Fact]
+        public void CannotCreateInvalid()
+        {
+            Action act = () => (-300m).Celsius(); // lower than absolute zero
+            
+            Assert.Throws<InvalidOperationException>(act);
+        }
+
+        [Fact]
+        public void CanCreatePreSetValue()
+        {
+            var actual = (-273.15m).Celsius();
+            
+            var expected = Celsius.AbsoluteZero;
+            Assert.Equal(expected, actual);
+            Assert.True(actual.IsValid());
+        }
+        
+        [Fact]
+        public void CanCreateZero()
+        {
+            var actual = (0m).Celsius();
+            
+            var expected = Celsius.Zero;
+            Assert.Equal(expected, actual);
+            Assert.True(actual.IsValid());
+        }
+
+        [Fact]
+        public void CanCreateInvalidWhenPreSetValue()
+        {
+            var actual = (-459.67m).Celsius(); // invalid, but pre-set value
+            
+            var expected = Celsius.AbsoluteZeroFahrenheit;
+            Assert.Equal(expected, actual);
+            Assert.False(actual.IsValid());
+        }
+    }
+
     [ValueObject<decimal>(
         fromUnderlyingTypeCasting: CastOperator.Explicit,
         toUnderlyingTypeCasting: CastOperator.Explicit

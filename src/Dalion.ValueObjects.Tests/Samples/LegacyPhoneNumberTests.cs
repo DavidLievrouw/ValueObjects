@@ -582,7 +582,10 @@ public partial class LegacyPhoneNumberTests
 
                 Assert.False(result.IsValid);
                 Assert.Single(result.Errors);
-                Assert.Equal("LegacyPhoneNumber must be initialized.", result.Errors[0].ErrorMessage);
+                Assert.Equal(
+                    "LegacyPhoneNumber must be initialized.",
+                    result.Errors[0].ErrorMessage
+                );
             }
 
             internal class ContainerValidator : AbstractValidator<Container>
@@ -598,6 +601,38 @@ public partial class LegacyPhoneNumberTests
         {
             public required string Id { get; set; }
             public LegacyPhoneNumber Data { get; set; }
+        }
+    }
+
+    public class CreationMethodFromUnderlyingType : LegacyPhoneNumberTests
+    {
+        [Fact]
+        public void CanCreateValid()
+        {
+            var actual = "+44 1.5458.55.44.8".LegacyPhoneNumber();
+
+            var expected = LegacyPhoneNumber.From("+44 1.5458.55.44.8");
+            Assert.Equal(expected, actual);
+            Assert.True(actual.IsValid());
+        }
+
+        [Fact]
+        public void CannotCreateFromNullInput()
+        {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+            Action act = () => ((string)null).LegacyPhoneNumber();
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+
+            Assert.Throws<InvalidOperationException>(act);
+        }
+
+        [Fact]
+        public void CanCreateEmpty()
+        {
+            var actual = string.Empty.LegacyPhoneNumber();
+
+            Assert.Equal(LegacyPhoneNumber.Empty, actual);
+            Assert.True(actual.IsValid());
         }
     }
 
