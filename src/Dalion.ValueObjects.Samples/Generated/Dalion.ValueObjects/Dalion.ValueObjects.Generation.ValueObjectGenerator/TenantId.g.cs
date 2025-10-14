@@ -7,15 +7,15 @@
             [System.Text.Json.Serialization.JsonConverter(typeof(TenantIdSystemTextJsonConverter))]
             [System.ComponentModel.TypeConverter(typeof(TenantIdTypeConverter))]
             public partial record struct TenantId : IEquatable<TenantId>, IFormattable {
-                private readonly global::System.Guid _value;
+                private readonly System.Guid _value;
                 private readonly bool _initialized;
 #pragma warning disable CS0414
                 private readonly bool _isNullOrEmpty;
 #pragma warning restore CS0414
                 private readonly Validation _validation;
-                private static readonly Type UnderlyingType = typeof(global::System.Guid);
+                private static readonly Type UnderlyingType = typeof(System.Guid);
 
-                public global::System.Guid Value => _value;
+                public System.Guid Value => _value;
 
                 
                 [System.Diagnostics.DebuggerStepThrough]
@@ -28,7 +28,9 @@
                     _validation ??= Validation.Ok;
                 }
 
-                private TenantId(global::System.Guid value) {
+                [System.Diagnostics.DebuggerStepThrough]
+                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+                private TenantId(System.Guid value) {
                     
                     _initialized = true;
                     _value = value;
@@ -36,7 +38,7 @@
                     _validation ??= Validation.Ok;
                 }
 
-                public static TenantId From(global::System.Guid value) {
+                public static TenantId From(System.Guid value) {
                     if (value == default) {
                         return Empty;
                     }
@@ -52,7 +54,7 @@
                     return vo;
                 }
 
-                public static bool TryFrom(global::System.Guid value, out TenantId result) {
+                public static bool TryFrom(System.Guid value, out TenantId result) {
                     result = value == default ? Empty : new TenantId(value);
                     return result.IsInitialized();
                 }
@@ -78,7 +80,7 @@
                         return false;
                     }
             
-                    return EqualityComparer<global::System.Guid>.Default.Equals(this._value, other.Value.Value);
+                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other.Value.Value);
                 }
 
                 /// <inheritdoc />
@@ -94,7 +96,7 @@
                         return false;
                     }
             
-                    return EqualityComparer<global::System.Guid>.Default.Equals(this._value, other.Value);
+                    return EqualityComparer<System.Guid>.Default.Equals(this._value, other.Value);
                 }
             
                 public bool Equals(TenantId? other, IEqualityComparer<TenantId> comparer)
@@ -106,7 +108,7 @@
                 /// <inheritdoc />
                 public override int GetHashCode() {
                     if (!IsInitialized()) return 0;
-                    return EqualityComparer<global::System.Guid>.Default.GetHashCode(this._value);
+                    return EqualityComparer<System.Guid>.Default.GetHashCode(this._value);
                 }
 
                 
@@ -119,11 +121,11 @@
 
                 
                 /// <summary>
-                ///     An explicit conversion from <see cref="global::System.Guid" /> to <see cref="TenantId" />.
+                ///     An explicit conversion from <see cref="System.Guid" /> to <see cref="TenantId" />.
                 /// </summary>
                 /// <param name="value">The value to convert.</param>
                 /// <returns>The <see cref="TenantId" /> instance created from the input value.</returns>
-                public static explicit operator TenantId(global::System.Guid value)
+                public static explicit operator TenantId(System.Guid value)
                 {
                     return TenantId.From(value);
                 }
@@ -326,7 +328,7 @@ private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.J
         }
     
         try {
-            var typedUnderlyingValue = (global::System.Guid)underlyingValue!;
+            var typedUnderlyingValue = (System.Guid)underlyingValue!;
             if (typedUnderlyingValue.Equals(TenantId.Empty.Value)) {
                 return TenantId.Empty;
             }
@@ -404,7 +406,7 @@ private class TenantIdSystemTextJsonConverter : System.Text.Json.Serialization.J
                 } else if (underlyingType == typeof(Uri)) {
                     writer.WriteStringValue(((Uri)underlyingValue).ToString());
                 } else if (underlyingType == typeof(DateOnly)) {
-                    writer.WriteStringValue(((DateOnly)underlyingValue).ToString());
+                    writer.WriteStringValue(((DateOnly)underlyingValue).ToString("yyyy-MM-dd"));
                 } else {
                     throw new System.Text.Json.JsonException($"Unsupported underlying type for TenantId.");
                 }
@@ -430,23 +432,23 @@ private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
 
         var underlyingValue = GetUnderlyingValue(value);
 
-        return underlyingValue == default ? Empty : From((global::System.Guid)underlyingValue);
+        return underlyingValue == default ? Empty : From((System.Guid)underlyingValue);
     }
 
     private object? GetUnderlyingValue(object? value) {{
         if (value == null) {{
-            return default(global::System.Guid);
+            return default(System.Guid);
         }}
 
-        if (value is global::System.Guid v) {
+        if (value is System.Guid v) {
             return v;
         }
         
-        if (Type.GetTypeCode(typeof(global::System.Guid)) == TypeCode.Object) {
-            throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'global::System.Guid'.");
+        if (Type.GetTypeCode(typeof(System.Guid)) == TypeCode.Object) {
+            throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'System.Guid'.");
         }
         
-        return Convert.ChangeType(value, typeof(global::System.Guid));
+        return Convert.ChangeType(value, typeof(System.Guid));
     }}
     
     public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
@@ -472,7 +474,7 @@ private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
 
                 
 private static class TenantIdPreSetValueCache {
-    public static readonly Dictionary<global::System.Guid, TenantId> TenantIdPreSetValues = new();
+    public static readonly Dictionary<System.Guid, TenantId> TenantIdPreSetValues = new();
 
     static TenantIdPreSetValueCache()
     {

@@ -29,6 +29,7 @@
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
+                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
                 private ResourceGroupName(System.String? value) {
                     value = NormalizeInput(value);
                     if (value == default) {
@@ -517,7 +518,7 @@ private class ResourceGroupNameSystemTextJsonConverter : System.Text.Json.Serial
                 } else if (underlyingType == typeof(Uri)) {
                     writer.WriteStringValue(((Uri)underlyingValue).ToString());
                 } else if (underlyingType == typeof(DateOnly)) {
-                    writer.WriteStringValue(((DateOnly)underlyingValue).ToString());
+                    writer.WriteStringValue(((DateOnly)underlyingValue).ToString("yyyy-MM-dd"));
                 } else {
                     throw new System.Text.Json.JsonException($"Unsupported underlying type for ResourceGroupName.");
                 }

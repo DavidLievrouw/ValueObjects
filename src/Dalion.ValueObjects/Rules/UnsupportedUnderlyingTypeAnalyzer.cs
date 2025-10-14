@@ -123,7 +123,7 @@ public class UnsupportedUnderlyingTypeAnalyzer : DiagnosticAnalyzer
         if (
             typeSymbol is INamedTypeSymbol namedTypeSymbol
             && namedTypeSymbol.ContainingNamespace?.ToDisplayString() == "System"
-            && namedTypeSymbol.Name is "Guid" or "TimeSpan" or "TimeOnly" or "DateTimeOffset"
+            && namedTypeSymbol.Name is "Guid" or "TimeSpan" or "TimeOnly" or "DateTimeOffset" or "DateOnly"
         )
         {
             return true;

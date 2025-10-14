@@ -3,80 +3,70 @@
 
         namespace Dalion.ValueObjects.Samples {
             
-            [System.Diagnostics.DebuggerDisplay("Password {Value}")]
-            [System.Text.Json.Serialization.JsonConverter(typeof(PasswordSystemTextJsonConverter))]
-            [System.ComponentModel.TypeConverter(typeof(PasswordTypeConverter))]
-            public partial record struct Password : IEquatable<Password> {
-                private readonly System.String _value;
+            [System.Diagnostics.DebuggerDisplay("Birthday {Value}")]
+            [System.Text.Json.Serialization.JsonConverter(typeof(BirthdaySystemTextJsonConverter))]
+            [System.ComponentModel.TypeConverter(typeof(BirthdayTypeConverter))]
+            public partial record struct Birthday : IEquatable<Birthday>, IFormattable, IEquatable<System.DateOnly>, ISpanParsable<Birthday>, IUtf8SpanParsable<Birthday>, IComparable<Birthday>, IComparable {
+                private readonly System.DateOnly _value;
                 private readonly bool _initialized;
 #pragma warning disable CS0414
                 private readonly bool _isNullOrEmpty;
 #pragma warning restore CS0414
                 private readonly Validation _validation;
-                private static readonly Type UnderlyingType = typeof(System.String);
+                private static readonly Type UnderlyingType = typeof(System.DateOnly);
 
-                public System.String Value => _value;
+                public System.DateOnly Value => _value;
 
                 
                 [System.Diagnostics.DebuggerStepThrough]
                 [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-                public Password()
+                public Birthday()
                 {
-                    _value = System.String.Empty;
+                    _value = default;
                     _initialized = false;
-                    _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
+                    _isNullOrEmpty = false;
                     _validation ??= Validate(_value);
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
                 [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-                private Password(System.String? value) {
+                private Birthday(System.DateOnly value) {
                     
-                    if (value == default) {
-                        _initialized = false;
-                        _value = System.String.Empty;
-                    } else {
-                        _initialized = true;
-                        _value = value;
-                    }
-                    _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
+                    _initialized = true;
+                    _value = value;
+                    _isNullOrEmpty = false;
                     _validation ??= Validate(_value);
                 }
 
-                public static Password From(System.String? value) {
-                    if (value is null) {
-                        throw new System.InvalidOperationException("Cannot create an instance of Password from null.");
+                public static Birthday From(System.DateOnly value) {
+                    if (value == default) {
+                        return None;
                     }
 
                     
 
-                    var vo = new Password(value);
+                    var vo = new Birthday(value);
 
-                    if (!vo.IsValid() && value is not null && !PasswordPreSetValueCache.PasswordPreSetValues.TryGetValue(value, out _)) {
+                    if (!vo.IsValid() && !BirthdayPreSetValueCache.BirthdayPreSetValues.TryGetValue(value, out _)) {
                         throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
                     }
 
                     return vo;
                 }
 
-                public static bool TryFrom(System.String? value, out Password result) {
-                    if (value is null) {
-                        result = new Password();
-                        return false;
-                    }
-
-                    result = string.IsNullOrEmpty(value) ? Empty : new Password(value);
-                    return result.IsInitialized() && (Validate(result._value).IsSuccess || PasswordPreSetValueCache.PasswordPreSetValues.TryGetValue(value, out _));
+                public static bool TryFrom(System.DateOnly value, out Birthday result) {
+                    result = value == default ? None : new Birthday(value);
+                    return result.IsInitialized() && (Validate(result._value).IsSuccess || BirthdayPreSetValueCache.BirthdayPreSetValues.TryGetValue(value, out _));
                 }
 
 
-                public static Password Empty { get; } = new Password(System.String.Empty);
+                public static Birthday None { get; } = new Birthday(default);
 
                 public bool IsInitialized() => _initialized;
 
                 
                 /// <inheritdoc />
-                public bool Equals(Password? other)
+                public bool Equals(Birthday? other)
                 {
                     if (other is null) return false;
 
@@ -90,13 +80,11 @@
                         return false;
                     }
             
-                    return other.Value._isNullOrEmpty
-                        ? this._isNullOrEmpty
-                        : System.String.Equals(this._value, other.Value.Value, System.StringComparison.Ordinal);
+                    return EqualityComparer<System.DateOnly>.Default.Equals(this._value, other.Value.Value);
                 }
 
                 /// <inheritdoc />
-                public bool Equals(Password other)
+                public bool Equals(Birthday other)
                 {
                     if (!other.IsInitialized())
                     {
@@ -108,12 +96,10 @@
                         return false;
                     }
             
-                    return other._isNullOrEmpty
-                        ? this._isNullOrEmpty
-                        : System.String.Equals(this._value, other.Value, System.StringComparison.Ordinal);
+                    return EqualityComparer<System.DateOnly>.Default.Equals(this._value, other.Value);
                 }
             
-                public bool Equals(Password? other, IEqualityComparer<Password> comparer)
+                public bool Equals(Birthday? other, IEqualityComparer<Birthday> comparer)
                 {
                     if (other is null) return false;
                     return comparer.Equals(this, other.Value);
@@ -122,41 +108,86 @@
                 /// <inheritdoc />
                 public override int GetHashCode() {
                     if (!IsInitialized()) return 0;
-                    return StringComparer.Ordinal.GetHashCode(this._value);
+                    return EqualityComparer<System.DateOnly>.Default.GetHashCode(this._value);
                 }
 
                 
+                /// <inheritdoc />
+                public bool Equals(System.DateOnly other)
+                {
+                    return EqualityComparer<System.DateOnly>.Default.Equals(this._value, other);
+                }
 
                 
+    public static bool operator ==(Birthday left, System.DateOnly right) => left.Value.Equals(right);
+
+    public static bool operator ==(System.DateOnly left, Birthday right) => right.Value.Equals(left);
+
+    public static bool operator !=(System.DateOnly left, Birthday right) => !(left == right);
+
+    public static bool operator !=(Birthday left, System.DateOnly right) => !(left == right);
+
 
                 
+                public int CompareTo(Birthday other) => this.Value.CompareTo(other.Value);
+
+                public int CompareTo(System.DateOnly other) => this.Value.CompareTo(other);
+            
+                public int CompareTo(object? other)
+                {
+                    if (other == null)
+                        return 1;
+                    if (other is Birthday other1)
+                        return this.CompareTo(other1);
+                    if (other is System.DateOnly v)
+                        return this.CompareTo(v);
+                    throw new System.ArgumentException(
+                        "Cannot compare to object as it is not of type Birthday",
+                        nameof(other)
+                    );
+                }
+
 
                 
                 /// <summary>
-                ///     An implicit conversion from <see cref="Password" /> to <see cref="System.String" />.
+                ///     An implicit conversion from <see cref="Birthday" /> to <see cref="System.DateOnly" />.
                 /// </summary>
                 /// <param name="id">The value to convert.</param>
-                /// <returns>The System.String representation of the value object.</returns>
-                public static explicit operator System.String(Password id)
+                /// <returns>The System.DateOnly representation of the value object.</returns>
+                public static explicit operator System.DateOnly(Birthday id)
                 {
                     return id.Value;
                 }
 
                 
+                /// <summary>
+                ///     An explicit conversion from <see cref="System.DateOnly" /> to <see cref="Birthday" />.
+                /// </summary>
+                /// <param name="value">The value to convert.</param>
+                /// <returns>The <see cref="Birthday" /> instance created from the input value.</returns>
+                public static explicit operator Birthday(System.DateOnly value)
+                {
+                    return Birthday.From(value);
+                }
 
                 
                 /// <inheritdoc />
                 public override string ToString()
-                {{
-                    return Value ?? "";
-                }}
+                {
+                    return Value.ToString(format: null, provider: System.Globalization.CultureInfo.InvariantCulture);
+                }
 
                 /// <inheritdoc cref="M:System.String.ToString(System.IFormatProvider)" />
                 public string ToString(IFormatProvider? provider)
-                {{
-                    return Value.ToString(provider: provider) ?? "";
-                }}
+                {
+                    return Value.ToString(format: null, provider: provider) ?? "";
+                }
 
+                /// <inheritdoc />
+                public string ToString(string? format, IFormatProvider? formatProvider)
+                {{
+                    return Value.ToString(format, formatProvider) ?? "";
+                }}
 
                 
 public bool IsValid() => _validation.IsSuccess;
@@ -214,37 +245,127 @@ private class ValueObjectValidationException : Exception
 }
 
                 
+    /// <inheritdoc />
+    public static Birthday Parse(string s, IFormatProvider? provider)
+    {
+        var v = System.DateOnly.Parse(s, provider);
+        return From(v);
+    }
+
+    /// <inheritdoc />
+    public static bool TryParse(
+        string? s,
+        IFormatProvider? provider,
+        out Birthday result
+    )
+    {
+        try
+        {
+            var v = s == null ? default : System.DateOnly.Parse(s, provider);
+            return TryFrom(v, out result);
+        }
+        catch (ArgumentException)
+        {
+            result = default;
+            return false;
+        }
+        catch (FormatException)
+        {
+            result = default;
+            return false;
+        }
+    }
+
+    /// <inheritdoc />
+    public static Birthday Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
+    {
+        var v = System.DateOnly.Parse(s, provider);
+        return From(v);
+    }
+
+    /// <inheritdoc />
+    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out Birthday result)
+    {
+        try
+        {
+            var v = System.DateOnly.Parse(new string(s), provider);
+            return TryFrom(v, out result);
+        }
+        catch (ArgumentException)
+        {
+            result = default;
+            return false;
+        }
+        catch (FormatException)
+        {
+            result = default;
+            return false;
+        }
+    }
+
+    /// <inheritdoc />
+    public static Birthday Parse(ReadOnlySpan<byte> utf8Text, IFormatProvider? provider)
+    {
+        var s = System.Text.Encoding.UTF8.GetString(utf8Text);
+        var v = System.DateOnly.Parse(s, provider);
+        return From(v);
+    }
+
+    /// <inheritdoc />
+    public static bool TryParse(
+        ReadOnlySpan<byte> utf8Text,
+        IFormatProvider? provider,
+        out Birthday result
+    )
+    {
+        try
+        {
+            var s = System.Text.Encoding.UTF8.GetString(utf8Text);
+            var v = System.DateOnly.Parse(s, provider);
+            return TryFrom(v, out result);
+        }
+        catch (ArgumentException)
+        {
+            result = default;
+            return false;
+        }
+        catch (FormatException)
+        {
+            result = default;
+            return false;
+        }
+    }
 
                 
-private class PasswordSystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<Password>
+private class BirthdaySystemTextJsonConverter : System.Text.Json.Serialization.JsonConverter<Birthday>
 {
-    public override Password Read(
+    public override Birthday Read(
         ref System.Text.Json.Utf8JsonReader reader,
         Type typeToConvert,
         System.Text.Json.JsonSerializerOptions options
     )
     {
         if (reader.TokenType == System.Text.Json.JsonTokenType.Null) {
-            return new Password();
+            return new Birthday();
         }
 
-        var underlyingType = Password.UnderlyingType;
+        var underlyingType = Birthday.UnderlyingType;
         object? underlyingValue;
     
         switch (Type.GetTypeCode(underlyingType)) {
             case TypeCode.Boolean:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.True && reader.TokenType != System.Text.Json.JsonTokenType.False)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                 underlyingValue = reader.GetBoolean();
                 break;
             case TypeCode.Byte:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                 underlyingValue = reader.GetByte();
                 break;
             case TypeCode.Char:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                 var charStr = reader.GetString();
                 if (string.IsNullOrEmpty(charStr) || charStr.Length != 1)
                     throw new System.Text.Json.JsonException($"Cannot convert '{charStr}' to char.");
@@ -252,114 +373,114 @@ private class PasswordSystemTextJsonConverter : System.Text.Json.Serialization.J
                 break;
             case TypeCode.Decimal:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                 underlyingValue = reader.GetDecimal();
                 break;
             case TypeCode.Double:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                 underlyingValue = reader.GetDouble();
                 break;
             case TypeCode.Single:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                 underlyingValue = reader.GetSingle();
                 break;
             case TypeCode.Int16:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                 underlyingValue = reader.GetInt16();
                 break;
             case TypeCode.Int32:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                 underlyingValue = reader.GetInt32();
                 break;
             case TypeCode.Int64:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                 underlyingValue = reader.GetInt64();
                 break;
             case TypeCode.String:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                 underlyingValue = reader.GetString();
                 break;
             case TypeCode.DateTime:
                 if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                    throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                 underlyingValue = reader.GetDateTime();
                 break;
             default:
                 if (underlyingType == typeof(Guid)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                     var guidStr = reader.GetString();
                     if (!Guid.TryParse(guidStr, out var guidValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{guidStr}' to Guid.");
                     underlyingValue = guidValue;
                 } else if (underlyingType == typeof(DateTimeOffset)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                     underlyingValue = reader.GetDateTimeOffset();
                 } else if (underlyingType == typeof(TimeSpan)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                     var tsStr = reader.GetString();
                     if (!TimeSpan.TryParse(tsStr, out var tsValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{tsStr}' to TimeSpan.");
                     underlyingValue = tsValue;
                 } else if (underlyingType == typeof(TimeOnly)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                     var timeStr = reader.GetString();
                     if (!TimeOnly.TryParse(timeStr, out var timeValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{timeStr}' to TimeOnly.");
                     underlyingValue = timeValue;
                 } else if (underlyingType == typeof(Uri)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                     var uriStr = reader.GetString();
                     if (!Uri.TryCreate(uriStr, UriKind.RelativeOrAbsolute, out var uriValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{uriStr}' to Uri.");
                     underlyingValue = uriValue;
                 } else if (underlyingType == typeof(DateOnly)) {
                     if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Password.");
+                        throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
                     var dateStr = reader.GetString();
                     if (!DateOnly.TryParse(dateStr, out var dateValue))
                         throw new System.Text.Json.JsonException($"Cannot convert '{dateStr}' to DateOnly.");
                     underlyingValue = dateValue;
                 } else {
-                    throw new System.Text.Json.JsonException($"Unsupported underlying type for Password.");
+                    throw new System.Text.Json.JsonException($"Unsupported underlying type for Birthday.");
                 }
                 break;
         }
     
         try {
-            var typedUnderlyingValue = (System.String)underlyingValue!;
-            if (typedUnderlyingValue.Equals(Password.Empty.Value)) {
-                return Password.Empty;
+            var typedUnderlyingValue = (System.DateOnly)underlyingValue!;
+            if (typedUnderlyingValue.Equals(Birthday.None.Value)) {
+                return Birthday.None;
             }
-            if (Password.TryFrom(typedUnderlyingValue, out var result)) {
+            if (Birthday.TryFrom(typedUnderlyingValue, out var result)) {
                 return result;
             }
-            if (PasswordPreSetValueCache.PasswordPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
+            if (BirthdayPreSetValueCache.BirthdayPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
                 return constant;
             }
-            throw new System.Text.Json.JsonException($"No matching Password pre-set value found for value '{typedUnderlyingValue}'.");
+            throw new System.Text.Json.JsonException($"No matching Birthday pre-set value found for value '{typedUnderlyingValue}'.");
         } catch (System.Exception e) {
-            throw new System.Text.Json.JsonException("Could not create an initialized instance of Password.", e);
+            throw new System.Text.Json.JsonException("Could not create an initialized instance of Birthday.", e);
         }
     }
     
     public override void Write(
         System.Text.Json.Utf8JsonWriter writer,
-        Password value,
+        Birthday value,
         System.Text.Json.JsonSerializerOptions options
     )
     {
-        var underlyingType = Password.UnderlyingType;
+        var underlyingType = Birthday.UnderlyingType;
         object? underlyingValue = value.IsInitialized()
             ? value.Value
             : null;
@@ -417,7 +538,7 @@ private class PasswordSystemTextJsonConverter : System.Text.Json.Serialization.J
                 } else if (underlyingType == typeof(DateOnly)) {
                     writer.WriteStringValue(((DateOnly)underlyingValue).ToString("yyyy-MM-dd"));
                 } else {
-                    throw new System.Text.Json.JsonException($"Unsupported underlying type for Password.");
+                    throw new System.Text.Json.JsonException($"Unsupported underlying type for Birthday.");
                 }
                 break;
         }
@@ -425,7 +546,7 @@ private class PasswordSystemTextJsonConverter : System.Text.Json.Serialization.J
 }
 
                 
-private class PasswordTypeConverter : System.ComponentModel.TypeConverter
+private class BirthdayTypeConverter : System.ComponentModel.TypeConverter
 {
     public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
     {
@@ -441,23 +562,23 @@ private class PasswordTypeConverter : System.ComponentModel.TypeConverter
 
         var underlyingValue = GetUnderlyingValue(value);
 
-        return underlyingValue == default ? Empty : From((System.String)underlyingValue);
+        return underlyingValue == default ? None : From((System.DateOnly)underlyingValue);
     }
 
     private object? GetUnderlyingValue(object? value) {{
         if (value == null) {{
-            return default(System.String);
+            return default(System.DateOnly);
         }}
 
-        if (value is System.String v) {
+        if (value is System.DateOnly v) {
             return v;
         }
         
-        if (Type.GetTypeCode(typeof(System.String)) == TypeCode.Object) {
-            throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'System.String'.");
+        if (Type.GetTypeCode(typeof(System.DateOnly)) == TypeCode.Object) {
+            throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'System.DateOnly'.");
         }
         
-        return Convert.ChangeType(value, typeof(System.String));
+        return Convert.ChangeType(value, typeof(System.DateOnly));
     }}
     
     public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
@@ -472,7 +593,7 @@ private class PasswordTypeConverter : System.ComponentModel.TypeConverter
             throw new NotSupportedException($"Cannot convert to type '{destinationType}'.");
         }
 
-        if (value is Password vo)
+        if (value is Birthday vo)
         {
             return vo.Value;
         }
@@ -482,13 +603,15 @@ private class PasswordTypeConverter : System.ComponentModel.TypeConverter
 }
 
                 
-private static class PasswordPreSetValueCache {
-    public static readonly Dictionary<System.String, Password> PasswordPreSetValues = new();
+private static class BirthdayPreSetValueCache {
+    public static readonly Dictionary<System.DateOnly, Birthday> BirthdayPreSetValues = new();
 
-    static PasswordPreSetValueCache()
+    static BirthdayPreSetValueCache()
     {
-        PasswordPreSetValues[Password.Empty.Value] = Password.Empty;
-
+        BirthdayPreSetValues[Birthday.None.Value] = Birthday.None;
+        BirthdayPreSetValues[Birthday.Patrick.Value] = Birthday.Patrick;
+        BirthdayPreSetValues[Birthday.Sandra.Value] = Birthday.Sandra;
+        BirthdayPreSetValues[Birthday.InvalidFuture.Value] = Birthday.InvalidFuture;
     }
 }
             }

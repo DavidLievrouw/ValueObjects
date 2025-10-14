@@ -28,6 +28,8 @@
                     _validation ??= Validate(_value);
                 }
 
+                [System.Diagnostics.DebuggerStepThrough]
+                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
                 private PlayerLevel(System.Int32 value) {
                     
                     _initialized = true;
@@ -395,7 +397,7 @@ private class PlayerLevelSystemTextJsonConverter : System.Text.Json.Serializatio
                 } else if (underlyingType == typeof(Uri)) {
                     writer.WriteStringValue(((Uri)underlyingValue).ToString());
                 } else if (underlyingType == typeof(DateOnly)) {
-                    writer.WriteStringValue(((DateOnly)underlyingValue).ToString());
+                    writer.WriteStringValue(((DateOnly)underlyingValue).ToString("yyyy-MM-dd"));
                 } else {
                     throw new System.Text.Json.JsonException($"Unsupported underlying type for PlayerLevel.");
                 }

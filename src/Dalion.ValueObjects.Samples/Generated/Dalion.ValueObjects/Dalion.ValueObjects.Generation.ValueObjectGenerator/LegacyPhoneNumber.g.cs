@@ -29,6 +29,7 @@
                 }
 
                 [System.Diagnostics.DebuggerStepThrough]
+                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
                 private LegacyPhoneNumber(System.String? value) {
                     
                     if (value == default) {
@@ -423,7 +424,7 @@ private class LegacyPhoneNumberSystemTextJsonConverter : System.Text.Json.Serial
                 } else if (underlyingType == typeof(Uri)) {
                     writer.WriteStringValue(((Uri)underlyingValue).ToString());
                 } else if (underlyingType == typeof(DateOnly)) {
-                    writer.WriteStringValue(((DateOnly)underlyingValue).ToString());
+                    writer.WriteStringValue(((DateOnly)underlyingValue).ToString("yyyy-MM-dd"));
                 } else {
                     throw new System.Text.Json.JsonException($"Unsupported underlying type for LegacyPhoneNumber.");
                 }

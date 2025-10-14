@@ -274,7 +274,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 } else if (underlyingType == typeof(Uri)) {
                     writer.WriteStringValue(((Uri)underlyingValue).ToString());
                 } else if (underlyingType == typeof(DateOnly)) {
-                    writer.WriteStringValue(((DateOnly)underlyingValue).ToString());
+                    writer.WriteStringValue(((DateOnly)underlyingValue).ToString(""yyyy-MM-dd""));
                 } else {
                     throw new System.Text.Json.JsonException($""Unsupported underlying type for {{typeName}}."");
                 }
@@ -439,7 +439,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
             SpecialType.System_UInt32 => "System.UInt32",
             SpecialType.System_UInt64 => "System.UInt64",
             SpecialType.System_DateTime => "System.DateTime",
-            _ => valueType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            _ => valueType.ToDisplayString(),
         };
 
         var validateMethod = target
@@ -658,6 +658,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 }}
 
                 [System.Diagnostics.DebuggerStepThrough]
+                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
                 private {typeName}({valueTypeName}? value) {{
                     {inputNormalization}
                     if (value == default) {{
@@ -708,6 +709,8 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     {validationFieldAssignment}
                 }}
 
+                [System.Diagnostics.DebuggerStepThrough]
+                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
                 private {typeName}({valueTypeName} value) {{
                     {inputNormalization}
                     _initialized = true;

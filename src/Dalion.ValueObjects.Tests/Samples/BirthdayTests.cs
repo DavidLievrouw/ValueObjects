@@ -8,94 +8,89 @@ using Xunit;
 
 namespace Dalion.ValueObjects.Samples;
 
-public partial class CelsiusTests
+public partial class BirthdayTests
 {
-    public class Construction : CelsiusTests
+    public class Construction : BirthdayTests
     {
         // Does not compile, as intended, when the analyzer works correctly.
         /*[Fact]
         public void NotAllowedToNewUp()
         {
-            var actual = new Celsius();
+            var actual = new Birthday();
             Assert.Fail("Should not be allowed to new up, but got: " + actual);
         }*/
     }
 
-    public class From : CelsiusTests
+    public class From : BirthdayTests
     {
         [Fact]
-        public void From_CreatesCelsiusWithValue()
+        public void From_CreatesBirthdayWithValue()
         {
-            var backingValue = 24.2M;
+            var backingValue = new DateOnly(2020, 3, 12);
 
-            var actual = Celsius.From(backingValue);
+            var actual = Birthday.From(backingValue);
 
             Assert.Equal(backingValue, actual.Value);
         }
 
         [Fact]
-        public void CanCreateZero()
+        public void CanCreateNone()
         {
-            var backingValue = 0m;
+            var backingValue = DateOnly.MinValue;
 
-            var actual = Celsius.From(backingValue);
+            var actual = Birthday.From(backingValue);
 
             Assert.Equal(backingValue, actual.Value);
 
-            var zero = Celsius.Zero;
-            Assert.True(actual.Equals(zero));
-            Assert.True(actual == zero);
-            Assert.False(actual != zero);
-            Assert.Equal(actual.GetHashCode(), zero.GetHashCode());
+            var none = Birthday.None;
+            Assert.True(actual.Equals(none));
+            Assert.True(actual == none);
+            Assert.False(actual != none);
+            Assert.Equal(actual.GetHashCode(), none.GetHashCode());
 
             Assert.True(actual.IsInitialized());
         }
 
-        [Theory]
-        [InlineData(-459.67)]
-        public void CanCreatePreSetInstance(double preSet)
+        [Fact]
+        public void CanCreatePreSetInstance()
         {
-            var dec = (decimal)preSet;
-            var actual = Celsius.From(dec);
-            
-            Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+            var actual = Birthday.From(new DateOnly(1976, 9, 13));
+
+            Assert.Equal(Birthday.Patrick, actual);
             Assert.True(actual.IsInitialized());
-            Assert.False(actual.IsValid());
+            Assert.True(actual.IsValid());
         }
 
-        [Theory]
-        [InlineData(-273.16)] // lower than absolute zero
-        [InlineData(-300)] // lower than absolute zero
-        public void CannotCreateInvalidInstance(double invalid)
+        [Fact]
+        public void CannotCreateInvalidInstance()
         {
-            var dec = (decimal)invalid;
-            Action act = () => Celsius.From(dec);
+            Action act = () => Birthday.From(new DateOnly(4000, 1, 1));
 
             Assert.Throws<InvalidOperationException>(act);
         }
     }
 
-    public class TryFrom : CelsiusTests
+    public class TryFrom : BirthdayTests
     {
         [Fact]
-        public void TryFrom_CreatesCelsiusWithValue()
+        public void TryFrom_CreatesBirthdayWithValue()
         {
-            var backingValue = 24.2m;
+            var backingValue = new DateOnly(2020, 3, 12);
 
-            var success = Celsius.TryFrom(backingValue, out var actual);
+            var success = Birthday.TryFrom(backingValue, out var actual);
 
             Assert.True(success);
             Assert.Equal(backingValue, actual.Value);
         }
 
         [Fact]
-        public void CanCreateZero()
+        public void CanCreateNone()
         {
-            var success = Celsius.TryFrom(0m, out var actual);
+            var success = Birthday.TryFrom(DateOnly.MinValue, out var actual);
 
             Assert.True(success);
 
-            var zero = Celsius.Zero;
+            var zero = Birthday.None;
             Assert.True(actual.Equals(zero));
             Assert.True(actual == zero);
             Assert.False(actual != zero);
@@ -104,60 +99,55 @@ public partial class CelsiusTests
             Assert.True(actual.IsInitialized());
         }
 
-        [Theory]
-        [InlineData(-459.67)]
-        public void CanCreatePreSetInstance(double preSet)
+        [Fact]
+        public void CanCreatePreSetInstance()
         {
-            var dec = (decimal)preSet;
-            var success = Celsius.TryFrom(dec, out var actual);
-            
+            var success = Birthday.TryFrom(new DateOnly(1976, 9, 13), out var actual);
+
             Assert.True(success);
-            Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+            Assert.Equal(Birthday.Patrick, actual);
             Assert.True(actual.IsInitialized());
-            Assert.False(actual.IsValid());
+            Assert.True(actual.IsValid());
         }
 
-        [Theory]
-        [InlineData(-273.16)] // lower than absolute zero
-        [InlineData(-300)] // lower than absolute zero
-        public void CannotCreateInvalidInstance(double invalid)
+        [Fact]
+        public void CannotCreateInvalidInstance()
         {
-            var dec = (decimal)invalid;
-            var success = Celsius.TryFrom(dec, out _);
+            var success = Birthday.TryFrom(new DateOnly(4000, 1, 1), out _);
 
             Assert.False(success);
         }
     }
 
-    public class Value : CelsiusTests
+    public class Value : BirthdayTests
     {
         [Fact]
         public void ReturnsUnderlyingValue()
         {
-            var expected = 24.2m;
+            var expected = new DateOnly(2020, 3, 12);
 
-            var actual = Celsius.From(expected);
+            var actual = Birthday.From(expected);
 
             Assert.Equal(expected, actual.Value);
         }
 
         [Fact]
-        public void EmptyReturnsExpectedUnderlyingValue()
+        public void NoneReturnsExpectedUnderlyingValue()
         {
-            var actual = Celsius.Zero;
+            var actual = Birthday.None;
 
-            Assert.Equal(0m, actual.Value);
+            Assert.Equal(DateOnly.MinValue, actual.Value);
         }
     }
 
-    public class Comparison : CelsiusTests
+    public class Comparison : BirthdayTests
     {
         [Fact]
         public void CompareTo_WorksAsExpected()
         {
-            var a = Celsius.From(24.2m);
-            var b = Celsius.From(25.5m);
-            var a2 = Celsius.From(24.2m);
+            var a = Birthday.From(new DateOnly(1976, 9, 13));
+            var b = Birthday.From(new DateOnly(2020, 3, 12));
+            var a2 = Birthday.From(new DateOnly(1976, 9, 13));
 
             Assert.True(a.CompareTo(b) < 0);
             Assert.True(b.CompareTo(a) > 0);
@@ -165,14 +155,14 @@ public partial class CelsiusTests
         }
     }
 
-    public class Equality : CelsiusTests
+    public class Equality : BirthdayTests
     {
         [Fact]
         public void WhenValuesAreEqual_AreEqual()
         {
-            var backingValue = 24.2m;
-            var first = Celsius.From(backingValue);
-            var second = Celsius.From(first.Value);
+            var backingValue = new DateOnly(2020, 3, 12);
+            var first = Birthday.From(backingValue);
+            var second = Birthday.From(first.Value);
 
             Assert.True(first.Equals(second));
             Assert.True(first == second);
@@ -183,10 +173,10 @@ public partial class CelsiusTests
         [Fact]
         public void WhenValuesAreDifferent_AreNotEqual()
         {
-            var backingValue1 = 24.2m;
-            var first = Celsius.From(backingValue1);
-            var backingValue2 = -2.54m;
-            var second = Celsius.From(backingValue2);
+            var backingValue1 = new DateOnly(2020, 3, 12);
+            var first = Birthday.From(backingValue1);
+            var backingValue2 = new DateOnly(1976, 9, 13);
+            var second = Birthday.From(backingValue2);
 
             Assert.False(first.Equals(second));
             Assert.False(first == second);
@@ -196,8 +186,8 @@ public partial class CelsiusTests
         [Fact]
         public void WhenValueIsDefault_IsEqualToDefault()
         {
-            Celsius first = default;
-            Celsius second = default;
+            Birthday first = default;
+            Birthday second = default;
 
             Assert.True(first.Equals(second));
             Assert.True(first == second);
@@ -206,10 +196,10 @@ public partial class CelsiusTests
         }
 
         [Fact]
-        public void WhenValueIsDefault_IsNotEqualToZero()
+        public void WhenValueIsDefault_IsNotEqualToNone()
         {
-            Celsius first = default;
-            var second = Celsius.Zero;
+            Birthday first = default;
+            var second = Birthday.None;
 
             Assert.False(first.Equals(second));
             Assert.False(first == second);
@@ -219,9 +209,9 @@ public partial class CelsiusTests
         [Fact]
         public void WhenValueIsNotDefault_IsNotEqualToDefault()
         {
-            var backingValue = 24.2m;
-            var first = Celsius.From(backingValue);
-            Celsius second = default;
+            var backingValue = new DateOnly(2020, 3, 12);
+            var first = Birthday.From(backingValue);
+            Birthday second = default;
 
             Assert.False(first.Equals(second));
             Assert.False(first == second);
@@ -229,10 +219,10 @@ public partial class CelsiusTests
         }
 
         [Fact]
-        public void GivenOtherObjectIsNotCelsius_AreNotEqual()
+        public void GivenOtherObjectIsNotBirthday_AreNotEqual()
         {
-            var backingValue = 24.2m;
-            var first = Celsius.From(backingValue);
+            var backingValue = new DateOnly(2020, 3, 12);
+            var first = Birthday.From(backingValue);
             var second = new object();
 
             Assert.False(first.Equals(second));
@@ -241,9 +231,9 @@ public partial class CelsiusTests
         [Fact]
         public void GivenOtherObjectIsAnotherValueType_AreNotEqual()
         {
-            var backingValue = 24.2m;
-            var first = Celsius.From(backingValue);
-            var second = OtherCelsius.From(backingValue);
+            var backingValue = new DateOnly(2020, 3, 12);
+            var first = Birthday.From(backingValue);
+            var second = OtherBirthday.From(backingValue);
 
             // ReSharper disable once SuspiciousTypeConversion.Global
             Assert.False(first.Equals(second));
@@ -252,28 +242,28 @@ public partial class CelsiusTests
         [Fact]
         public void HasEqualityMethodsForUnderlyingType()
         {
-            var backingValue = 24.2m;
-            var first = Celsius.From(backingValue);
+            var backingValue = new DateOnly(2020, 3, 12);
+            var first = Birthday.From(backingValue);
             var second = backingValue;
 
             Assert.True(first.Equals(second));
 
-            var third = -2.4m;
+            var third = new DateOnly(1976, 9, 13);
             Assert.False(first.Equals(third));
         }
 
         [Fact]
         public void HasEqualityOperatorsForUnderlyingType()
         {
-            var first = Celsius.From(123m);
-            var second = 123m;
+            var first = Birthday.From(new DateOnly(2020, 3, 12));
+            var second = new DateOnly(2020, 3, 12);
 
             Assert.True(first == second);
             Assert.True(second == first);
             Assert.False(first != second);
             Assert.False(second != first);
 
-            var third = -21.2m;
+            var third = new DateOnly(1976, 9, 13);
             Assert.False(first == third);
             Assert.False(third == first);
             Assert.True(first != third);
@@ -281,13 +271,13 @@ public partial class CelsiusTests
         }
     }
 
-    public class IsInitialized : CelsiusTests
+    public class IsInitialized : BirthdayTests
     {
         [Fact]
         public void WhenValueIsNotDefault_IsTrue()
         {
-            var backingValue = 24.2m;
-            var sut = Celsius.From(backingValue);
+            var backingValue = new DateOnly(2020, 3, 12);
+            var sut = Birthday.From(backingValue);
 
             Assert.True(sut.IsInitialized());
         }
@@ -295,55 +285,56 @@ public partial class CelsiusTests
         [Fact]
         public void WhenValueIsDefault_IsFalse()
         {
-            Celsius sut = default;
+            Birthday sut = default;
 
             Assert.False(sut.IsInitialized());
         }
 
         [Fact]
-        public void ZeroIsInitialized()
+        public void NoneIsInitialized()
         {
-            var sut = Celsius.Zero;
+            var sut = Birthday.None;
 
             Assert.True(sut.IsInitialized());
         }
     }
 
-    public class ToStringRepresentation : CelsiusTests
+    public class ToStringRepresentation : BirthdayTests
     {
         [Fact]
         public void ReturnsValue()
         {
-            var value = 24.2m;
+            var value = new DateOnly(2020, 3, 12);
 
-            var actual = Celsius.From(value).ToString();
+            var actual = Birthday.From(value).ToString();
 
-            Assert.Equal(value.ToString(CultureInfo.InvariantCulture), actual);
+            var expected = value.ToString(CultureInfo.InvariantCulture);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
         public void HasIFormattableSupport()
         {
-            var value = 24.2m;
+            var value = new DateOnly(2020, 3, 12);
 
-            var vo = Celsius.From(value);
-            var actual = vo.ToString("000.00", CultureInfo.InvariantCulture);
+            var vo = Birthday.From(value);
+            var actual = vo.ToString("MM-dd", CultureInfo.InvariantCulture);
 
-            var expected = "024.20";
+            var expected = "03-12";
             Assert.Equal(expected, actual);
             Assert.IsAssignableFrom<IFormattable>(vo);
         }
     }
 
-    public class ConversionOperatorsForUnderlyingType : CelsiusTests
+    public class ConversionOperatorsForUnderlyingType : BirthdayTests
     {
         [Fact]
         public void IsExplicitlyConvertibleToUnderlyingType()
         {
-            var value = 24.2m;
-            var obj = Celsius.From(value);
+            var value = new DateOnly(2020, 3, 12);
+            var obj = Birthday.From(value);
 
-            var actual = (decimal)obj;
+            var actual = (DateOnly)obj;
 
             Assert.Equal(value, actual);
         }
@@ -351,44 +342,32 @@ public partial class CelsiusTests
         [Fact]
         public void IsExplicitlyConvertibleFromUnderlyingType()
         {
-            var value = 24.2m;
+            var value = new DateOnly(2020, 3, 12);
             var str = value;
 
-            var actual = (Celsius)str;
+            var actual = (Birthday)str;
 
-            var expected = Celsius.From(value);
+            var expected = Birthday.From(value);
             Assert.Equal(expected, actual);
         }
     }
 
-    public class Serialization : CelsiusTests
+    public class Serialization : BirthdayTests
     {
         [Fact]
         public void WhenNonsense_ThrowsJsonException()
         {
             var nonsense = "\"nonsense\"";
 
-            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Celsius>(nonsense));
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Birthday>(nonsense));
         }
 
         [Fact]
         public void WhenInvalid_CannotDeserialize()
         {
-            var invalid = "-99999"; // lower than absolute zero
+            var invalid = "0001-01-01";
 
-            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Celsius>(invalid));
-        }
-
-        [Fact]
-        public void WhenInvalid_ButPreSet_CanDeserialize()
-        {
-            var invalid = "-459.67"; // absolute zero in fahrenheit, but not in celsius
-
-            var deserialized = JsonSerializer.Deserialize<Celsius>(invalid);
-
-            Assert.Equal(Celsius.AbsoluteZeroFahrenheit, deserialized);
-            Assert.True(deserialized.IsInitialized());
-            Assert.False(deserialized.IsValid());
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Birthday>(invalid));
         }
 
         [Fact]
@@ -396,17 +375,17 @@ public partial class CelsiusTests
         {
             var nonsense = "\"\"";
 
-            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Celsius>(nonsense));
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<Birthday>(nonsense));
         }
 
         [Fact]
         public void CanRoundTrip()
         {
-            var backingValue = 24.2m;
-            var original = Celsius.From(backingValue);
+            var backingValue = new DateOnly(2020, 3, 12);
+            var original = Birthday.From(backingValue);
 
             var serialized = JsonSerializer.Serialize(original);
-            var deserialized = JsonSerializer.Deserialize<Celsius>(serialized);
+            var deserialized = JsonSerializer.Deserialize<Birthday>(serialized);
 
             Assert.Equal(original, deserialized);
         }
@@ -414,38 +393,38 @@ public partial class CelsiusTests
         [Fact]
         public void SerializesToCorrectJson()
         {
-            var backingValue = 24.2m;
-            var sut = Celsius.From(backingValue);
+            var backingValue = new DateOnly(2020, 3, 12);
+            var sut = Birthday.From(backingValue);
 
             var serialized = JsonSerializer.Serialize(sut);
 
-            Assert.Equal("24.2", serialized);
+            Assert.Equal("\"2020-03-12\"", serialized);
         }
 
         [Fact]
         public void CanRoundTripDefault()
         {
-            Celsius original = default;
+            Birthday original = default;
 
             var serialized = JsonSerializer.Serialize(original);
 
             Assert.Equal("null", serialized);
 
-            var deserialized = JsonSerializer.Deserialize<Celsius>(serialized);
+            var deserialized = JsonSerializer.Deserialize<Birthday>(serialized);
 
             Assert.Equal(original, deserialized);
         }
 
         [Fact]
-        public void CanRoundTripZero()
+        public void CanRoundTripNone()
         {
-            var original = Celsius.Zero;
+            var original = Birthday.None;
 
             var serialized = JsonSerializer.Serialize(original);
 
-            Assert.Equal("0", serialized);
+            Assert.Equal("\"0001-01-01\"", serialized);
 
-            var deserialized = JsonSerializer.Deserialize<Celsius>(serialized);
+            var deserialized = JsonSerializer.Deserialize<Birthday>(serialized);
 
             Assert.Equal(original, deserialized);
             Assert.True(deserialized.IsInitialized());
@@ -462,25 +441,25 @@ public partial class CelsiusTests
         }
 
         [Fact]
-        public void SerializesZeroToZero()
+        public void SerializesNoneToNone()
         {
-            var container = new Container { Id = "one", Data = Celsius.Zero };
+            var container = new Container { Id = "one", Data = Birthday.None };
 
             var serialized = JsonSerializer.Serialize(container);
 
-            Assert.Equal("{\"Id\":\"one\",\"Data\":0}", serialized);
+            Assert.Equal("{\"Id\":\"one\",\"Data\":\"0001-01-01\"}", serialized);
         }
 
         [Fact]
-        public void DeserializesZeroToZero()
+        public void DeserializesNoneToNone()
         {
-            var serialized = "{\"Id\":\"one\",\"Data\":0}";
+            var serialized = "{\"Id\":\"one\",\"Data\":\"0001-01-01\"}";
 
             var deserialized = JsonSerializer.Deserialize<Container>(serialized);
 
             Assert.NotNull(deserialized);
             Assert.Equal("one", deserialized.Id);
-            Assert.Equal(Celsius.Zero, deserialized.Data);
+            Assert.Equal(Birthday.None, deserialized.Data);
             Assert.NotEqual(default, deserialized.Data);
 
             Assert.True(deserialized.Data.IsInitialized());
@@ -517,28 +496,28 @@ public partial class CelsiusTests
         internal class Container
         {
             public required string Id { get; set; }
-            public Celsius Data { get; set; }
+            public Birthday Data { get; set; }
         }
     }
 
-    public class TypeConversion : CelsiusTests
+    public class TypeConversion : BirthdayTests
     {
         [Fact]
         public void CanConvertFromUnderlyingType()
         {
-            var converter = TypeDescriptor.GetConverter(typeof(Celsius));
-            Assert.True(converter.CanConvertFrom(typeof(decimal)));
+            var converter = TypeDescriptor.GetConverter(typeof(Birthday));
+            Assert.True(converter.CanConvertFrom(typeof(DateOnly)));
 
-            var backingValue = 24.2m;
+            var backingValue = new DateOnly(2020, 3, 12);
             var actual = converter.ConvertFrom(backingValue);
 
-            Assert.Equal(Celsius.From(backingValue), actual);
+            Assert.Equal(Birthday.From(backingValue), actual);
         }
 
         [Fact]
         public void CannotConvertFromUnsupportedType()
         {
-            var converter = TypeDescriptor.GetConverter(typeof(Celsius));
+            var converter = TypeDescriptor.GetConverter(typeof(Birthday));
             Assert.False(converter.CanConvertFrom(typeof(int)));
 
             Action act = () => converter.ConvertFrom(5);
@@ -549,12 +528,12 @@ public partial class CelsiusTests
         [Fact]
         public void CanConvertToUnderlyingType()
         {
-            var converter = TypeDescriptor.GetConverter(typeof(Celsius));
-            Assert.True(converter.CanConvertTo(typeof(decimal)));
+            var converter = TypeDescriptor.GetConverter(typeof(Birthday));
+            Assert.True(converter.CanConvertTo(typeof(DateOnly)));
 
-            var backingValue = 24.2m;
-            var sut = Celsius.From(backingValue);
-            var actual = converter.ConvertTo(sut, typeof(decimal));
+            var backingValue = new DateOnly(2020, 3, 12);
+            var sut = Birthday.From(backingValue);
+            var actual = converter.ConvertTo(sut, typeof(DateOnly));
 
             Assert.Equal(backingValue, actual);
         }
@@ -562,103 +541,81 @@ public partial class CelsiusTests
         [Fact]
         public void CannotConvertToUnsupportedType()
         {
-            var converter = TypeDescriptor.GetConverter(typeof(Celsius));
+            var converter = TypeDescriptor.GetConverter(typeof(Birthday));
             Assert.False(converter.CanConvertTo(typeof(int)));
 
-            var backingValue = 24.2m;
-            var sut = Celsius.From(backingValue);
+            var backingValue = new DateOnly(2020, 3, 12);
+            var sut = Birthday.From(backingValue);
             Action act = () => converter.ConvertTo(sut, typeof(int));
 
             Assert.Throws<NotSupportedException>(act);
         }
     }
 
-    public class IsValid : CelsiusTests
+    public class IsValid : BirthdayTests
     {
         [Fact]
         public void ValidInstanceIsValid()
         {
-            var backingValue = 24.2m;
-            var sut = Celsius.From(backingValue);
+            var backingValue = new DateOnly(2020, 3, 12);
+            var sut = Birthday.From(backingValue);
 
             Assert.True(sut.IsValid());
         }
 
         [Fact]
-        public void ZeroIsValid()
+        public void NoneIsInvalid()
         {
-            var sut = Celsius.Zero;
+            var sut = Birthday.None;
 
-            Assert.True(sut.IsValid());
+            Assert.False(sut.IsValid());
         }
     }
 
-    public class GetValidationErrorMessage : CelsiusTests
+    public class GetValidationErrorMessage : BirthdayTests
     {
         [Fact]
         public void WhenValidReturnsNull()
         {
-            var backingValue = 24.2m;
-            var sut = Celsius.From(backingValue);
+            var backingValue = new DateOnly(2020, 3, 12);
+            var sut = Birthday.From(backingValue);
 
             Assert.Null(sut.GetValidationErrorMessage());
         }
     }
 
-    public class Zero : CelsiusTests
+    public class None : BirthdayTests
     {
         [Fact]
         public void ObjectHasExpectedUnderlyingValue()
         {
-            var actual = Celsius.Zero.Value;
-            Assert.Equal(0, actual);
+            var actual = Birthday.None.Value;
+            Assert.Equal(DateOnly.MinValue, actual);
         }
 
         [Fact]
         public void ObjectIsInitialized()
         {
-            Assert.True(Celsius.Zero.IsInitialized());
+            Assert.True(Birthday.None.IsInitialized());
         }
 
         [Fact]
-        public void ObjectIsValid()
+        public void ObjectIsInvalid()
         {
-            Assert.True(Celsius.Zero.IsValid());
+            Assert.False(Birthday.None.IsValid());
         }
     }
 
-    public class AbsoluteZero : CelsiusTests
-    {
-        [Fact]
-        public void ObjectHasExpectedUnderlyingValue()
-        {
-            var actual = Celsius.AbsoluteZero.Value;
-            Assert.Equal(-273.15m, actual);
-        }
-
-        [Fact]
-        public void ObjectIsInitialized()
-        {
-            Assert.True(Celsius.AbsoluteZero.IsInitialized());
-        }
-
-        [Fact]
-        public void ObjectIsValid()
-        {
-            Assert.True(Celsius.AbsoluteZero.IsValid());
-        }
-    }
-
-    public class FluentValidationExtensions : CelsiusTests
+    public class FluentValidationExtensions : BirthdayTests
     {
         public class MustBeInitializedAndValid : FluentValidationExtensions
         {
             private readonly Func<ValidationResult> _act;
-            private Celsius _vo;
+            private Birthday _vo;
 
             public MustBeInitializedAndValid()
             {
-                _vo = Celsius.From(24.2m);
+                _vo = Birthday.From(new DateOnly(2020, 3, 12));
                 _act = () =>
                     new ContainerValidator().Validate(new Container { Id = "one", Data = _vo });
             }
@@ -666,7 +623,7 @@ public partial class CelsiusTests
             [Fact]
             public void WhenValid_ReturnsValid()
             {
-                _vo = Celsius.From(24.2m);
+                _vo = Birthday.From(new DateOnly(2020, 3, 12));
 
                 var result = _act();
 
@@ -676,7 +633,7 @@ public partial class CelsiusTests
             [Fact]
             public void WhenInvalid_ReturnsInvalid()
             {
-                Celsius.TryFrom(-300, out _vo); // lower than absolute zero
+                Birthday.TryFrom(DateOnly.MinValue, out _vo);
 
                 var result = _act();
 
@@ -698,14 +655,14 @@ public partial class CelsiusTests
             [Fact]
             public void HasValidationErrorMessage()
             {
-                Celsius.TryFrom(-300, out _vo); // lower than absolute zero
+                Birthday.TryFrom(DateOnly.MinValue, out _vo);
 
                 var result = _act();
 
                 Assert.False(result.IsValid);
                 Assert.Single(result.Errors);
                 Assert.Equal(
-                    "Temperature cannot be below absolute zero (-273.15°C).",
+                    "Birthday must be initialized (greater than 0001-01-01).",
                     result.Errors[0].ErrorMessage
                 );
             }
@@ -718,15 +675,15 @@ public partial class CelsiusTests
                 }
             }
         }
-
+        
         public class MustBeInitialized : FluentValidationExtensions
         {
             private readonly Func<ValidationResult> _act;
-            private Celsius _vo;
+            private Birthday _vo;
 
             public MustBeInitialized()
             {
-                _vo = Celsius.From(24.2m);
+                _vo = Birthday.From(new DateOnly(2020, 3, 12));
                 _act = () =>
                     new ContainerValidator().Validate(new Container { Id = "one", Data = _vo });
             }
@@ -734,7 +691,7 @@ public partial class CelsiusTests
             [Fact]
             public void WhenValid_ReturnsValid()
             {
-                _vo = Celsius.From(24.2m);
+                _vo = Birthday.From(new DateOnly(2020, 3, 12));
 
                 var result = _act();
 
@@ -744,7 +701,7 @@ public partial class CelsiusTests
             [Fact]
             public void WhenInvalid_ReturnsValid()
             {
-                Celsius.TryFrom(-300, out _vo); // lower than absolute zero
+                Birthday.TryFrom(new DateOnly(2020, 3, 12), out _vo);
 
                 var result = _act();
 
@@ -771,7 +728,7 @@ public partial class CelsiusTests
 
                 Assert.False(result.IsValid);
                 Assert.Single(result.Errors);
-                Assert.Equal("Celsius must be initialized.", result.Errors[0].ErrorMessage);
+                Assert.Equal("Birthday must be initialized.", result.Errors[0].ErrorMessage);
             }
 
             internal class ContainerValidator : AbstractValidator<Container>
@@ -786,57 +743,47 @@ public partial class CelsiusTests
         internal class Container
         {
             public required string Id { get; set; }
-            public Celsius Data { get; set; }
+            public Birthday Data { get; set; }
         }
     }
 
-    public class Parsable : CelsiusTests
+    public class Parsable : BirthdayTests
     {
         public class FromString : Parsable
         {
             [Fact]
             public void CanParseFromString()
             {
-                var str = "24.2";
+                var str = "2020-03-12";
 
-                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+                var actual = Birthday.Parse(str, CultureInfo.InvariantCulture);
 
-                Assert.Equal(Celsius.From(24.2m), actual);
+                Assert.Equal(Birthday.From(new DateOnly(2020, 3, 12)), actual);
                 Assert.True(actual.IsInitialized());
-            }
-
-            [Fact]
-            public void CannotParseInvalidValue()
-            {
-                var str = "-300"; // lower than absolute zero
-
-                Action act = () => Celsius.Parse(str, CultureInfo.InvariantCulture);
-
-                Assert.Throws<InvalidOperationException>(act);
-            }
-
-            [Fact]
-            public void CanParseInvalidWhenPreSetValue()
-            {
-                var str = "-459.67"; // invalid, but pre-set value
-
-                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
-
-                Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
-                Assert.True(actual.IsInitialized());
-                Assert.False(actual.IsValid());
             }
 
             [Fact]
             public void CanParsePreSetValue()
             {
-                var str = "-273.15";
+                var str = "1976-09-13";
 
-                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+                var actual = Birthday.Parse(str, CultureInfo.InvariantCulture);
 
-                Assert.Equal(Celsius.AbsoluteZero, actual);
+                Assert.Equal(Birthday.Patrick, actual);
                 Assert.True(actual.IsInitialized());
                 Assert.True(actual.IsValid());
+            }
+
+            [Fact]
+            public void CanParseInvalidWhenPreSetValue()
+            {
+                var str = "3000-01-01"; // invalid, but pre-set value
+
+                var actual = Birthday.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(Birthday.InvalidFuture, actual);
+                Assert.True(actual.IsInitialized());
+                Assert.False(actual.IsValid());
             }
 
             [Fact]
@@ -844,31 +791,41 @@ public partial class CelsiusTests
             {
                 var str = "nonsense";
 
-                Action act = () => Celsius.Parse(str, CultureInfo.InvariantCulture);
+                Action act = () => Birthday.Parse(str, CultureInfo.InvariantCulture);
 
                 Assert.Throws<FormatException>(act);
             }
 
             [Fact]
-            public void CanParseZero()
+            public void CannotParseInvalidValue()
             {
-                var str = "0";
+                var str = "4000-01-01";
 
-                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+                Action act = () => Birthday.Parse(str, CultureInfo.InvariantCulture);
 
-                Assert.Equal(Celsius.Zero, actual);
+                Assert.Throws<InvalidOperationException>(act);
+            }
+
+            [Fact]
+            public void CanParseNone()
+            {
+                var str = "0001-01-01";
+
+                var actual = Birthday.Parse(str, CultureInfo.InvariantCulture);
+
+                Assert.Equal(Birthday.None, actual);
                 Assert.True(actual.IsInitialized());
             }
 
             [Fact]
             public void CanTryParseFromString()
             {
-                var str = "24.2";
+                var str = "2020-03-12";
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out var actual);
 
                 Assert.True(success);
-                Assert.Equal(Celsius.From(24.2m), actual);
+                Assert.Equal(Birthday.From(new DateOnly(2020, 3, 12)), actual);
                 Assert.True(actual.IsInitialized());
             }
 
@@ -877,7 +834,7 @@ public partial class CelsiusTests
             {
                 var str = "nonsense";
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out _);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out _);
 
                 Assert.False(success);
             }
@@ -885,9 +842,9 @@ public partial class CelsiusTests
             [Fact]
             public void CannotTryParseInvalidValue()
             {
-                var str = "-300"; // lower than absolute zero
+                var str = "4000-01-01";
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out _);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out _);
 
                 Assert.False(success);
             }
@@ -895,38 +852,37 @@ public partial class CelsiusTests
             [Fact]
             public void CanTryParseInvalidWhenPreSetValue()
             {
-                var str = "-459.67"; // invalid, but pre-set value
+                var str = "3000-01-01"; // invalid, but pre-set value
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out var actual);
 
                 Assert.True(success);
-                Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+                Assert.Equal(Birthday.InvalidFuture, actual);
                 Assert.True(actual.IsInitialized());
                 Assert.False(actual.IsValid());
             }
 
             [Fact]
-            public void CanTryParsPreSetValue()
+            public void CanTryParsePreSetValue()
             {
-                var str = "-273.15";
+                var str = "1976-09-13";
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out var actual);
 
                 Assert.True(success);
-                Assert.Equal(Celsius.AbsoluteZero, actual);
+                Assert.Equal(Birthday.Patrick, actual);
                 Assert.True(actual.IsInitialized());
-                Assert.True(actual.IsValid());
             }
 
             [Fact]
-            public void CanTryParseZero()
+            public void CanTryParseNone()
             {
-                var str = "0";
+                var str = "0001-01-01";
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out var actual);
 
                 Assert.True(success);
-                Assert.Equal(Celsius.Zero, actual);
+                Assert.Equal(Birthday.None, actual);
                 Assert.True(actual.IsInitialized());
             }
         }
@@ -941,11 +897,11 @@ public partial class CelsiusTests
             [Fact]
             public void CanParseFromString()
             {
-                var str = ToReadOnlySpan("24.2");
+                var str = ToReadOnlySpan("2020-03-12");
 
-                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+                var actual = Birthday.Parse(str, CultureInfo.InvariantCulture);
 
-                Assert.Equal(Celsius.From(24.2m), actual);
+                Assert.Equal(Birthday.From(new DateOnly(2020, 3, 12)), actual);
                 Assert.True(actual.IsInitialized());
             }
 
@@ -954,35 +910,35 @@ public partial class CelsiusTests
             {
                 var act = () =>
                 {
-                    var str = ToReadOnlySpan("-300"); // lower than absolute zero
-                    Celsius.Parse(str, CultureInfo.InvariantCulture);
+                    var str = ToReadOnlySpan("4000-01-01");
+                    Birthday.Parse(str, CultureInfo.InvariantCulture);
                 };
 
                 Assert.Throws<InvalidOperationException>(act);
             }
 
             [Fact]
-            public void CanParseInvalidWhenPreSetValue()
+            public void CanParsePreSetValue()
             {
-                var str = ToReadOnlySpan("-459.67"); // invalid, but pre-set value
+                var str = ToReadOnlySpan("1976-09-13");
 
-                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+                var actual = Birthday.Parse(str, CultureInfo.InvariantCulture);
 
-                Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+                Assert.Equal(Birthday.Patrick, actual);
                 Assert.True(actual.IsInitialized());
-                Assert.False(actual.IsValid());
+                Assert.True(actual.IsValid());
             }
 
             [Fact]
-            public void CanParsePreSetValue()
+            public void CanParseInvalidWhenPreSetValue()
             {
-                var str = ToReadOnlySpan("-273.15");
+                var str = ToReadOnlySpan("3000-01-01");
 
-                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+                var actual = Birthday.Parse(str, CultureInfo.InvariantCulture);
 
-                Assert.Equal(Celsius.AbsoluteZero, actual);
+                Assert.Equal(Birthday.InvalidFuture, actual);
                 Assert.True(actual.IsInitialized());
-                Assert.True(actual.IsValid());
+                Assert.False(actual.IsValid());
             }
 
             [Fact]
@@ -991,32 +947,32 @@ public partial class CelsiusTests
                 var act = () =>
                 {
                     var str = ToReadOnlySpan("nonsense");
-                    Celsius.Parse(str, CultureInfo.InvariantCulture);
+                    Birthday.Parse(str, CultureInfo.InvariantCulture);
                 };
 
                 Assert.Throws<FormatException>(act);
             }
 
             [Fact]
-            public void CanParseZero()
+            public void CanParseNone()
             {
-                var str = ToReadOnlySpan("0");
+                var str = ToReadOnlySpan("0001-01-01");
 
-                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+                var actual = Birthday.Parse(str, CultureInfo.InvariantCulture);
 
-                Assert.Equal(Celsius.Zero, actual);
+                Assert.Equal(Birthday.None, actual);
                 Assert.True(actual.IsInitialized());
             }
 
             [Fact]
             public void CanTryParseFromString()
             {
-                var str = ToReadOnlySpan("24.2");
+                var str = ToReadOnlySpan("2020-03-12");
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out var actual);
 
                 Assert.True(success);
-                Assert.Equal(Celsius.From(24.2m), actual);
+                Assert.Equal(Birthday.From(new DateOnly(2020, 3, 12)), actual);
                 Assert.True(actual.IsInitialized());
             }
 
@@ -1025,7 +981,7 @@ public partial class CelsiusTests
             {
                 var str = ToReadOnlySpan("nonsense");
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out _);
 
                 Assert.False(success);
             }
@@ -1033,9 +989,9 @@ public partial class CelsiusTests
             [Fact]
             public void CannotTryParseInvalidValue()
             {
-                var str = ToReadOnlySpan("-300"); // lower than absolute zero
+                var str = ToReadOnlySpan("4000-01-01");
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out _);
 
                 Assert.False(success);
             }
@@ -1043,38 +999,34 @@ public partial class CelsiusTests
             [Fact]
             public void CanTryParseInvalidWhenPreSetValue()
             {
-                var str = ToReadOnlySpan("-459.67"); // invalid, but pre-set value
+                var str = ToReadOnlySpan("3000-01-01");
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out var actual);
 
                 Assert.True(success);
-                Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+                Assert.Equal(Birthday.InvalidFuture, actual);
                 Assert.True(actual.IsInitialized());
-                Assert.False(actual.IsValid());
             }
 
             [Fact]
-            public void CanTryParsePreSetValue()
+            public void CannotTryParseInvalid()
             {
-                var str = ToReadOnlySpan("-273.15");
+                var str = ToReadOnlySpan("4000-01-01");
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out var actual);
 
-                Assert.True(success);
-                Assert.Equal(Celsius.AbsoluteZero, actual);
-                Assert.True(actual.IsInitialized());
-                Assert.True(actual.IsValid());
+                Assert.False(success);
             }
 
             [Fact]
-            public void CanTryParseZero()
+            public void CanTryParseNone()
             {
-                var str = ToReadOnlySpan("0");
+                var str = ToReadOnlySpan("0001-01-01");
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out var actual);
 
                 Assert.True(success);
-                Assert.Equal(Celsius.Zero, actual);
+                Assert.Equal(Birthday.None, actual);
                 Assert.True(actual.IsInitialized());
             }
         }
@@ -1089,11 +1041,11 @@ public partial class CelsiusTests
             [Fact]
             public void CanParseFromString()
             {
-                var str = ToReadOnlySpan("24.2");
+                var str = ToReadOnlySpan("2020-03-12");
 
-                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+                var actual = Birthday.Parse(str, CultureInfo.InvariantCulture);
 
-                Assert.Equal(Celsius.From(24.2m), actual);
+                Assert.Equal(Birthday.From(new DateOnly(2020, 3, 12)), actual);
                 Assert.True(actual.IsInitialized());
             }
 
@@ -1102,8 +1054,8 @@ public partial class CelsiusTests
             {
                 var act = () =>
                 {
-                    var str = ToReadOnlySpan("-300"); // lower than absolute zero
-                    Celsius.Parse(str, CultureInfo.InvariantCulture);
+                    var str = ToReadOnlySpan("4000-01-01");
+                    Birthday.Parse(str, CultureInfo.InvariantCulture);
                 };
 
                 Assert.Throws<InvalidOperationException>(act);
@@ -1112,25 +1064,13 @@ public partial class CelsiusTests
             [Fact]
             public void CanParseInvalidWhenPreSetValue()
             {
-                var str = ToReadOnlySpan("-459.67"); // invalid, but pre-set value
+                var str = ToReadOnlySpan("3000-01-01"); // invalid, but pre-set value
 
-                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+                var actual = Birthday.Parse(str, CultureInfo.InvariantCulture);
 
-                Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+                Assert.Equal(Birthday.InvalidFuture, actual);
                 Assert.True(actual.IsInitialized());
                 Assert.False(actual.IsValid());
-            }
-
-            [Fact]
-            public void CanParsePreSetValue()
-            {
-                var str = ToReadOnlySpan("-273.15");
-
-                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
-
-                Assert.Equal(Celsius.AbsoluteZero, actual);
-                Assert.True(actual.IsInitialized());
-                Assert.True(actual.IsValid());
             }
 
             [Fact]
@@ -1139,32 +1079,32 @@ public partial class CelsiusTests
                 var act = () =>
                 {
                     var str = ToReadOnlySpan("nonsense");
-                    Celsius.Parse(str, CultureInfo.InvariantCulture);
+                    Birthday.Parse(str, CultureInfo.InvariantCulture);
                 };
 
                 Assert.Throws<FormatException>(act);
             }
 
             [Fact]
-            public void CanParseZero()
+            public void CanParseNone()
             {
-                var str = ToReadOnlySpan("0");
+                var str = ToReadOnlySpan("0001-01-01");
 
-                var actual = Celsius.Parse(str, CultureInfo.InvariantCulture);
+                var actual = Birthday.Parse(str, CultureInfo.InvariantCulture);
 
-                Assert.Equal(Celsius.Zero, actual);
+                Assert.Equal(Birthday.None, actual);
                 Assert.True(actual.IsInitialized());
             }
 
             [Fact]
             public void CanTryParseFromString()
             {
-                var str = ToReadOnlySpan("24.2");
+                var str = ToReadOnlySpan("2020-03-12");
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out var actual);
 
                 Assert.True(success);
-                Assert.Equal(Celsius.From(24.2m), actual);
+                Assert.Equal(Birthday.From(new DateOnly(2020, 3, 12)), actual);
                 Assert.True(actual.IsInitialized());
             }
 
@@ -1173,7 +1113,7 @@ public partial class CelsiusTests
             {
                 var str = ToReadOnlySpan("nonsense");
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out var actual);
 
                 Assert.False(success);
             }
@@ -1181,9 +1121,9 @@ public partial class CelsiusTests
             [Fact]
             public void CannotTryParseInvalidValue()
             {
-                var str = ToReadOnlySpan("-300"); // lower than absolute zero
+                var str = ToReadOnlySpan("4000-01-01");
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out _);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out _);
 
                 Assert.False(success);
             }
@@ -1191,46 +1131,33 @@ public partial class CelsiusTests
             [Fact]
             public void CanTryParseInvalidWhenPreSetValue()
             {
-                var str = ToReadOnlySpan("-459.67"); // invalid, but pre-set value
+                var str = ToReadOnlySpan("3000-01-01"); // invalid, but pre-set value
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out var actual);
 
                 Assert.True(success);
-                Assert.Equal(Celsius.AbsoluteZeroFahrenheit, actual);
+                Assert.Equal(Birthday.InvalidFuture, actual);
                 Assert.True(actual.IsInitialized());
                 Assert.False(actual.IsValid());
             }
 
             [Fact]
-            public void CanTryParsePreSetValue()
+            public void CanTryParseNone()
             {
-                var str = ToReadOnlySpan("-273.15");
+                var str = ToReadOnlySpan("0001-01-01");
 
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
+                var success = Birthday.TryParse(str, CultureInfo.InvariantCulture, out var actual);
 
                 Assert.True(success);
-                Assert.Equal(Celsius.AbsoluteZero, actual);
-                Assert.True(actual.IsInitialized());
-                Assert.True(actual.IsValid());
-            }
-
-            [Fact]
-            public void CanTryParseZero()
-            {
-                var str = ToReadOnlySpan("0");
-
-                var success = Celsius.TryParse(str, CultureInfo.InvariantCulture, out var actual);
-
-                Assert.True(success);
-                Assert.Equal(Celsius.Zero, actual);
+                Assert.Equal(Birthday.None, actual);
                 Assert.True(actual.IsInitialized());
             }
         }
     }
 
-    [ValueObject<decimal>(
+    [ValueObject<DateOnly>(
         fromUnderlyingTypeCasting: CastOperator.Explicit,
         toUnderlyingTypeCasting: CastOperator.Explicit
     )]
-    public readonly partial record struct OtherCelsius;
+    public readonly partial record struct OtherBirthday;
 }
