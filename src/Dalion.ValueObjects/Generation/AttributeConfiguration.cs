@@ -7,6 +7,7 @@ namespace Dalion.ValueObjects.Generation;
 internal class AttributeConfiguration
 {
     public AttributeConfiguration(
+        string typeName,
         ITypeSymbol underlyingType,
         ComparisonGeneration comparison,
         CastOperator toUnderlyingTypeCasting,
@@ -19,6 +20,7 @@ internal class AttributeConfiguration
         string emptyValueName
     )
     {
+        TypeName = typeName;
         UnderlyingType = underlyingType;
         Comparison = comparison;
         ToUnderlyingTypeCasting = toUnderlyingTypeCasting;
@@ -33,6 +35,7 @@ internal class AttributeConfiguration
     }
 
     public string UnderlyingTypeName { get; }
+    public string TypeName { get; }
     public ITypeSymbol UnderlyingType { get; }
     public ComparisonGeneration Comparison { get; }
     public CastOperator ToUnderlyingTypeCasting { get; }
@@ -67,7 +70,7 @@ internal class AttributeConfiguration
         };
     }
 
-    public static AttributeConfiguration FromAttributeData(AttributeData attributeData)
+    public static AttributeConfiguration FromAttributeData(AttributeData attributeData, INamedTypeSymbol targetType)
     {
         var syntaxRef = attributeData.ApplicationSyntaxReference!;
         var attributeSyntax = (AttributeSyntax)syntaxRef.GetSyntax();
@@ -196,6 +199,7 @@ internal class AttributeConfiguration
         }
 
         return new AttributeConfiguration(
+            targetType.Name,
             underlyingType,
             comparison,
             toUnderlyingTypeCasting,

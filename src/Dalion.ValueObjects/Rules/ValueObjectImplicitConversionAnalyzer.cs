@@ -61,7 +61,7 @@ public class ValueObjectImplicitConversionAnalyzer : DiagnosticAnalyzer
         }
 
         var attributeData = namedTypeSymbol.TryGetValueObjectAttributes().First();
-        var config = AttributeConfiguration.FromAttributeData(attributeData);
+        var config = AttributeConfiguration.FromAttributeData(attributeData, namedTypeSymbol);
 
         if (
             config is

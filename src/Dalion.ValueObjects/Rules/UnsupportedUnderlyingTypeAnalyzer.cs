@@ -61,7 +61,7 @@ public class UnsupportedUnderlyingTypeAnalyzer : DiagnosticAnalyzer
         }
 
         var attributeData = namedTypeSymbol.TryGetValueObjectAttributes().First();
-        var config = AttributeConfiguration.FromAttributeData(attributeData);
+        var config = AttributeConfiguration.FromAttributeData(attributeData, namedTypeSymbol);
 
         TypeSyntax? typeArgSyntax = null;
         Location? location = null;

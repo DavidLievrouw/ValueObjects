@@ -28,6 +28,6 @@ internal class GenerationTarget
 
     public AttributeConfiguration GetAttributeConfiguration()
     {
-        return AttributeConfiguration.FromAttributeData(AttributeData);
+        return AttributeConfiguration.FromAttributeData(AttributeData, SymbolInformation);
     }
 }
