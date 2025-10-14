@@ -486,22 +486,13 @@ private class PasswordTypeConverter : System.ComponentModel.TypeConverter
 
                 
 private static class PasswordPreSetValueCache {
-    public static readonly Dictionary<System.String, Password> PasswordPreSetValues;
+    public static readonly Dictionary<System.String, Password> PasswordPreSetValues = new();
 
     static PasswordPreSetValueCache()
     {
-        PasswordPreSetValues = typeof(Password)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(Password) && f.IsInitOnly)
-            .Select(f => {
-                var val = f.GetValue(null);
-                if (val is null) return Password.Empty;
-                return (Password)val;
-            })
-            .Where(o => o.IsInitialized())
-            .ToDictionary(o => o.Value, o => o);
         PasswordPreSetValues[Password.Empty.Value] = Password.Empty;
-    }
+
+}
 }
             }
             

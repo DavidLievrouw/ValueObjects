@@ -605,22 +605,14 @@ private class CelsiusTypeConverter : System.ComponentModel.TypeConverter
 
                 
 private static class CelsiusPreSetValueCache {
-    public static readonly Dictionary<System.Decimal, Celsius> CelsiusPreSetValues;
+    public static readonly Dictionary<System.Decimal, Celsius> CelsiusPreSetValues = new();
 
     static CelsiusPreSetValueCache()
     {
-        CelsiusPreSetValues = typeof(Celsius)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(Celsius) && f.IsInitOnly)
-            .Select(f => {
-                var val = f.GetValue(null);
-                if (val is null) return Celsius.Zero;
-                return (Celsius)val;
-            })
-            .Where(o => o.IsInitialized())
-            .ToDictionary(o => o.Value, o => o);
         CelsiusPreSetValues[Celsius.Zero.Value] = Celsius.Zero;
-    }
+        CelsiusPreSetValues[Celsius.AbsoluteZero.Value] = Celsius.AbsoluteZero;
+        CelsiusPreSetValues[Celsius.AbsoluteZeroFahrenheit.Value] = Celsius.AbsoluteZeroFahrenheit;
+}
 }
             }
             

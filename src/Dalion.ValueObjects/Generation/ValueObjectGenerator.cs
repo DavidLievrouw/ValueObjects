@@ -347,11 +347,11 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
             containingTypeNames == string.Empty ? string.Empty : containingTypeNames + ".";
 
         var mustBeInitialized =
-            (
-                config.FluentValidationExtensionsGeneration
-                & FluentValidationExtensionsGeneration.GenerateMustBeInitialized
-            ) == FluentValidationExtensionsGeneration.GenerateMustBeInitialized
-                ? $@"
+        (
+            config.FluentValidationExtensionsGeneration
+            & FluentValidationExtensionsGeneration.GenerateMustBeInitialized
+        ) == FluentValidationExtensionsGeneration.GenerateMustBeInitialized
+            ? $@"
                 public static FluentValidation.IRuleBuilderOptions<T, {containingTypes}{typeName}> MustBeInitialized<T>(
                     this FluentValidation.IRuleBuilderInitial<T, {containingTypes}{typeName}> ruleBuilder
                 )
@@ -361,14 +361,14 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         .Must(o => o.IsInitialized())
                         .WithMessage($""{{nameof({containingTypes}{typeName})}} must be initialized."");
                 }}"
-                : string.Empty;
+            : string.Empty;
 
         var mustBeInitializedAndValid =
-            (
-                config.FluentValidationExtensionsGeneration
-                & FluentValidationExtensionsGeneration.GenerateMustBeInitializedAndValid
-            ) == FluentValidationExtensionsGeneration.GenerateMustBeInitializedAndValid
-                ? $@"
+        (
+            config.FluentValidationExtensionsGeneration
+            & FluentValidationExtensionsGeneration.GenerateMustBeInitializedAndValid
+        ) == FluentValidationExtensionsGeneration.GenerateMustBeInitializedAndValid
+            ? $@"
                 public static FluentValidation.IRuleBuilderOptions<T, {containingTypes}{typeName}> MustBeInitializedAndValid<T>(
                     this FluentValidation.IRuleBuilderInitial<T, {containingTypes}{typeName}> ruleBuilder
                 )
@@ -380,7 +380,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         .Must(o => o.IsValid())
                         .WithMessage((_, p) => p.GetValidationErrorMessage());
                 }}"
-                : string.Empty;
+            : string.Empty;
 
         var code =
             $@"
@@ -601,12 +601,12 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 }}";
 
         var equalityUnderlyingType =
-            (
-                config.UnderlyingTypeEqualityGeneration
-                & UnderlyingTypeEqualityGeneration.GenerateMethods
-            ) == UnderlyingTypeEqualityGeneration.GenerateMethods
-                ? valueType.SpecialType == SpecialType.System_String
-                    ? $@"
+        (
+            config.UnderlyingTypeEqualityGeneration
+            & UnderlyingTypeEqualityGeneration.GenerateMethods
+        ) == UnderlyingTypeEqualityGeneration.GenerateMethods
+            ? valueType.SpecialType == SpecialType.System_String
+                ? $@"
                 /// <inheritdoc />
                 public bool Equals({valueTypeName}? other)
                 {{
@@ -619,21 +619,21 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 {{
                     return comparer.Equals(this.Value, underlyingValue);
                 }}"
-                    : $@"
+                : $@"
                 /// <inheritdoc />
                 public bool Equals({valueTypeName} other)
                 {{
                     return EqualityComparer<{valueTypeName}>.Default.Equals(this._value, other);
                 }}"
-                : "";
+            : "";
 
         var equalityOperators =
-            (
-                config.UnderlyingTypeEqualityGeneration
-                & UnderlyingTypeEqualityGeneration.GenerateOperators
-            ) == UnderlyingTypeEqualityGeneration.GenerateOperators
-                ? valueType.SpecialType == SpecialType.System_String
-                    ? $@"
+        (
+            config.UnderlyingTypeEqualityGeneration
+            & UnderlyingTypeEqualityGeneration.GenerateOperators
+        ) == UnderlyingTypeEqualityGeneration.GenerateOperators
+            ? valueType.SpecialType == SpecialType.System_String
+                ? $@"
     public static bool operator ==({typeName} left, {valueTypeName}? right) => left.Value.Equals(right);
 
     public static bool operator ==({valueTypeName}? left, {typeName} right) => right.Value.Equals(left);
@@ -642,7 +642,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
 
     public static bool operator !=({typeName} left, {valueTypeName}? right) => !(left == right);
 "
-                    : $@"
+                : $@"
     public static bool operator ==({typeName} left, {valueTypeName} right) => left.Value.Equals(right);
 
     public static bool operator ==({valueTypeName} left, {typeName} right) => right.Value.Equals(left);
@@ -651,7 +651,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
 
     public static bool operator !=({typeName} left, {valueTypeName} right) => !(left == right);
 "
-                : "";
+            : "";
 
         var creation =
             valueType.SpecialType == SpecialType.System_String
@@ -761,9 +761,10 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
 ";
 
         var comparison =
-            config.Comparison == ComparisonGeneration.Omit ? ""
-            : valueType.SpecialType == SpecialType.System_String
-                ? $@"
+            config.Comparison == ComparisonGeneration.Omit
+                ? ""
+                : valueType.SpecialType == SpecialType.System_String
+                    ? $@"
                 public int CompareTo({typeName} other) => this.Value.CompareTo(other.Value);
 
                 public int CompareTo({valueTypeName}? other) => this.Value.CompareTo(other);
@@ -781,7 +782,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         nameof(other)
                     );
                 }}"
-            : $@"
+                    : $@"
                 public int CompareTo({typeName} other) => this.Value.CompareTo(other.Value);
 
                 public int CompareTo({valueTypeName} other) => this.Value.CompareTo(other);
@@ -983,31 +984,33 @@ public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _va
             .Replace("{{valueTypeName}}", valueTypeName)
             .Replace("{{emptyValueName}}", emptyValueName);
 
+        var preSetValues = target.SymbolInformation
+            .GetMembers()
+            .OfType<IFieldSymbol>()
+            .Where(f => f.IsStatic
+                        && f.DeclaredAccessibility == Accessibility.Public
+                        && SymbolEqualityComparer.Default.Equals(f.Type, target.SymbolInformation))
+            .ToList();
+
         var preSetValueCache =
             $@"
 private static class {typeName}PreSetValueCache {{
-    public static readonly Dictionary<{valueTypeName}, {typeName}> {typeName}PreSetValues;
+    public static readonly Dictionary<{valueTypeName}, {typeName}> {typeName}PreSetValues = new();
 
     static {typeName}PreSetValueCache()
     {{
-        {typeName}PreSetValues = typeof({typeName})
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof({typeName}) && f.IsInitOnly)
-            .Select(f => {{
-                var val = f.GetValue(null);
-                if (val is null) return {typeName}.{emptyValueName};
-                return ({typeName})val;
-            }})
-            .Where(o => o.IsInitialized())
-            .ToDictionary(o => o.Value, o => o);
         {typeName}PreSetValues[{typeName}.{emptyValueName}.Value] = {typeName}.{emptyValueName};
+{
+    string.Join("\n", preSetValues.Select(f => $"        {typeName}PreSetValues[{typeName}.{f.Name}.Value] = {typeName}.{f.Name};"))
+}
     }}
 }}";
 
         var parsable =
-            config.ParsableGeneration != ParsableGeneration.Generate ? ""
-            : valueType.SpecialType == SpecialType.System_String
-                ? $@"
+            config.ParsableGeneration != ParsableGeneration.Generate
+                ? ""
+                : valueType.SpecialType == SpecialType.System_String
+                    ? $@"
     /// <inheritdoc />
     public static {typeName} Parse(string s, IFormatProvider? provider)
     {{
@@ -1065,7 +1068,7 @@ private static class {typeName}PreSetValueCache {{
             return false;
         }}
     }}"
-            : $@"
+                    : $@"
     /// <inheritdoc />
     public static {typeName} Parse(string s, IFormatProvider? provider)
     {{
@@ -1298,15 +1301,14 @@ private static class {typeName}PreSetValueCache {{
     private void EnsureValueObjectAttribute(IncrementalGeneratorInitializationContext context)
     {
         // Get namespace from build properties
-        var namespaceName = context.AnalyzerConfigOptionsProvider.Select(
-            (p, _) =>
-                p.GlobalOptions.TryGetValue("build_property.RootNamespace", out var ns)
-                && !string.IsNullOrWhiteSpace(ns)
-                    ? ns
+        var namespaceName = context.AnalyzerConfigOptionsProvider.Select((p, _) =>
+            p.GlobalOptions.TryGetValue("build_property.RootNamespace", out var ns)
+            && !string.IsNullOrWhiteSpace(ns)
+                ? ns
                 : p.GlobalOptions.TryGetValue("build_property.AssemblyName", out var asm)
-                && !string.IsNullOrWhiteSpace(asm)
+                  && !string.IsNullOrWhiteSpace(asm)
                     ? asm
-                : typeof(ValueObjectAttribute).Namespace
+                    : typeof(ValueObjectAttribute).Namespace
         );
 
         context.RegisterSourceOutput(

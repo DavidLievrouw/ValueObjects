@@ -467,22 +467,13 @@ private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
 
                 
 private static class TenantIdPreSetValueCache {
-    public static readonly Dictionary<global::System.Guid, TenantId> TenantIdPreSetValues;
+    public static readonly Dictionary<global::System.Guid, TenantId> TenantIdPreSetValues = new();
 
     static TenantIdPreSetValueCache()
     {
-        TenantIdPreSetValues = typeof(TenantId)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(TenantId) && f.IsInitOnly)
-            .Select(f => {
-                var val = f.GetValue(null);
-                if (val is null) return TenantId.Empty;
-                return (TenantId)val;
-            })
-            .Where(o => o.IsInitialized())
-            .ToDictionary(o => o.Value, o => o);
         TenantIdPreSetValues[TenantId.Empty.Value] = TenantId.Empty;
-    }
+
+}
 }
             }
             

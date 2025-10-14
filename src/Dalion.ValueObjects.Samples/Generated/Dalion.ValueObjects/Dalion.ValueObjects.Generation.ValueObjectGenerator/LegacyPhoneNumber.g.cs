@@ -491,22 +491,13 @@ private class LegacyPhoneNumberTypeConverter : System.ComponentModel.TypeConvert
 
                 
 private static class LegacyPhoneNumberPreSetValueCache {
-    public static readonly Dictionary<System.String, LegacyPhoneNumber> LegacyPhoneNumberPreSetValues;
+    public static readonly Dictionary<System.String, LegacyPhoneNumber> LegacyPhoneNumberPreSetValues = new();
 
     static LegacyPhoneNumberPreSetValueCache()
     {
-        LegacyPhoneNumberPreSetValues = typeof(LegacyPhoneNumber)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(LegacyPhoneNumber) && f.IsInitOnly)
-            .Select(f => {
-                var val = f.GetValue(null);
-                if (val is null) return LegacyPhoneNumber.Empty;
-                return (LegacyPhoneNumber)val;
-            })
-            .Where(o => o.IsInitialized())
-            .ToDictionary(o => o.Value, o => o);
         LegacyPhoneNumberPreSetValues[LegacyPhoneNumber.Empty.Value] = LegacyPhoneNumber.Empty;
-    }
+
+}
 }
             }
             

@@ -466,22 +466,13 @@ private class PlayerLevelTypeConverter : System.ComponentModel.TypeConverter
 
                 
 private static class PlayerLevelPreSetValueCache {
-    public static readonly Dictionary<System.Int32, PlayerLevel> PlayerLevelPreSetValues;
+    public static readonly Dictionary<System.Int32, PlayerLevel> PlayerLevelPreSetValues = new();
 
     static PlayerLevelPreSetValueCache()
     {
-        PlayerLevelPreSetValues = typeof(PlayerLevel)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(PlayerLevel) && f.IsInitOnly)
-            .Select(f => {
-                var val = f.GetValue(null);
-                if (val is null) return PlayerLevel.Unspecified;
-                return (PlayerLevel)val;
-            })
-            .Where(o => o.IsInitialized())
-            .ToDictionary(o => o.Value, o => o);
         PlayerLevelPreSetValues[PlayerLevel.Unspecified.Value] = PlayerLevel.Unspecified;
-    }
+        PlayerLevelPreSetValues[PlayerLevel.Invalid.Value] = PlayerLevel.Invalid;
+}
 }
             }
             

@@ -589,22 +589,13 @@ private class ResourceGroupNameTypeConverter : System.ComponentModel.TypeConvert
 
                 
 private static class ResourceGroupNamePreSetValueCache {
-    public static readonly Dictionary<System.String, ResourceGroupName> ResourceGroupNamePreSetValues;
+    public static readonly Dictionary<System.String, ResourceGroupName> ResourceGroupNamePreSetValues = new();
 
     static ResourceGroupNamePreSetValueCache()
     {
-        ResourceGroupNamePreSetValues = typeof(ResourceGroupName)
-            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(ResourceGroupName) && f.IsInitOnly)
-            .Select(f => {
-                var val = f.GetValue(null);
-                if (val is null) return ResourceGroupName.Empty;
-                return (ResourceGroupName)val;
-            })
-            .Where(o => o.IsInitialized())
-            .ToDictionary(o => o.Value, o => o);
         ResourceGroupNamePreSetValues[ResourceGroupName.Empty.Value] = ResourceGroupName.Empty;
-    }
+
+}
 }
             }
             
