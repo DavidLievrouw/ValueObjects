@@ -42,33 +42,20 @@
                     _validation ??= Validate(_value);
                 }
 
-                [System.Diagnostics.DebuggerStepThrough]
-                private Password(System.String? value, bool validation) {
-                    
-                    if (validation) {
-                        
-                  _validation = Validate(value);
-                  if (!_validation.IsSuccess && value != default && !PasswordPreSetValueCache.PasswordPreSetValues.TryGetValue(value, out _)) {
-                      throw new System.InvalidOperationException(_validation.ErrorMessage);
-                  }
-                    }
-                    if (value == default) {
-                        _initialized = false;
-                        _value = System.String.Empty;
-                    } else {
-                        _initialized = true;
-                        _value = value;
-                    }
-                    _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
-                    _validation ??= Validate(_value);
-                }
-
                 public static Password From(System.String? value) {
                     if (value is null) {
-                      throw new System.InvalidOperationException("Cannot create an instance of Password from null.");
+                        throw new System.InvalidOperationException("Cannot create an instance of Password from null.");
                     }
 
-                    return new Password(value, validation: true);
+                    
+
+                    var vo = new Password(value);
+
+                    if (!vo.IsValid() && value is not null && !PasswordPreSetValueCache.PasswordPreSetValues.TryGetValue(value, out _)) {
+                        throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                    }
+
+                    return vo;
                 }
 
                 public static bool TryFrom(System.String? value, out Password result) {
@@ -77,12 +64,12 @@
                         return false;
                     }
 
-                    result = string.IsNullOrEmpty(value) ? Empty : new Password(value, validation: false);
+                    result = string.IsNullOrEmpty(value) ? Empty : new Password(value);
                     return result.IsInitialized() && (Validate(result._value).IsSuccess || PasswordPreSetValueCache.PasswordPreSetValues.TryGetValue(value, out _));
                 }
 
 
-                public static Password Empty { get; } = new Password(System.String.Empty, validation: false);
+                public static Password Empty { get; } = new Password(System.String.Empty);
 
                 public bool IsInitialized() => _initialized;
 
@@ -492,7 +479,7 @@ private static class PasswordPreSetValueCache {
     {
         PasswordPreSetValues[Password.Empty.Value] = Password.Empty;
 
-}
+    }
 }
             }
             

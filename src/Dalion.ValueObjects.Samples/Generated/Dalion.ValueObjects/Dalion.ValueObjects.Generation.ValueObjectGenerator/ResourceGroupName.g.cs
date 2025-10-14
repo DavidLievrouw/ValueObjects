@@ -42,33 +42,20 @@
                     _validation ??= Validate(_value);
                 }
 
-                [System.Diagnostics.DebuggerStepThrough]
-                private ResourceGroupName(System.String? value, bool validation) {
-                    value = NormalizeInput(value);
-                    if (validation) {
-                        
-                  _validation = Validate(value);
-                  if (!_validation.IsSuccess && value != default && !ResourceGroupNamePreSetValueCache.ResourceGroupNamePreSetValues.TryGetValue(value, out _)) {
-                      throw new System.InvalidOperationException(_validation.ErrorMessage);
-                  }
-                    }
-                    if (value == default) {
-                        _initialized = false;
-                        _value = System.String.Empty;
-                    } else {
-                        _initialized = true;
-                        _value = value;
-                    }
-                    _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
-                    _validation ??= Validate(_value);
-                }
-
                 public static ResourceGroupName From(System.String? value) {
                     if (value is null) {
-                      throw new System.InvalidOperationException("Cannot create an instance of ResourceGroupName from null.");
+                        throw new System.InvalidOperationException("Cannot create an instance of ResourceGroupName from null.");
                     }
 
-                    return new ResourceGroupName(value, validation: true);
+                    value = NormalizeInput(value);
+
+                    var vo = new ResourceGroupName(value);
+
+                    if (!vo.IsValid() && value is not null && !ResourceGroupNamePreSetValueCache.ResourceGroupNamePreSetValues.TryGetValue(value, out _)) {
+                        throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                    }
+
+                    return vo;
                 }
 
                 public static bool TryFrom(System.String? value, out ResourceGroupName result) {
@@ -77,12 +64,12 @@
                         return false;
                     }
 
-                    result = string.IsNullOrEmpty(value) ? Empty : new ResourceGroupName(value, validation: false);
+                    result = string.IsNullOrEmpty(value) ? Empty : new ResourceGroupName(value);
                     return result.IsInitialized() && (Validate(result._value).IsSuccess || ResourceGroupNamePreSetValueCache.ResourceGroupNamePreSetValues.TryGetValue(value, out _));
                 }
 
 
-                public static ResourceGroupName Empty { get; } = new ResourceGroupName(System.String.Empty, validation: false);
+                public static ResourceGroupName Empty { get; } = new ResourceGroupName(System.String.Empty);
 
                 public bool IsInitialized() => _initialized;
 
@@ -595,7 +582,7 @@ private static class ResourceGroupNamePreSetValueCache {
     {
         ResourceGroupNamePreSetValues[ResourceGroupName.Empty.Value] = ResourceGroupName.Empty;
 
-}
+    }
 }
             }
             

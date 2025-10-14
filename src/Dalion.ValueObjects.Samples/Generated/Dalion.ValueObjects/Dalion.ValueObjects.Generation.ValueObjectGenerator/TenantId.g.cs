@@ -36,33 +36,29 @@
                     _validation ??= Validation.Ok;
                 }
 
-                private TenantId(global::System.Guid value, bool validation) {
-                    
-                    if (validation) {
-                        
-                    }
-                    _initialized = true;
-                    _value = value;
-                    _isNullOrEmpty = false;
-                    _validation ??= Validation.Ok;
-                }
-
                 public static TenantId From(global::System.Guid value) {
                     if (value == default) {
-                        
                         return Empty;
                     }
 
-                    return new TenantId(value, validation: true);
+                    
+
+                    var vo = new TenantId(value);
+
+                    if (!vo.IsValid() && !TenantIdPreSetValueCache.TenantIdPreSetValues.TryGetValue(value, out _)) {
+                        throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                    }
+
+                    return vo;
                 }
 
                 public static bool TryFrom(global::System.Guid value, out TenantId result) {
-                    result = value == default ? Empty : new TenantId(value, validation: false);
+                    result = value == default ? Empty : new TenantId(value);
                     return result.IsInitialized();
                 }
 
 
-                public static TenantId Empty { get; } = new TenantId(default, validation: false);
+                public static TenantId Empty { get; } = new TenantId(default);
 
                 public bool IsInitialized() => _initialized;
 
@@ -473,7 +469,7 @@ private static class TenantIdPreSetValueCache {
     {
         TenantIdPreSetValues[TenantId.Empty.Value] = TenantId.Empty;
 
-}
+    }
 }
             }
             

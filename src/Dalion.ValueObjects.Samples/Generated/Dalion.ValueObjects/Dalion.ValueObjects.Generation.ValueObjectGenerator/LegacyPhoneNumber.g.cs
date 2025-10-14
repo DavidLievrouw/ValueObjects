@@ -42,29 +42,20 @@
                     _validation ??= Validation.Ok;
                 }
 
-                [System.Diagnostics.DebuggerStepThrough]
-                private LegacyPhoneNumber(System.String? value, bool validation) {
-                    
-                    if (validation) {
-                        
-                    }
-                    if (value == default) {
-                        _initialized = false;
-                        _value = System.String.Empty;
-                    } else {
-                        _initialized = true;
-                        _value = value;
-                    }
-                    _isNullOrEmpty = System.String.IsNullOrEmpty(_value);
-                    _validation ??= Validation.Ok;
-                }
-
                 public static LegacyPhoneNumber From(System.String? value) {
                     if (value is null) {
-                      throw new System.InvalidOperationException("Cannot create an instance of LegacyPhoneNumber from null.");
+                        throw new System.InvalidOperationException("Cannot create an instance of LegacyPhoneNumber from null.");
                     }
 
-                    return new LegacyPhoneNumber(value, validation: true);
+                    
+
+                    var vo = new LegacyPhoneNumber(value);
+
+                    if (!vo.IsValid() && value is not null && !LegacyPhoneNumberPreSetValueCache.LegacyPhoneNumberPreSetValues.TryGetValue(value, out _)) {
+                        throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                    }
+
+                    return vo;
                 }
 
                 public static bool TryFrom(System.String? value, out LegacyPhoneNumber result) {
@@ -73,12 +64,12 @@
                         return false;
                     }
 
-                    result = string.IsNullOrEmpty(value) ? Empty : new LegacyPhoneNumber(value, validation: false);
+                    result = string.IsNullOrEmpty(value) ? Empty : new LegacyPhoneNumber(value);
                     return result.IsInitialized();
                 }
 
 
-                public static LegacyPhoneNumber Empty { get; } = new LegacyPhoneNumber(System.String.Empty, validation: false);
+                public static LegacyPhoneNumber Empty { get; } = new LegacyPhoneNumber(System.String.Empty);
 
                 public bool IsInitialized() => _initialized;
 
@@ -497,7 +488,7 @@ private static class LegacyPhoneNumberPreSetValueCache {
     {
         LegacyPhoneNumberPreSetValues[LegacyPhoneNumber.Empty.Value] = LegacyPhoneNumber.Empty;
 
-}
+    }
 }
             }
             

@@ -36,41 +36,29 @@
                     _validation ??= Validate(_value);
                 }
 
-                private Celsius(System.Decimal value, bool validation) {
-                    
-                    if (validation) {
-                        
-                  _validation = Validate(value);
-                  if (!_validation.IsSuccess && value != default && !CelsiusPreSetValueCache.CelsiusPreSetValues.TryGetValue(value, out _)) {
-                      throw new System.InvalidOperationException(_validation.ErrorMessage);
-                  }
-                    }
-                    _initialized = true;
-                    _value = value;
-                    _isNullOrEmpty = false;
-                    _validation ??= Validate(_value);
-                }
-
                 public static Celsius From(System.Decimal value) {
                     if (value == default) {
-                        
-                  var validationResult = Validate(value);
-                  if (!validationResult.IsSuccess && !CelsiusPreSetValueCache.CelsiusPreSetValues.TryGetValue(value, out _)) {
-                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
-                  }
                         return Zero;
                     }
 
-                    return new Celsius(value, validation: true);
+                    
+
+                    var vo = new Celsius(value);
+
+                    if (!vo.IsValid() && !CelsiusPreSetValueCache.CelsiusPreSetValues.TryGetValue(value, out _)) {
+                        throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                    }
+
+                    return vo;
                 }
 
                 public static bool TryFrom(System.Decimal value, out Celsius result) {
-                    result = value == default ? Zero : new Celsius(value, validation: false);
+                    result = value == default ? Zero : new Celsius(value);
                     return result.IsInitialized() && (Validate(result._value).IsSuccess || CelsiusPreSetValueCache.CelsiusPreSetValues.TryGetValue(value, out _));
                 }
 
 
-                public static Celsius Zero { get; } = new Celsius(default, validation: false);
+                public static Celsius Zero { get; } = new Celsius(default);
 
                 public bool IsInitialized() => _initialized;
 
@@ -612,7 +600,7 @@ private static class CelsiusPreSetValueCache {
         CelsiusPreSetValues[Celsius.Zero.Value] = Celsius.Zero;
         CelsiusPreSetValues[Celsius.AbsoluteZero.Value] = Celsius.AbsoluteZero;
         CelsiusPreSetValues[Celsius.AbsoluteZeroFahrenheit.Value] = Celsius.AbsoluteZeroFahrenheit;
-}
+    }
 }
             }
             

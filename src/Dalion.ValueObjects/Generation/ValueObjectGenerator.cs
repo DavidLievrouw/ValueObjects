@@ -453,24 +453,6 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                 ? "_validation ??= Validation.Ok;"
                 : "_validation ??= Validate(_value);";
 
-        var ctorValidation =
-            validateMethod == null
-                ? ""
-                : $@"
-                  _validation = Validate(value);
-                  if (!_validation.IsSuccess && value != default && !{typeName}PreSetValueCache.{typeName}PreSetValues.TryGetValue(value, out _)) {{
-                      throw new System.InvalidOperationException(_validation.ErrorMessage);
-                  }}";
-
-        var staticValidation =
-            validateMethod == null
-                ? ""
-                : $@"
-                  var validationResult = Validate(value);
-                  if (!validationResult.IsSuccess && !{typeName}PreSetValueCache.{typeName}PreSetValues.TryGetValue(value, out _)) {{
-                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
-                  }}";
-
         var tryFromValidation =
             validateMethod == null
                 ? "return result.IsInitialized();"
@@ -680,29 +662,20 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     {validationFieldAssignment}
                 }}
 
-                [System.Diagnostics.DebuggerStepThrough]
-                private {typeName}({valueTypeName}? value, bool validation) {{
-                    {inputNormalization}
-                    if (validation) {{
-                        {ctorValidation}
-                    }}
-                    if (value == default) {{
-                        _initialized = false;
-                        _value = {valueTypeName}.Empty;
-                    }} else {{
-                        _initialized = true;
-                        _value = value;
-                    }}
-                    _isNullOrEmpty = {valueTypeName}.IsNullOrEmpty(_value);
-                    {validationFieldAssignment}
-                }}
-
                 public static {typeName} From({valueTypeName}? value) {{
                     if (value is null) {{
-                      throw new System.InvalidOperationException(""Cannot create an instance of {typeName} from null."");
+                        throw new System.InvalidOperationException(""Cannot create an instance of {typeName} from null."");
                     }}
 
-                    return new {typeName}(value, validation: true);
+                    {inputNormalization}
+
+                    var vo = new {typeName}(value);
+
+                    if (!vo.IsValid() && value is not null && !{typeName}PreSetValueCache.{typeName}PreSetValues.TryGetValue(value, out _)) {{
+                        throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                    }}
+
+                    return vo;
                 }}
 
                 public static bool TryFrom({valueTypeName}? value, out {typeName} result) {{
@@ -711,7 +684,7 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                         return false;
                     }}
 
-                    result = string.IsNullOrEmpty(value) ? {emptyValueName} : new {typeName}(value, validation: false);
+                    result = string.IsNullOrEmpty(value) ? {emptyValueName} : new {typeName}(value);
                     {tryFromValidation}
                 }}
 "
@@ -734,28 +707,24 @@ private class {{typeName}}SystemTextJsonConverter : System.Text.Json.Serializati
                     {validationFieldAssignment}
                 }}
 
-                private {typeName}({valueTypeName} value, bool validation) {{
-                    {inputNormalization}
-                    if (validation) {{
-                        {ctorValidation}
-                    }}
-                    _initialized = true;
-                    _value = value;
-                    _isNullOrEmpty = false;
-                    {validationFieldAssignment}
-                }}
-
                 public static {typeName} From({valueTypeName} value) {{
                     if (value == default) {{
-                        {staticValidation}
                         return {emptyValueName};
                     }}
 
-                    return new {typeName}(value, validation: true);
+                    {inputNormalization}
+
+                    var vo = new {typeName}(value);
+
+                    if (!vo.IsValid() && !{typeName}PreSetValueCache.{typeName}PreSetValues.TryGetValue(value, out _)) {{
+                        throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                    }}
+
+                    return vo;
                 }}
 
                 public static bool TryFrom({valueTypeName} value, out {typeName} result) {{
-                    result = value == default ? {emptyValueName} : new {typeName}(value, validation: false);
+                    result = value == default ? {emptyValueName} : new {typeName}(value);
                     {tryFromValidation}
                 }}
 ";
@@ -1185,7 +1154,7 @@ private static class {typeName}PreSetValueCache {{
 
                 {creation}
 
-                public static {typeName} {emptyValueName} {{ get; }} = new {typeName}({defaultValue}, validation: false);
+                public static {typeName} {emptyValueName} {{ get; }} = new {typeName}({defaultValue});
 
                 public bool IsInitialized() => _initialized;
 

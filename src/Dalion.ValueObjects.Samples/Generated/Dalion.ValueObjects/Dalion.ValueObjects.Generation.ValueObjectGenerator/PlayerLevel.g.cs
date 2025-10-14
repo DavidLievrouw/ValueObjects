@@ -36,41 +36,29 @@
                     _validation ??= Validate(_value);
                 }
 
-                private PlayerLevel(System.Int32 value, bool validation) {
-                    
-                    if (validation) {
-                        
-                  _validation = Validate(value);
-                  if (!_validation.IsSuccess && value != default && !PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(value, out _)) {
-                      throw new System.InvalidOperationException(_validation.ErrorMessage);
-                  }
-                    }
-                    _initialized = true;
-                    _value = value;
-                    _isNullOrEmpty = false;
-                    _validation ??= Validate(_value);
-                }
-
                 public static PlayerLevel From(System.Int32 value) {
                     if (value == default) {
-                        
-                  var validationResult = Validate(value);
-                  if (!validationResult.IsSuccess && !PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(value, out _)) {
-                      throw new System.InvalidOperationException(validationResult.ErrorMessage);
-                  }
                         return Unspecified;
                     }
 
-                    return new PlayerLevel(value, validation: true);
+                    
+
+                    var vo = new PlayerLevel(value);
+
+                    if (!vo.IsValid() && !PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(value, out _)) {
+                        throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                    }
+
+                    return vo;
                 }
 
                 public static bool TryFrom(System.Int32 value, out PlayerLevel result) {
-                    result = value == default ? Unspecified : new PlayerLevel(value, validation: false);
+                    result = value == default ? Unspecified : new PlayerLevel(value);
                     return result.IsInitialized() && (Validate(result._value).IsSuccess || PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(value, out _));
                 }
 
 
-                public static PlayerLevel Unspecified { get; } = new PlayerLevel(default, validation: false);
+                public static PlayerLevel Unspecified { get; } = new PlayerLevel(default);
 
                 public bool IsInitialized() => _initialized;
 
@@ -472,7 +460,7 @@ private static class PlayerLevelPreSetValueCache {
     {
         PlayerLevelPreSetValues[PlayerLevel.Unspecified.Value] = PlayerLevel.Unspecified;
         PlayerLevelPreSetValues[PlayerLevel.Invalid.Value] = PlayerLevel.Invalid;
-}
+    }
 }
             }
             
