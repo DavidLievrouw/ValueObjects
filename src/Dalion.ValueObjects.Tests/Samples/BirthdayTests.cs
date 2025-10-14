@@ -302,13 +302,13 @@ public partial class BirthdayTests
     public class ToStringRepresentation : BirthdayTests
     {
         [Fact]
-        public void ReturnsValue()
+        public void ReturnsValueInCurrentLocale()
         {
             var value = new DateOnly(2020, 3, 12);
 
             var actual = Birthday.From(value).ToString();
 
-            var expected = value.ToString(CultureInfo.InvariantCulture);
+            var expected = value.ToString(CultureInfo.CurrentCulture);
             Assert.Equal(expected, actual);
         }
 

@@ -884,7 +884,7 @@ public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _va
                 /// <inheritdoc />
                 public override string ToString()
                 {
-                    return Value.ToString(format: null, provider: System.Globalization.CultureInfo.InvariantCulture);
+                    return Value.ToString();
                 }
 
                 /// <inheritdoc cref=""M:System.String.ToString(System.IFormatProvider)"" />

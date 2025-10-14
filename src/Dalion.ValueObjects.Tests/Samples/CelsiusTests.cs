@@ -312,13 +312,13 @@ public partial class CelsiusTests
     public class ToStringRepresentation : CelsiusTests
     {
         [Fact]
-        public void ReturnsValue()
+        public void ReturnsValueInCurrentLocale()
         {
             var value = 24.2m;
 
             var actual = Celsius.From(value).ToString();
 
-            Assert.Equal(value.ToString(CultureInfo.InvariantCulture), actual);
+            Assert.Equal(value.ToString(CultureInfo.CurrentCulture), actual);
         }
 
         [Fact]
