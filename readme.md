@@ -1,8 +1,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Nuget](https://img.shields.io/nuget/v/Dalion.ValueObjects)](https://www.nuget.org/packages/Dalion.ValueObjects/)
 [![Build status](https://ci.appveyor.com/api/projects/status/nrvheog39e1xy4ge?svg=true)](https://ci.appveyor.com/project/DavidLievrouw/valueobjects)
 [![Tests status](https://img.shields.io/appveyor/tests/DavidLievrouw/valueobjects?compact_message)](https://ci.appveyor.com/project/DavidLievrouw/valueobjects)
+[![Last commit](https://img.shields.io/github/last-commit/DavidLievrouw/ValueObjects)](https://github.com/DavidLievrouw/ValueObjects)
+[![Stack](https://img.shields.io/badge/.NET-512BD4?style=flat&logo=.net&logoColor=white)](https://dotnet.microsoft.com)
 
-## Dalion ValueObjects [<img src="https://dalion.eu/dalion128.png" align="right" width="48">](https://www.dalion.eu)
+## ValueObjects [<img src="https://dalion.eu/dalion128.png" align="right" width="48">](https://www.dalion.eu)
 
 A C# code generator to cure my [Primitive Obsession](https://refactoring.guru/smells/primitive-obsession).
 
