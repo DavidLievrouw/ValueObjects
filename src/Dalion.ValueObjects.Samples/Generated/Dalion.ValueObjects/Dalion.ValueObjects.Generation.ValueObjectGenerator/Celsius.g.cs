@@ -147,25 +147,25 @@ namespace Dalion.ValueObjects.Samples {
         }
 
         /// <summary>
-        ///     The equality operator for this type and the underlying type.
+        ///     The equality operator for <see cref="Celsius" /> and <see cref="System.Decimal" />.
         /// </summary>
         /// <returns><see langword="true" /> if the specified items are considered equal; otherwise, <see langword="false" />.</returns>
         public static bool operator ==(Celsius left, System.Decimal right) => left.Value.Equals(right);
 
         /// <summary>
-        ///     The equality operator for the underlying type and this type.
+        ///     The equality operator for <see cref="System.Decimal" /> and <see cref="Celsius" />.
         /// </summary>
         /// <returns><see langword="true" /> if the specified items are considered equal; otherwise, <see langword="false" />.</returns>
         public static bool operator ==(System.Decimal left, Celsius right) => right.Value.Equals(left);
 
         /// <summary>
-        ///     The inequality operator for this type and the underlying type.
+        ///     The inequality operator for <see cref="Celsius" /> and <see cref="System.Decimal" />.
         /// </summary>
         /// <returns><see langword="true" /> if the specified items are considered not to be equal; otherwise, <see langword="false" />.</returns>
         public static bool operator !=(Celsius left, System.Decimal right) => !(left == right);
 
         /// <summary>
-        ///     The inequality operator for the underlying type and this type.
+        ///     The inequality operator for <see cref="System.Decimal" /> and <see cref="Celsius" />.
         /// </summary>
         /// <returns><see langword="true" /> if the specified items are considered not to be equal; otherwise, <see langword="false" />.</returns>
         public static bool operator !=(System.Decimal left, Celsius right) => !(left == right);

@@ -147,25 +147,25 @@ namespace Dalion.ValueObjects.Samples {
         }
 
         /// <summary>
-        ///     The equality operator for this type and the underlying type.
+        ///     The equality operator for <see cref="Birthday" /> and <see cref="System.DateOnly" />.
         /// </summary>
         /// <returns><see langword="true" /> if the specified items are considered equal; otherwise, <see langword="false" />.</returns>
         public static bool operator ==(Birthday left, System.DateOnly right) => left.Value.Equals(right);
 
         /// <summary>
-        ///     The equality operator for the underlying type and this type.
+        ///     The equality operator for <see cref="System.DateOnly" /> and <see cref="Birthday" />.
         /// </summary>
         /// <returns><see langword="true" /> if the specified items are considered equal; otherwise, <see langword="false" />.</returns>
         public static bool operator ==(System.DateOnly left, Birthday right) => right.Value.Equals(left);
 
         /// <summary>
-        ///     The inequality operator for this type and the underlying type.
+        ///     The inequality operator for <see cref="Birthday" /> and <see cref="System.DateOnly" />.
         /// </summary>
         /// <returns><see langword="true" /> if the specified items are considered not to be equal; otherwise, <see langword="false" />.</returns>
         public static bool operator !=(Birthday left, System.DateOnly right) => !(left == right);
 
         /// <summary>
-        ///     The inequality operator for the underlying type and this type.
+        ///     The inequality operator for <see cref="System.DateOnly" /> and <see cref="Birthday" />.
         /// </summary>
         /// <returns><see langword="true" /> if the specified items are considered not to be equal; otherwise, <see langword="false" />.</returns>
         public static bool operator !=(System.DateOnly left, Birthday right) => !(left == right);
