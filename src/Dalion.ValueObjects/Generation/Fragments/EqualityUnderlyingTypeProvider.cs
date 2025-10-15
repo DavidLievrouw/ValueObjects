@@ -47,6 +47,7 @@ internal class EqualityUnderlyingTypeProvider : IFragmentProvider
                 : {config.UnderlyingTypeName}.Equals(this._value, other, System.StringComparison.{stringComparison});
         }}
         
+        /// <inheritdoc />
         public bool Equals({config.UnderlyingTypeName}? underlyingValue, StringComparer comparer)
         {{
             return comparer.Equals(this.Value, underlyingValue);

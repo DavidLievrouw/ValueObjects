@@ -15,8 +15,14 @@ namespace Dalion.ValueObjects.Samples {
         private readonly Validation _validation;
         private static readonly Type UnderlyingType = typeof(System.Int32);
 
+        /// <summary>
+        ///     Gets the underlying value of this <see cref="PlayerLevel"/>.
+        /// </summary>
         public System.Int32 Value => _value;
 
+        /// <summary>
+        ///     Creates a new <see cref="PlayerLevel"/>.
+        /// </summary>
         [System.Diagnostics.DebuggerStepThrough]
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public PlayerLevel()
@@ -27,6 +33,10 @@ namespace Dalion.ValueObjects.Samples {
             _validation ??= Validate(_value);
         }
 
+        /// <summary>
+        ///     Creates a new <see cref="PlayerLevel"/>.
+        /// </summary>
+        /// <param name="value">The underlying value to create the value object from.</param>
         [System.Diagnostics.DebuggerStepThrough]
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         private PlayerLevel(System.Int32 value) {
@@ -37,6 +47,12 @@ namespace Dalion.ValueObjects.Samples {
             _validation ??= Validate(_value);
         }
 
+        /// <summary>
+        ///     Creates a new <see cref="PlayerLevel"/> from the
+        ///     given <see cref="System.Int32"/>.
+        /// </summary>
+        /// <param name="value">The underlying value to create the value object from.</param>
+        /// <returns>A new <see cref="PlayerLevel"/>.</returns>
         public static PlayerLevel From(System.Int32 value) {
             if (value == default) {
                 return Unspecified;
@@ -53,13 +69,28 @@ namespace Dalion.ValueObjects.Samples {
             return vo;
         }
 
+        /// <summary>
+        ///     Tries to create a new <see cref="PlayerLevel"/> from the
+        ///     given <see cref="System.Int32"/>.
+        /// </summary>
+        /// <param name="value">The underlying value to create the value object from.</param>
+        /// <param name="result">The resulting value object if the method returns <see langword="true"/>; otherwise, an uninitialized value object.</param>
+        /// <returns><see langword="true"/> if the value object was created successfully; otherwise, <see langword="false"/>.</returns>
         public static bool TryFrom(System.Int32 value, out PlayerLevel result) {
             result = value == default ? Unspecified : new PlayerLevel(value);
             return result.IsInitialized() && (Validate(result._value).IsSuccess || PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(value, out _));
         }
 
+        /// <summary>
+        ///     Represents a <see cref="PlayerLevel"/> with a default underlying value.
+        /// </summary>
         public static PlayerLevel Unspecified { get; } = new PlayerLevel(default);
 
+        /// <summary>
+        ///     Indicates whether this <see cref="PlayerLevel"/> has been
+        ///     initialized with a value.
+        /// </summary>
+        /// <returns><see langword="true" /> if this <see cref="PlayerLevel"/> has been initialized; otherwise, <see langword="false" />.</returns>
         public bool IsInitialized() => _initialized;
 
         /// <inheritdoc />
@@ -96,6 +127,7 @@ namespace Dalion.ValueObjects.Samples {
             return EqualityComparer<System.Int32>.Default.Equals(this._value, other.Value);
         }
         
+        /// <inheritdoc />
         public bool Equals(PlayerLevel? other, IEqualityComparer<PlayerLevel> comparer)
         {
             if (other is null) return false;
@@ -134,7 +166,16 @@ namespace Dalion.ValueObjects.Samples {
             return Value.ToString(format, formatProvider) ?? "";
         }}
 
+        /// <summary>
+        ///     Indicates whether this value object is valid.
+        /// </summary>
+        /// <returns><see langword="true" /> if this value object is valid; otherwise, <see langword="false" />.</returns>
         public bool IsValid() => _validation.IsSuccess;
+
+        /// <summary>
+        ///     Gets the validation error message if this value object is not valid.
+        /// </summary>
+        /// <returns>The validation error message if this value object is not valid; otherwise, <see langword="null" />.</returns>
         public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _validation.ErrorMessage;
 
         private class Validation

@@ -153,12 +153,23 @@ namespace {config.Namespace} {{
         private readonly Validation _validation;
         private static readonly Type UnderlyingType = typeof({config.UnderlyingTypeName});
 
+        /// <summary>
+        ///     Gets the underlying value of this <see cref=""{config.TypeName}""/>.
+        /// </summary>
         public {config.UnderlyingTypeName} Value => _value;
 
         {creation}
 
+        /// <summary>
+        ///     Represents a <see cref=""{config.TypeName}""/> with a default underlying value.
+        /// </summary>
         public static {config.TypeName} {config.EmptyValueName} {{ get; }} = new {config.TypeName}({defaultValue});
 
+        /// <summary>
+        ///     Indicates whether this <see cref=""{config.TypeName}""/> has been
+        ///     initialized with a value.
+        /// </summary>
+        /// <returns><see langword=""true"" /> if this <see cref=""{config.TypeName}""/> has been initialized; otherwise, <see langword=""false"" />.</returns>
         public bool IsInitialized() => _initialized;
 
         {equality}

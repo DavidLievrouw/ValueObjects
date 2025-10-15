@@ -19,10 +19,13 @@ internal class ComparisonProvider : IFragmentProvider
     private static string GetForValueType(AttributeConfiguration config)
     {
         return $@"
+        /// <inheritdoc />
         public int CompareTo({config.TypeName} other) => this.Value.CompareTo(other.Value);
 
+        /// <inheritdoc />
         public int CompareTo({config.UnderlyingTypeName} other) => this.Value.CompareTo(other);
         
+        /// <inheritdoc />
         public int CompareTo(object? other)
         {{
             if (other == null)
@@ -41,10 +44,13 @@ internal class ComparisonProvider : IFragmentProvider
     private static string GetForString(AttributeConfiguration config)
     {
         return $@"
+        /// <inheritdoc />
         public int CompareTo({config.TypeName} other) => this.Value.CompareTo(other.Value);
 
+        /// <inheritdoc />
         public int CompareTo({config.UnderlyingTypeName}? other) => this.Value.CompareTo(other);
         
+        /// <inheritdoc />
         public int CompareTo(object? other)
         {{
             if (other == null)

@@ -15,8 +15,14 @@ namespace Dalion.ValueObjects.Samples {
         private readonly Validation _validation;
         private static readonly Type UnderlyingType = typeof(System.Guid);
 
+        /// <summary>
+        ///     Gets the underlying value of this <see cref="TenantId"/>.
+        /// </summary>
         public System.Guid Value => _value;
 
+        /// <summary>
+        ///     Creates a new <see cref="TenantId"/>.
+        /// </summary>
         [System.Diagnostics.DebuggerStepThrough]
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public TenantId()
@@ -27,6 +33,10 @@ namespace Dalion.ValueObjects.Samples {
             _validation ??= Validation.Ok;
         }
 
+        /// <summary>
+        ///     Creates a new <see cref="TenantId"/>.
+        /// </summary>
+        /// <param name="value">The underlying value to create the value object from.</param>
         [System.Diagnostics.DebuggerStepThrough]
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         private TenantId(System.Guid value) {
@@ -37,6 +47,12 @@ namespace Dalion.ValueObjects.Samples {
             _validation ??= Validation.Ok;
         }
 
+        /// <summary>
+        ///     Creates a new <see cref="TenantId"/> from the
+        ///     given <see cref="System.Guid"/>.
+        /// </summary>
+        /// <param name="value">The underlying value to create the value object from.</param>
+        /// <returns>A new <see cref="TenantId"/>.</returns>
         public static TenantId From(System.Guid value) {
             if (value == default) {
                 return Empty;
@@ -53,13 +69,28 @@ namespace Dalion.ValueObjects.Samples {
             return vo;
         }
 
+        /// <summary>
+        ///     Tries to create a new <see cref="TenantId"/> from the
+        ///     given <see cref="System.Guid"/>.
+        /// </summary>
+        /// <param name="value">The underlying value to create the value object from.</param>
+        /// <param name="result">The resulting value object if the method returns <see langword="true"/>; otherwise, an uninitialized value object.</param>
+        /// <returns><see langword="true"/> if the value object was created successfully; otherwise, <see langword="false"/>.</returns>
         public static bool TryFrom(System.Guid value, out TenantId result) {
             result = value == default ? Empty : new TenantId(value);
             return result.IsInitialized();
         }
 
+        /// <summary>
+        ///     Represents a <see cref="TenantId"/> with a default underlying value.
+        /// </summary>
         public static TenantId Empty { get; } = new TenantId(default);
 
+        /// <summary>
+        ///     Indicates whether this <see cref="TenantId"/> has been
+        ///     initialized with a value.
+        /// </summary>
+        /// <returns><see langword="true" /> if this <see cref="TenantId"/> has been initialized; otherwise, <see langword="false" />.</returns>
         public bool IsInitialized() => _initialized;
 
         /// <inheritdoc />
@@ -96,6 +127,7 @@ namespace Dalion.ValueObjects.Samples {
             return EqualityComparer<System.Guid>.Default.Equals(this._value, other.Value);
         }
         
+        /// <inheritdoc />
         public bool Equals(TenantId? other, IEqualityComparer<TenantId> comparer)
         {
             if (other is null) return false;
@@ -142,7 +174,16 @@ namespace Dalion.ValueObjects.Samples {
             return Value.ToString(format, formatProvider) ?? "";
         }}
 
+        /// <summary>
+        ///     Indicates whether this value object is valid.
+        /// </summary>
+        /// <returns><see langword="true" /> if this value object is valid; otherwise, <see langword="false" />.</returns>
         public bool IsValid() => _validation.IsSuccess;
+
+        /// <summary>
+        ///     Gets the validation error message if this value object is not valid.
+        /// </summary>
+        /// <returns>The validation error message if this value object is not valid; otherwise, <see langword="null" />.</returns>
         public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _validation.ErrorMessage;
 
         private class Validation

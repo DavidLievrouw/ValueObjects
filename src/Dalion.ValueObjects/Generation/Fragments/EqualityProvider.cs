@@ -48,6 +48,7 @@ internal class EqualityProvider : IFragmentProvider
             return EqualityComparer<{config.UnderlyingTypeName}>.Default.Equals(this._value, other.Value);
         }}
         
+        /// <inheritdoc />
         public bool Equals({config.TypeName}? other, IEqualityComparer<{config.TypeName}> comparer)
         {{
             if (other is null) return false;
@@ -107,6 +108,7 @@ internal class EqualityProvider : IFragmentProvider
                 : {config.UnderlyingTypeName}.Equals(this._value, other.Value, System.StringComparison.{stringComparison});
         }}
         
+        /// <inheritdoc />
         public bool Equals({config.TypeName}? other, IEqualityComparer<{config.TypeName}> comparer)
         {{
             if (other is null) return false;

@@ -26,6 +26,9 @@ internal class UnderlyingTypeCreationExtensionsProvider : IFragmentProvider
 #nullable enable
 
 namespace {config.Namespace} {{
+    /// <summary>
+    ///     Extension methods to create <see cref=""{containingTypes}{config.TypeName}""/> value objects.
+    /// </summary>
     public static class {config.TypeName}UnderlyingTypeCreationExtensions
     {{
         {creationMethod}
@@ -37,6 +40,11 @@ namespace {config.Namespace} {{
     private static string CreateForString(AttributeConfiguration config, string containingTypes)
     {
         return $@"
+        /// <summary>
+        ///     Creates a new <see cref=""{containingTypes}{config.TypeName}""/> from the given <see cref=""{config.UnderlyingTypeName}""/>.
+        /// </summary>
+        /// <param name=""value"">The value to create the value object from.</param>
+        /// <returns>A new <see cref=""{containingTypes}{config.TypeName}""/>.</returns>
         public static {config.Namespace}.{containingTypes}{config.TypeName} {config.TypeName}(this {config.UnderlyingTypeName}? value)
         {{
             return {config.Namespace}.{containingTypes}{config.TypeName}.From(value);
@@ -46,6 +54,11 @@ namespace {config.Namespace} {{
     private static string CreateForValueType(AttributeConfiguration config, string containingTypes)
     {
         return $@"
+        /// <summary>
+        ///     Creates a new <see cref=""{containingTypes}{config.TypeName}""/> from the given <see cref=""{config.UnderlyingTypeName}""/>.
+        /// </summary>
+        /// <param name=""value"">The value to create the value object from.</param>
+        /// <returns>A new <see cref=""{containingTypes}{config.TypeName}""/>.</returns>
         public static {config.Namespace}.{containingTypes}{config.TypeName} {config.TypeName}(this {config.UnderlyingTypeName} value)
         {{
             return {config.Namespace}.{containingTypes}{config.TypeName}.From(value);

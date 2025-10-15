@@ -15,8 +15,14 @@ namespace Dalion.ValueObjects.Samples {
         private readonly Validation _validation;
         private static readonly Type UnderlyingType = typeof(System.String);
 
+        /// <summary>
+        ///     Gets the underlying value of this <see cref="ResourceGroupName"/>.
+        /// </summary>
         public System.String Value => _value;
 
+        /// <summary>
+        ///     Creates a new <see cref="ResourceGroupName"/>.
+        /// </summary>
         [System.Diagnostics.DebuggerStepThrough]
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public ResourceGroupName()
@@ -27,6 +33,10 @@ namespace Dalion.ValueObjects.Samples {
             _validation ??= Validate(_value);
         }
 
+        /// <summary>
+        ///     Creates a new <see cref="ResourceGroupName"/>.
+        /// </summary>
+        /// <param name="value">The underlying value to create the value object from.</param>
         [System.Diagnostics.DebuggerStepThrough]
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         private ResourceGroupName(System.String? value) {
@@ -42,6 +52,12 @@ namespace Dalion.ValueObjects.Samples {
             _validation ??= Validate(_value);
         }
 
+        /// <summary>
+        ///     Creates a new <see cref="ResourceGroupName"/> from the
+        ///     given <see cref="System.String"/>.
+        /// </summary>
+        /// <param name="value">The underlying value to create the value object from.</param>
+        /// <returns>A new <see cref="ResourceGroupName"/>.</returns>
         public static ResourceGroupName From(System.String? value) {
             if (value is null) {
                 throw new System.InvalidOperationException("Cannot create an instance of ResourceGroupName from null.");
@@ -58,6 +74,13 @@ namespace Dalion.ValueObjects.Samples {
             return vo;
         }
 
+        /// <summary>
+        ///     Tries to create a new <see cref="ResourceGroupName"/> from the
+        ///     given <see cref="System.String"/>.
+        /// </summary>
+        /// <param name="value">The underlying value to create the value object from.</param>
+        /// <param name="result">The resulting value object if the method returns <see langword="true"/>; otherwise, an uninitialized value object.</param>
+        /// <returns><see langword="true"/> if the value object was created successfully; otherwise, <see langword="false"/>.</returns>
         public static bool TryFrom(System.String? value, out ResourceGroupName result) {
             if (value is null) {
                 result = new ResourceGroupName();
@@ -68,8 +91,16 @@ namespace Dalion.ValueObjects.Samples {
             return result.IsInitialized() && (Validate(result._value).IsSuccess || ResourceGroupNamePreSetValueCache.ResourceGroupNamePreSetValues.TryGetValue(value, out _));
         }
 
+        /// <summary>
+        ///     Represents a <see cref="ResourceGroupName"/> with a default underlying value.
+        /// </summary>
         public static ResourceGroupName Empty { get; } = new ResourceGroupName(System.String.Empty);
 
+        /// <summary>
+        ///     Indicates whether this <see cref="ResourceGroupName"/> has been
+        ///     initialized with a value.
+        /// </summary>
+        /// <returns><see langword="true" /> if this <see cref="ResourceGroupName"/> has been initialized; otherwise, <see langword="false" />.</returns>
         public bool IsInitialized() => _initialized;
 
         /// <inheritdoc />
@@ -110,6 +141,7 @@ namespace Dalion.ValueObjects.Samples {
                 : System.String.Equals(this._value, other.Value, System.StringComparison.OrdinalIgnoreCase);
         }
         
+        /// <inheritdoc />
         public bool Equals(ResourceGroupName? other, IEqualityComparer<ResourceGroupName> comparer)
         {
             if (other is null) return false;
@@ -130,23 +162,43 @@ namespace Dalion.ValueObjects.Samples {
                 : System.String.Equals(this._value, other, System.StringComparison.OrdinalIgnoreCase);
         }
         
+        /// <inheritdoc />
         public bool Equals(System.String? underlyingValue, StringComparer comparer)
         {
             return comparer.Equals(this.Value, underlyingValue);
         }
 
+        /// <summary>
+        ///     The equality operator for this type and the underlying type.
+        /// </summary>
+        /// <returns><see langword="true" /> if the specified items are considered equal; otherwise, <see langword="false" />.</returns>
         public static bool operator ==(ResourceGroupName left, System.String? right) => left.Value.Equals(right);
 
+        /// <summary>
+        ///     The equality operator for the underlying type and this type.
+        /// </summary>
+        /// <returns><see langword="true" /> if the specified items are considered equal; otherwise, <see langword="false" />.</returns>
         public static bool operator ==(System.String? left, ResourceGroupName right) => right.Value.Equals(left);
 
-        public static bool operator !=(System.String? left, ResourceGroupName right) => !(left == right);
-
+        /// <summary>
+        ///     The inequality operator for this type and the underlying type.
+        /// </summary>
+        /// <returns><see langword="true" /> if the specified items are considered not to be equal; otherwise, <see langword="false" />.</returns>
         public static bool operator !=(ResourceGroupName left, System.String? right) => !(left == right);
 
+        /// <summary>
+        ///     The inequality operator for the underlying type and this type.
+        /// </summary>
+        /// <returns><see langword="true" /> if the specified items are considered not to be equal; otherwise, <see langword="false" />.</returns>
+        public static bool operator !=(System.String? left, ResourceGroupName right) => !(left == right);
+
+        /// <inheritdoc />
         public int CompareTo(ResourceGroupName other) => this.Value.CompareTo(other.Value);
 
+        /// <inheritdoc />
         public int CompareTo(System.String? other) => this.Value.CompareTo(other);
         
+        /// <inheritdoc />
         public int CompareTo(object? other)
         {
             if (other == null)
@@ -193,7 +245,16 @@ namespace Dalion.ValueObjects.Samples {
             return Value.ToString(provider: provider);
         }}
 
+        /// <summary>
+        ///     Indicates whether this value object is valid.
+        /// </summary>
+        /// <returns><see langword="true" /> if this value object is valid; otherwise, <see langword="false" />.</returns>
         public bool IsValid() => _validation.IsSuccess;
+
+        /// <summary>
+        ///     Gets the validation error message if this value object is not valid.
+        /// </summary>
+        /// <returns>The validation error message if this value object is not valid; otherwise, <see langword="null" />.</returns>
         public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _validation.ErrorMessage;
 
         private class Validation

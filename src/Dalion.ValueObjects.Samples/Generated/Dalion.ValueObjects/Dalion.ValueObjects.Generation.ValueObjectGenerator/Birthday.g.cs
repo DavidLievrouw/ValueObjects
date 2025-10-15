@@ -15,8 +15,14 @@ namespace Dalion.ValueObjects.Samples {
         private readonly Validation _validation;
         private static readonly Type UnderlyingType = typeof(System.DateOnly);
 
+        /// <summary>
+        ///     Gets the underlying value of this <see cref="Birthday"/>.
+        /// </summary>
         public System.DateOnly Value => _value;
 
+        /// <summary>
+        ///     Creates a new <see cref="Birthday"/>.
+        /// </summary>
         [System.Diagnostics.DebuggerStepThrough]
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public Birthday()
@@ -27,6 +33,10 @@ namespace Dalion.ValueObjects.Samples {
             _validation ??= Validate(_value);
         }
 
+        /// <summary>
+        ///     Creates a new <see cref="Birthday"/>.
+        /// </summary>
+        /// <param name="value">The underlying value to create the value object from.</param>
         [System.Diagnostics.DebuggerStepThrough]
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         private Birthday(System.DateOnly value) {
@@ -37,6 +47,12 @@ namespace Dalion.ValueObjects.Samples {
             _validation ??= Validate(_value);
         }
 
+        /// <summary>
+        ///     Creates a new <see cref="Birthday"/> from the
+        ///     given <see cref="System.DateOnly"/>.
+        /// </summary>
+        /// <param name="value">The underlying value to create the value object from.</param>
+        /// <returns>A new <see cref="Birthday"/>.</returns>
         public static Birthday From(System.DateOnly value) {
             if (value == default) {
                 return None;
@@ -53,13 +69,28 @@ namespace Dalion.ValueObjects.Samples {
             return vo;
         }
 
+        /// <summary>
+        ///     Tries to create a new <see cref="Birthday"/> from the
+        ///     given <see cref="System.DateOnly"/>.
+        /// </summary>
+        /// <param name="value">The underlying value to create the value object from.</param>
+        /// <param name="result">The resulting value object if the method returns <see langword="true"/>; otherwise, an uninitialized value object.</param>
+        /// <returns><see langword="true"/> if the value object was created successfully; otherwise, <see langword="false"/>.</returns>
         public static bool TryFrom(System.DateOnly value, out Birthday result) {
             result = value == default ? None : new Birthday(value);
             return result.IsInitialized() && (Validate(result._value).IsSuccess || BirthdayPreSetValueCache.BirthdayPreSetValues.TryGetValue(value, out _));
         }
 
+        /// <summary>
+        ///     Represents a <see cref="Birthday"/> with a default underlying value.
+        /// </summary>
         public static Birthday None { get; } = new Birthday(default);
 
+        /// <summary>
+        ///     Indicates whether this <see cref="Birthday"/> has been
+        ///     initialized with a value.
+        /// </summary>
+        /// <returns><see langword="true" /> if this <see cref="Birthday"/> has been initialized; otherwise, <see langword="false" />.</returns>
         public bool IsInitialized() => _initialized;
 
         /// <inheritdoc />
@@ -96,6 +127,7 @@ namespace Dalion.ValueObjects.Samples {
             return EqualityComparer<System.DateOnly>.Default.Equals(this._value, other.Value);
         }
         
+        /// <inheritdoc />
         public bool Equals(Birthday? other, IEqualityComparer<Birthday> comparer)
         {
             if (other is null) return false;
@@ -114,18 +146,37 @@ namespace Dalion.ValueObjects.Samples {
             return EqualityComparer<System.DateOnly>.Default.Equals(this._value, other);
         }
 
+        /// <summary>
+        ///     The equality operator for this type and the underlying type.
+        /// </summary>
+        /// <returns><see langword="true" /> if the specified items are considered equal; otherwise, <see langword="false" />.</returns>
         public static bool operator ==(Birthday left, System.DateOnly right) => left.Value.Equals(right);
 
+        /// <summary>
+        ///     The equality operator for the underlying type and this type.
+        /// </summary>
+        /// <returns><see langword="true" /> if the specified items are considered equal; otherwise, <see langword="false" />.</returns>
         public static bool operator ==(System.DateOnly left, Birthday right) => right.Value.Equals(left);
 
-        public static bool operator !=(System.DateOnly left, Birthday right) => !(left == right);
-
+        /// <summary>
+        ///     The inequality operator for this type and the underlying type.
+        /// </summary>
+        /// <returns><see langword="true" /> if the specified items are considered not to be equal; otherwise, <see langword="false" />.</returns>
         public static bool operator !=(Birthday left, System.DateOnly right) => !(left == right);
 
+        /// <summary>
+        ///     The inequality operator for the underlying type and this type.
+        /// </summary>
+        /// <returns><see langword="true" /> if the specified items are considered not to be equal; otherwise, <see langword="false" />.</returns>
+        public static bool operator !=(System.DateOnly left, Birthday right) => !(left == right);
+
+        /// <inheritdoc />
         public int CompareTo(Birthday other) => this.Value.CompareTo(other.Value);
 
+        /// <inheritdoc />
         public int CompareTo(System.DateOnly other) => this.Value.CompareTo(other);
         
+        /// <inheritdoc />
         public int CompareTo(object? other)
         {
             if (other == null)
@@ -178,7 +229,16 @@ namespace Dalion.ValueObjects.Samples {
             return Value.ToString(format, formatProvider) ?? "";
         }}
 
+        /// <summary>
+        ///     Indicates whether this value object is valid.
+        /// </summary>
+        /// <returns><see langword="true" /> if this value object is valid; otherwise, <see langword="false" />.</returns>
         public bool IsValid() => _validation.IsSuccess;
+
+        /// <summary>
+        ///     Gets the validation error message if this value object is not valid.
+        /// </summary>
+        /// <returns>The validation error message if this value object is not valid; otherwise, <see langword="null" />.</returns>
         public string? GetValidationErrorMessage() => _validation.IsSuccess ? null : _validation.ErrorMessage;
 
         private class Validation

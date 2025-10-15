@@ -21,6 +21,9 @@ internal class FluentValidationExtensionsProvider : IFragmentProvider
                 & FluentValidationExtensionsGeneration.GenerateMustBeInitialized
             ) == FluentValidationExtensionsGeneration.GenerateMustBeInitialized
         ? $@"
+        /// <summary>
+        ///     Validates that the value object is initialized.
+        /// </summary>
         public static FluentValidation.IRuleBuilderOptions<T, {containingTypes}{config.TypeName}> MustBeInitialized<T>(
             this FluentValidation.IRuleBuilderInitial<T, {containingTypes}{config.TypeName}> ruleBuilder
         )
@@ -38,6 +41,9 @@ internal class FluentValidationExtensionsProvider : IFragmentProvider
                 & FluentValidationExtensionsGeneration.GenerateMustBeInitializedAndValid
             ) == FluentValidationExtensionsGeneration.GenerateMustBeInitializedAndValid
                 ? $@"
+        /// <summary>
+        ///     Validates that the value object is initialized and valid.
+        /// </summary>
         public static FluentValidation.IRuleBuilderOptions<T, {containingTypes}{config.TypeName}> MustBeInitializedAndValid<T>(
             this FluentValidation.IRuleBuilderInitial<T, {containingTypes}{config.TypeName}> ruleBuilder
         )
@@ -57,6 +63,9 @@ internal class FluentValidationExtensionsProvider : IFragmentProvider
 using FluentValidation;
 
 namespace {config.Namespace} {{
+    /// <summary>
+    ///     Extension methods for FluentValidation to validate <see cref=""{containingTypes}{config.TypeName}""/> value objects.
+    /// </summary>
     public static class {config.TypeName}FluentValidationExtensions
     {{
         {mustBeInitialized.Trim()}
