@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{60392A
 		..\build.cmd = ..\build.cmd
 		..\test.cmd = ..\test.cmd
 		InitVersion.targets = InitVersion.targets
+		..\release.txt = ..\release.txt
+		..\push.cmd = ..\push.cmd
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dalion.ValueObjects.Samples", "Dalion.ValueObjects.Samples\Dalion.ValueObjects.Samples.csproj", "{BBD5CDEF-8F9A-4EBE-A147-12F7B57CF980}"
