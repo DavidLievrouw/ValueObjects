@@ -59,7 +59,6 @@
                     return result.IsInitialized();
                 }
 
-
                 public static TenantId Empty { get; } = new TenantId(default);
 
                 public bool IsInitialized() => _initialized;
@@ -118,8 +117,6 @@
                 
 
                 
-
-                
                 /// <summary>
                 ///     An explicit conversion from <see cref="System.Guid" /> to <see cref="TenantId" />.
                 /// </summary>
@@ -129,6 +126,7 @@
                 {
                     return TenantId.From(value);
                 }
+
 
                 
                 /// <inheritdoc />
@@ -186,22 +184,6 @@ private class Validation
         Data[key] = value;
         return this;
     }
-}
-private class ValueObjectValidationException : Exception
-{
-    private const string DefaultMessage = "Validation of the value object failed.";
-
-    public ValueObjectValidationException()
-        : base(DefaultMessage) { }
-
-    public ValueObjectValidationException(string message)
-        : base(message) { }
-
-    public ValueObjectValidationException(Exception innerException)
-        : base(DefaultMessage, innerException) { }
-
-    public ValueObjectValidationException(string message, Exception innerException)
-        : base(message, innerException) { }
 }
 
                 

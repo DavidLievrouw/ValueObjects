@@ -38,4 +38,52 @@ internal static partial class Extensions
                 || a.AttributeClass?.BaseType?.BaseType?.EscapedFullName() == fullName;
         });
     }
+
+    public static string GetContainingTypeNames(this INamedTypeSymbol symbol)
+    {
+        var types = new Stack<string>();
+        var current = symbol.ContainingType;
+        while (current != null)
+        {
+            types.Push(current.Name);
+            current = current.ContainingType;
+        }
+
+        return string.Join(".", types);
+    }
+
+    public static string GetContainingTypesDeclarations(this INamedTypeSymbol symbol)
+    {
+        var types = new Stack<string>();
+        var current = symbol.ContainingType;
+        while (current != null)
+        {
+            var kind = current.TypeKind switch
+            {
+                TypeKind.Class => "class",
+                TypeKind.Struct => "struct",
+                TypeKind.Interface => "interface",
+                TypeKind.Enum => "enum",
+                _ => "class",
+            };
+            var recordModifier = current.IsRecord ? "record " : "";
+            types.Push($"public partial {recordModifier}{kind} {current.Name} {{");
+            current = current.ContainingType;
+        }
+
+        return string.Join("\n", types);
+    }
+
+    public static string GetClosingBraces(this INamedTypeSymbol symbol)
+    {
+        var count = 0;
+        var current = symbol.ContainingType;
+        while (current != null)
+        {
+            count++;
+            current = current.ContainingType;
+        }
+
+        return new string('}', count);
+    }
 }

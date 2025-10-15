@@ -69,7 +69,6 @@
                     return result.IsInitialized() && (Validate(result._value).IsSuccess || ResourceGroupNamePreSetValueCache.ResourceGroupNamePreSetValues.TryGetValue(value, out _));
                 }
 
-
                 public static ResourceGroupName Empty { get; } = new ResourceGroupName(System.String.Empty);
 
                 public bool IsInitialized() => _initialized;
@@ -148,7 +147,6 @@
 
     public static bool operator !=(ResourceGroupName left, System.String? right) => !(left == right);
 
-
                 
                 public int CompareTo(ResourceGroupName other) => this.Value.CompareTo(other.Value);
 
@@ -179,7 +177,6 @@
                     return id.Value;
                 }
 
-                
                 /// <summary>
                 ///     An explicit conversion from <see cref="System.String" /> to <see cref="ResourceGroupName" />.
                 /// </summary>
@@ -190,17 +187,18 @@
                     return ResourceGroupName.From(value);
                 }
 
+
                 
                 /// <inheritdoc />
                 public override string ToString()
                 {{
-                    return Value ?? "";
+                    return Value;
                 }}
 
                 /// <inheritdoc cref="M:System.String.ToString(System.IFormatProvider)" />
                 public string ToString(IFormatProvider? provider)
                 {{
-                    return Value.ToString(provider: provider) ?? "";
+                    return Value.ToString(provider: provider);
                 }}
 
 
@@ -241,22 +239,6 @@ private class Validation
         Data[key] = value;
         return this;
     }
-}
-private class ValueObjectValidationException : Exception
-{
-    private const string DefaultMessage = "Validation of the value object failed.";
-
-    public ValueObjectValidationException()
-        : base(DefaultMessage) { }
-
-    public ValueObjectValidationException(string message)
-        : base(message) { }
-
-    public ValueObjectValidationException(Exception innerException)
-        : base(DefaultMessage, innerException) { }
-
-    public ValueObjectValidationException(string message, Exception innerException)
-        : base(message, innerException) { }
 }
 
                 

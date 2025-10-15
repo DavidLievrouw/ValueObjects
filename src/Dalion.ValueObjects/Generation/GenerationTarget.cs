@@ -30,4 +30,13 @@ internal class GenerationTarget
     {
         return AttributeConfiguration.FromAttributeData(AttributeData, SymbolInformation);
     }
+
+    public bool IsFormattable()
+    {
+        var formattableType = SemanticModel.Compilation.GetTypeByMetadataName(
+            "System.IFormattable"
+        );
+        var underlyingType = AttributeData.AttributeClass!.TypeArguments[0];
+        return formattableType != null && underlyingType.AllInterfaces.Contains(formattableType);
+    }
 }

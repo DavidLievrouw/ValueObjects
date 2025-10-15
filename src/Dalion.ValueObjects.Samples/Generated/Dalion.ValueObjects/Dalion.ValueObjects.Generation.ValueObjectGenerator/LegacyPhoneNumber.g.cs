@@ -69,7 +69,6 @@
                     return result.IsInitialized();
                 }
 
-
                 public static LegacyPhoneNumber Empty { get; } = new LegacyPhoneNumber(System.String.Empty);
 
                 public bool IsInitialized() => _initialized;
@@ -142,7 +141,6 @@
                     return id.Value;
                 }
 
-                
                 /// <summary>
                 ///     An explicit conversion from <see cref="System.String" /> to <see cref="LegacyPhoneNumber" />.
                 /// </summary>
@@ -153,17 +151,18 @@
                     return LegacyPhoneNumber.From(value);
                 }
 
+
                 
                 /// <inheritdoc />
                 public override string ToString()
                 {{
-                    return Value ?? "";
+                    return Value;
                 }}
 
                 /// <inheritdoc cref="M:System.String.ToString(System.IFormatProvider)" />
                 public string ToString(IFormatProvider? provider)
                 {{
-                    return Value.ToString(provider: provider) ?? "";
+                    return Value.ToString(provider: provider);
                 }}
 
 
@@ -204,22 +203,6 @@ private class Validation
         Data[key] = value;
         return this;
     }
-}
-private class ValueObjectValidationException : Exception
-{
-    private const string DefaultMessage = "Validation of the value object failed.";
-
-    public ValueObjectValidationException()
-        : base(DefaultMessage) { }
-
-    public ValueObjectValidationException(string message)
-        : base(message) { }
-
-    public ValueObjectValidationException(Exception innerException)
-        : base(DefaultMessage, innerException) { }
-
-    public ValueObjectValidationException(string message, Exception innerException)
-        : base(message, innerException) { }
 }
 
                 

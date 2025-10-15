@@ -7,6 +7,7 @@ namespace Dalion.ValueObjects.Generation;
 internal class AttributeConfiguration
 {
     public AttributeConfiguration(
+        string ns,
         string typeName,
         ITypeSymbol underlyingType,
         ComparisonGeneration comparison,
@@ -20,6 +21,7 @@ internal class AttributeConfiguration
         string emptyValueName
     )
     {
+        Namespace = ns;
         TypeName = typeName;
         UnderlyingType = underlyingType;
         Comparison = comparison;
@@ -34,6 +36,7 @@ internal class AttributeConfiguration
         UnderlyingTypeName = GetUnderlyingTypeName();
     }
 
+    public string Namespace { get; }
     public string UnderlyingTypeName { get; }
     public string TypeName { get; }
     public ITypeSymbol UnderlyingType { get; }
@@ -199,6 +202,7 @@ internal class AttributeConfiguration
         }
 
         return new AttributeConfiguration(
+            targetType.ContainingNamespace.ToDisplayString(),
             targetType.Name,
             underlyingType,
             comparison,

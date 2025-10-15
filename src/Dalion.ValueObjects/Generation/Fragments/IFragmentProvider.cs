@@ -2,5 +2,5 @@
 
 internal interface IFragmentProvider
 {
-    string ProvideFragment(AttributeConfiguration config);
+    string? ProvideFragment(AttributeConfiguration config, GenerationTarget target);
 }

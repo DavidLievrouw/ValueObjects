@@ -59,7 +59,6 @@
                     return result.IsInitialized() && (Validate(result._value).IsSuccess || CelsiusPreSetValueCache.CelsiusPreSetValues.TryGetValue(value, out _));
                 }
 
-
                 public static Celsius Zero { get; } = new Celsius(default);
 
                 public bool IsInitialized() => _initialized;
@@ -127,7 +126,6 @@
 
     public static bool operator !=(Celsius left, System.Decimal right) => !(left == right);
 
-
                 
                 public int CompareTo(Celsius other) => this.Value.CompareTo(other.Value);
 
@@ -147,7 +145,6 @@
                     );
                 }
 
-
                 
                 /// <summary>
                 ///     An implicit conversion from <see cref="Celsius" /> to <see cref="System.Decimal" />.
@@ -159,7 +156,6 @@
                     return id.Value;
                 }
 
-                
                 /// <summary>
                 ///     An explicit conversion from <see cref="System.Decimal" /> to <see cref="Celsius" />.
                 /// </summary>
@@ -169,6 +165,7 @@
                 {
                     return Celsius.From(value);
                 }
+
 
                 
                 /// <inheritdoc />
@@ -226,22 +223,6 @@ private class Validation
         Data[key] = value;
         return this;
     }
-}
-private class ValueObjectValidationException : Exception
-{
-    private const string DefaultMessage = "Validation of the value object failed.";
-
-    public ValueObjectValidationException()
-        : base(DefaultMessage) { }
-
-    public ValueObjectValidationException(string message)
-        : base(message) { }
-
-    public ValueObjectValidationException(Exception innerException)
-        : base(DefaultMessage, innerException) { }
-
-    public ValueObjectValidationException(string message, Exception innerException)
-        : base(message, innerException) { }
 }
 
                 

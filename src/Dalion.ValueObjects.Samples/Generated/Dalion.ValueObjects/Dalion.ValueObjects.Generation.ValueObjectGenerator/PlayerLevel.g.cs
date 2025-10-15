@@ -59,7 +59,6 @@
                     return result.IsInitialized() && (Validate(result._value).IsSuccess || PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(value, out _));
                 }
 
-
                 public static PlayerLevel Unspecified { get; } = new PlayerLevel(default);
 
                 public bool IsInitialized() => _initialized;
@@ -110,8 +109,6 @@
                     if (!IsInitialized()) return 0;
                     return EqualityComparer<System.Int32>.Default.GetHashCode(this._value);
                 }
-
-                
 
                 
 
@@ -177,22 +174,6 @@ private class Validation
         Data[key] = value;
         return this;
     }
-}
-private class ValueObjectValidationException : Exception
-{
-    private const string DefaultMessage = "Validation of the value object failed.";
-
-    public ValueObjectValidationException()
-        : base(DefaultMessage) { }
-
-    public ValueObjectValidationException(string message)
-        : base(message) { }
-
-    public ValueObjectValidationException(Exception innerException)
-        : base(DefaultMessage, innerException) { }
-
-    public ValueObjectValidationException(string message, Exception innerException)
-        : base(message, innerException) { }
 }
 
                 

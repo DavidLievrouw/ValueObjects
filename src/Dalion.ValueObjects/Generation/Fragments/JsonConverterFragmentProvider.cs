@@ -213,7 +213,7 @@ internal class JsonConverterFragmentProvider : IFragmentProvider
                 }
 ";
     
-    public string ProvideFragment(AttributeConfiguration config)
+    public string ProvideFragment(AttributeConfiguration config, GenerationTarget target)
     {
         return JsonConverterTemplate
             .Replace("{{typeName}}", config.TypeName)
