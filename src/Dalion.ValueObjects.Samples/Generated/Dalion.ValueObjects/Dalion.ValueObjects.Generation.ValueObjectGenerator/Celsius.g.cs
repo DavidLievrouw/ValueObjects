@@ -383,12 +383,6 @@ namespace Dalion.ValueObjects.Samples {
 
                 try {
                     var typedUnderlyingValue = (System.Decimal)underlyingValue!;
-                    if (typedUnderlyingValue.Equals(Celsius.Zero.Value)) {
-                        return Celsius.Zero;
-                    }
-                    if (CelsiusPreSetValueCache.CelsiusPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
-                        return constant;
-                    }
                     if (Celsius.TryFrom(typedUnderlyingValue, out var result)) {
                         return result;
                     }

@@ -145,12 +145,6 @@ internal class JsonConverterFragmentProvider : IFragmentProvider
 
                 try {{
                     var typedUnderlyingValue = ({valueTypeName})underlyingValue!;
-                    if (typedUnderlyingValue.Equals({typeName}.{emptyValueName}.Value)) {{
-                        return {typeName}.{emptyValueName};
-                    }}
-                    if ({typeName}PreSetValueCache.{typeName}PreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {{
-                        return constant;
-                    }}
                     if ({typeName}.TryFrom(typedUnderlyingValue, out var result)) {{
                         return result;
                     }}

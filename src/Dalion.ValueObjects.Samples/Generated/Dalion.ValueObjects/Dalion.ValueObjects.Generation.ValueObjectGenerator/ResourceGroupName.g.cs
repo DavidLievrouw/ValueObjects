@@ -366,12 +366,6 @@ namespace Dalion.ValueObjects.Samples {
 
                 try {
                     var typedUnderlyingValue = (System.String)underlyingValue!;
-                    if (typedUnderlyingValue.Equals(ResourceGroupName.Empty.Value)) {
-                        return ResourceGroupName.Empty;
-                    }
-                    if (ResourceGroupNamePreSetValueCache.ResourceGroupNamePreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
-                        return constant;
-                    }
                     if (ResourceGroupName.TryFrom(typedUnderlyingValue, out var result)) {
                         return result;
                     }

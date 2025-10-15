@@ -387,12 +387,6 @@ namespace Dalion.ValueObjects.Samples {
 
                 try {
                     var typedUnderlyingValue = (System.DateOnly)underlyingValue!;
-                    if (typedUnderlyingValue.Equals(Birthday.None.Value)) {
-                        return Birthday.None;
-                    }
-                    if (BirthdayPreSetValueCache.BirthdayPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
-                        return constant;
-                    }
                     if (Birthday.TryFrom(typedUnderlyingValue, out var result)) {
                         return result;
                     }

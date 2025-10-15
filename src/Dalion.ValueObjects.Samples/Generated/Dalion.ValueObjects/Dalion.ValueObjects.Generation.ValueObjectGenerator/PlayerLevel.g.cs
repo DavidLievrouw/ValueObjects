@@ -231,12 +231,6 @@ namespace Dalion.ValueObjects.Samples {
 
                 try {
                     var typedUnderlyingValue = (System.Int32)underlyingValue!;
-                    if (typedUnderlyingValue.Equals(PlayerLevel.Unspecified.Value)) {
-                        return PlayerLevel.Unspecified;
-                    }
-                    if (PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
-                        return constant;
-                    }
                     if (PlayerLevel.TryFrom(typedUnderlyingValue, out var result)) {
                         return result;
                     }

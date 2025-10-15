@@ -247,12 +247,6 @@ namespace Dalion.ValueObjects.Samples {
 
                 try {
                     var typedUnderlyingValue = (System.String)underlyingValue!;
-                    if (typedUnderlyingValue.Equals(Password.Empty.Value)) {
-                        return Password.Empty;
-                    }
-                    if (PasswordPreSetValueCache.PasswordPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
-                        return constant;
-                    }
                     if (Password.TryFrom(typedUnderlyingValue, out var result)) {
                         return result;
                     }

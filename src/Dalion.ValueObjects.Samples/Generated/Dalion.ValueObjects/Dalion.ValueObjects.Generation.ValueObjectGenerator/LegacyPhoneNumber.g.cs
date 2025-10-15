@@ -257,12 +257,6 @@ namespace Dalion.ValueObjects.Samples {
 
                 try {
                     var typedUnderlyingValue = (System.String)underlyingValue!;
-                    if (typedUnderlyingValue.Equals(LegacyPhoneNumber.Empty.Value)) {
-                        return LegacyPhoneNumber.Empty;
-                    }
-                    if (LegacyPhoneNumberPreSetValueCache.LegacyPhoneNumberPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
-                        return constant;
-                    }
                     if (LegacyPhoneNumber.TryFrom(typedUnderlyingValue, out var result)) {
                         return result;
                     }

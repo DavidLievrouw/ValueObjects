@@ -243,12 +243,6 @@ namespace Dalion.ValueObjects.Samples {
 
                 try {
                     var typedUnderlyingValue = (System.Guid)underlyingValue!;
-                    if (typedUnderlyingValue.Equals(TenantId.Empty.Value)) {
-                        return TenantId.Empty;
-                    }
-                    if (TenantIdPreSetValueCache.TenantIdPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
-                        return constant;
-                    }
                     if (TenantId.TryFrom(typedUnderlyingValue, out var result)) {
                         return result;
                     }
