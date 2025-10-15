@@ -34,6 +34,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateNuspecDependsOn>InitVersion</GenerateNuspecDependsOn>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
     <Copyright>Copyright (c) $([System.DateTime]::Now.ToString(yyyy)), David Lievrouw</Copyright>
     <ContinuousIntegrationBuild Condition="'$(CIBuild)'=='true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
@@ -56,6 +57,7 @@
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)/../../readme.md" Pack="true" PackagePath="\" />
     <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
     <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
   </ItemGroup>
