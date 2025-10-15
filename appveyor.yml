@@ -1,0 +1,39 @@
+version: 1.0.0.{build}
+image: Visual Studio 2022
+branches:
+  except:
+    - /dev_.*/
+environment:
+  PRODUCT: ValueObjects
+  DISTPATH: ../../dist
+  CONFIGURATION: Release
+nuget:
+  disable_publish_on_pr: true
+build_script:
+  - ps: >-
+      dotnet --version
+      
+      $PackageVersion = Get-Content version.txt -First 1
+      
+      $ProductVersion = "$PackageVersion.$env:APPVEYOR_BUILD_NUMBER"
+      
+      Add-AppveyorMessage -Message "Determined the version to be $ProductVersion."
+      
+      Update-AppveyorBuild -Version $ProductVersion
+      
+      & "./build.cmd" nopause
+
+test_script:
+  - ps: >-
+      Add-AppveyorMessage -Message "Current repository: $env:APPVEYOR_REPO_NAME"
+      
+      Add-AppveyorMessage -Message "PR: $env:APPVEYOR_PULL_REQUEST_NUMBER"
+      
+      Add-AppveyorMessage -Message "PR head repository: $env:APPVEYOR_PULL_REQUEST_HEAD_REPO_NAME"
+      
+      & "./test.cmd" nopause
+
+artifacts:
+  - path: ./dist/%CONFIGURATION%
+    name: dist
+deploy: off
