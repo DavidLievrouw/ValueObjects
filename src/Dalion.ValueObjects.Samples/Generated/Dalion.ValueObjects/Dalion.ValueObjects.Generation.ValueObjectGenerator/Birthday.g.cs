@@ -377,200 +377,47 @@ namespace Dalion.ValueObjects.Samples {
                 if (reader.TokenType == System.Text.Json.JsonTokenType.Null) {
                     return new Birthday();
                 }
-        
-                var underlyingType = Birthday.UnderlyingType;
+
                 object? underlyingValue;
-            
-                switch (Type.GetTypeCode(underlyingType)) {
-                    case TypeCode.Boolean:
-                        if (reader.TokenType != System.Text.Json.JsonTokenType.True && reader.TokenType != System.Text.Json.JsonTokenType.False)
-                            throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                        underlyingValue = reader.GetBoolean();
-                        break;
-                    case TypeCode.Byte:
-                        if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                            throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                        underlyingValue = reader.GetByte();
-                        break;
-                    case TypeCode.Char:
-                        if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                            throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                        var charStr = reader.GetString();
-                        if (string.IsNullOrEmpty(charStr) || charStr.Length != 1)
-                            throw new System.Text.Json.JsonException($"Cannot convert '{charStr}' to char.");
-                        underlyingValue = charStr[0];
-                        break;
-                    case TypeCode.Decimal:
-                        if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                            throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                        underlyingValue = reader.GetDecimal();
-                        break;
-                    case TypeCode.Double:
-                        if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                            throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                        underlyingValue = reader.GetDouble();
-                        break;
-                    case TypeCode.Single:
-                        if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                            throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                        underlyingValue = reader.GetSingle();
-                        break;
-                    case TypeCode.Int16:
-                        if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                            throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                        underlyingValue = reader.GetInt16();
-                        break;
-                    case TypeCode.Int32:
-                        if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                            throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                        underlyingValue = reader.GetInt32();
-                        break;
-                    case TypeCode.Int64:
-                        if (reader.TokenType != System.Text.Json.JsonTokenType.Number)
-                            throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                        underlyingValue = reader.GetInt64();
-                        break;
-                    case TypeCode.String:
-                        if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                            throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                        underlyingValue = reader.GetString();
-                        break;
-                    case TypeCode.DateTime:
-                        if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                            throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                        underlyingValue = reader.GetDateTime();
-                        break;
-                    default:
-                        if (underlyingType == typeof(Guid)) {
-                            if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                                throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                            var guidStr = reader.GetString();
-                            if (!Guid.TryParse(guidStr, out var guidValue))
-                                throw new System.Text.Json.JsonException($"Cannot convert '{guidStr}' to Guid.");
-                            underlyingValue = guidValue;
-                        } else if (underlyingType == typeof(DateTimeOffset)) {
-                            if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                                throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                            underlyingValue = reader.GetDateTimeOffset();
-                        } else if (underlyingType == typeof(TimeSpan)) {
-                            if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                                throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                            var tsStr = reader.GetString();
-                            if (!TimeSpan.TryParse(tsStr, out var tsValue))
-                                throw new System.Text.Json.JsonException($"Cannot convert '{tsStr}' to TimeSpan.");
-                            underlyingValue = tsValue;
-                        } else if (underlyingType == typeof(TimeOnly)) {
-                            if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                                throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                            var timeStr = reader.GetString();
-                            if (!TimeOnly.TryParse(timeStr, out var timeValue))
-                                throw new System.Text.Json.JsonException($"Cannot convert '{timeStr}' to TimeOnly.");
-                            underlyingValue = timeValue;
-                        } else if (underlyingType == typeof(Uri)) {
-                            if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                                throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                            var uriStr = reader.GetString();
-                            if (!Uri.TryCreate(uriStr, UriKind.RelativeOrAbsolute, out var uriValue))
-                                throw new System.Text.Json.JsonException($"Cannot convert '{uriStr}' to Uri.");
-                            underlyingValue = uriValue;
-                        } else if (underlyingType == typeof(DateOnly)) {
-                            if (reader.TokenType != System.Text.Json.JsonTokenType.String)
-                                throw new System.Text.Json.JsonException($"Unsupported JSON token type for Birthday.");
-                            var dateStr = reader.GetString();
-                            if (!DateOnly.TryParse(dateStr, out var dateValue))
-                                throw new System.Text.Json.JsonException($"Cannot convert '{dateStr}' to DateOnly.");
-                            underlyingValue = dateValue;
-                        } else {
-                            throw new System.Text.Json.JsonException($"Unsupported underlying type for Birthday.");
-                        }
-                        break;
-                }
-            
+                
+                var dateStr = reader.GetString();
+                if (!DateOnly.TryParse(dateStr, out var dateValue))
+                    throw new System.Text.Json.JsonException($"Cannot convert '{dateStr}' to DateOnly.");
+                underlyingValue = dateValue;
+
                 try {
                     var typedUnderlyingValue = (System.DateOnly)underlyingValue!;
                     if (typedUnderlyingValue.Equals(Birthday.None.Value)) {
                         return Birthday.None;
                     }
-                    if (Birthday.TryFrom(typedUnderlyingValue, out var result)) {
-                        return result;
-                    }
                     if (BirthdayPreSetValueCache.BirthdayPreSetValues.TryGetValue(typedUnderlyingValue, out var constant)) {
                         return constant;
                     }
-                    throw new System.Text.Json.JsonException($"No matching Birthday pre-set value found for value '{typedUnderlyingValue}'.");
+                    if (Birthday.TryFrom(typedUnderlyingValue, out var result)) {
+                        return result;
+                    }
+                    throw new System.Text.Json.JsonException($"No matching Birthday pre-set value found for value '{typedUnderlyingValue}', or the underlying value is invalid.");
                 } catch (System.Exception e) {
                     throw new System.Text.Json.JsonException("Could not create an initialized instance of Birthday.", e);
                 }
             }
-            
+
             public override void Write(
                 System.Text.Json.Utf8JsonWriter writer,
                 Birthday value,
                 System.Text.Json.JsonSerializerOptions options
             )
             {
-                var underlyingType = Birthday.UnderlyingType;
                 object? underlyingValue = value.IsInitialized()
                     ? value.Value
                     : null;
-        
+
                 if (underlyingValue == null) {
                     writer.WriteNullValue();
                     return;
                 }
-            
-                switch (Type.GetTypeCode(underlyingType)) {
-                    case TypeCode.Boolean:
-                        writer.WriteBooleanValue((bool)underlyingValue);
-                        break;
-                    case TypeCode.Byte:
-                        writer.WriteNumberValue((byte)underlyingValue);
-                        break;
-                    case TypeCode.Char:
-                        writer.WriteStringValue(((char)underlyingValue).ToString());
-                        break;
-                    case TypeCode.Decimal:
-                        writer.WriteNumberValue((decimal)underlyingValue);
-                        break;
-                    case TypeCode.Double:
-                        writer.WriteNumberValue((double)underlyingValue);
-                        break;
-                    case TypeCode.Single:
-                        writer.WriteNumberValue((float)underlyingValue);
-                        break;
-                    case TypeCode.Int16:
-                        writer.WriteNumberValue((short)underlyingValue);
-                        break;
-                    case TypeCode.Int32:
-                        writer.WriteNumberValue((int)underlyingValue);
-                        break;
-                    case TypeCode.Int64:
-                        writer.WriteNumberValue((long)underlyingValue);
-                        break;
-                    case TypeCode.String:
-                        writer.WriteStringValue((string)underlyingValue);
-                        break;
-                    case TypeCode.DateTime:
-                        writer.WriteStringValue(((DateTime)underlyingValue));
-                        break;
-                    default:
-                        if (underlyingType == typeof(Guid)) {
-                            writer.WriteStringValue(((Guid)underlyingValue));
-                        } else if (underlyingType == typeof(DateTimeOffset)) {
-                            writer.WriteStringValue(((DateTimeOffset)underlyingValue));
-                        } else if (underlyingType == typeof(TimeSpan)) {
-                            writer.WriteStringValue(((TimeSpan)underlyingValue).ToString());
-                        } else if (underlyingType == typeof(TimeOnly)) {
-                            writer.WriteStringValue(((TimeOnly)underlyingValue).ToString());
-                        } else if (underlyingType == typeof(Uri)) {
-                            writer.WriteStringValue(((Uri)underlyingValue).ToString());
-                        } else if (underlyingType == typeof(DateOnly)) {
-                            writer.WriteStringValue(((DateOnly)underlyingValue).ToString("yyyy-MM-dd"));
-                        } else {
-                            throw new System.Text.Json.JsonException($"Unsupported underlying type for Birthday.");
-                        }
-                        break;
-                }
+
+                writer.WriteStringValue(((DateOnly)underlyingValue).ToString("yyyy-MM-dd"));
             }
         }
 
