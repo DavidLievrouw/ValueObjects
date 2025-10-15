@@ -1,4 +1,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build status](https://ci.appveyor.com/api/projects/status/nrvheog39e1xy4ge?svg=true)](https://ci.appveyor.com/project/DavidLievrouw/valueobjects)
+[![Tests status](https://img.shields.io/appveyor/tests/DavidLievrouw/valueobjects?compact_message)](https://ci.appveyor.com/project/DavidLievrouw/valueobjects)
 
 ## Dalion ValueObjects [<img src="https://dalion.eu/dalion128.png" align="right" width="48">](https://www.dalion.eu)
 
