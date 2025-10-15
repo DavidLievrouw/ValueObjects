@@ -47,7 +47,13 @@ This library takes a distinct approach to value objects, with perspectives and a
   \- *Vogen:* Validation information is private and inaccessible\.  
   \- *This Library:* Exposes validation status and error messages, allowing you to check if a value object is valid and retrieve the reason if not\. This enables creation of pre-set, initialized, but invalid values\.
 
-These assumptions and approaches reflect my personal perspective on value objects, which may differ from others. For me, they make this library more practical and usable in real-world projects.
+These assumptions and aproaches reflect my personal perspective on value objects, which may differ from others. For me, they make this library more practical and usable in real-world projects.
+
+## Support
+
+If you've got value from any of the content which I have created, but pull requests are not your thing, then I would also very much appreciate your support by buying me a coffee.
+
+<a href="https://www.buymeacoffee.com/DavidLievrouw" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
 ---
 "Anybody can make something that works. Software craftsmanship is the ability to keep it understandable, maintainable and extensible."
