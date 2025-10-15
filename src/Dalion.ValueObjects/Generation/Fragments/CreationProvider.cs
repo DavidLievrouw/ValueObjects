@@ -66,13 +66,13 @@ internal class CreationProvider : IFragmentProvider
                 validationFieldAssignment,
                 tryFromValidation,
                 inputNormalization
-            )
+            ).Trim()
             : GetForValueType(
                 config,
                 validationFieldAssignment,
                 tryFromValidation,
                 inputNormalization
-            );
+            ).Trim();
     }
 
     private static string GetForValueType(
@@ -82,46 +82,46 @@ internal class CreationProvider : IFragmentProvider
         string inputNormalization)
     {
         return $@"
-                [System.Diagnostics.DebuggerStepThrough]
-                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-                public {config.TypeName}()
-                {{
-                    _value = default;
-                    _initialized = false;
-                    _isNullOrEmpty = false;
-                    {validationFieldAssignment}
-                }}
+        [System.Diagnostics.DebuggerStepThrough]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public {config.TypeName}()
+        {{
+            _value = default;
+            _initialized = false;
+            _isNullOrEmpty = false;
+            {validationFieldAssignment}
+        }}
 
-                [System.Diagnostics.DebuggerStepThrough]
-                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-                private {config.TypeName}({config.UnderlyingTypeName} value) {{
-                    {inputNormalization}
-                    _initialized = true;
-                    _value = value;
-                    _isNullOrEmpty = false;
-                    {validationFieldAssignment}
-                }}
+        [System.Diagnostics.DebuggerStepThrough]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        private {config.TypeName}({config.UnderlyingTypeName} value) {{
+            {inputNormalization}
+            _initialized = true;
+            _value = value;
+            _isNullOrEmpty = false;
+            {validationFieldAssignment}
+        }}
 
-                public static {config.TypeName} From({config.UnderlyingTypeName} value) {{
-                    if (value == default) {{
-                        return {config.EmptyValueName};
-                    }}
+        public static {config.TypeName} From({config.UnderlyingTypeName} value) {{
+            if (value == default) {{
+                return {config.EmptyValueName};
+            }}
 
-                    {inputNormalization}
+            {inputNormalization}
 
-                    var vo = new {config.TypeName}(value);
+            var vo = new {config.TypeName}(value);
 
-                    if (!vo.IsValid() && !{config.TypeName}PreSetValueCache.{config.TypeName}PreSetValues.TryGetValue(value, out _)) {{
-                        throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
-                    }}
+            if (!vo.IsValid() && !{config.TypeName}PreSetValueCache.{config.TypeName}PreSetValues.TryGetValue(value, out _)) {{
+                throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+            }}
 
-                    return vo;
-                }}
+            return vo;
+        }}
 
-                public static bool TryFrom({config.UnderlyingTypeName} value, out {config.TypeName} result) {{
-                    result = value == default ? {config.EmptyValueName} : new {config.TypeName}(value);
-                    {tryFromValidation}
-                }}";
+        public static bool TryFrom({config.UnderlyingTypeName} value, out {config.TypeName} result) {{
+            result = value == default ? {config.EmptyValueName} : new {config.TypeName}(value);
+            {tryFromValidation}
+        }}";
     }
 
     private static string GetForString(
@@ -132,55 +132,55 @@ internal class CreationProvider : IFragmentProvider
     )
     {
         return $@"
-                [System.Diagnostics.DebuggerStepThrough]
-                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-                public {config.TypeName}()
-                {{
-                    _value = {config.UnderlyingTypeName}.Empty;
-                    _initialized = false;
-                    _isNullOrEmpty = {config.UnderlyingTypeName}.IsNullOrEmpty(_value);
-                    {validationFieldAssignment}
-                }}
+        [System.Diagnostics.DebuggerStepThrough]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public {config.TypeName}()
+        {{
+            _value = {config.UnderlyingTypeName}.Empty;
+            _initialized = false;
+            _isNullOrEmpty = {config.UnderlyingTypeName}.IsNullOrEmpty(_value);
+            {validationFieldAssignment}
+        }}
 
-                [System.Diagnostics.DebuggerStepThrough]
-                [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-                private {config.TypeName}({config.UnderlyingTypeName}? value) {{
-                    {inputNormalization}
-                    if (value == default) {{
-                        _initialized = false;
-                        _value = {config.UnderlyingTypeName}.Empty;
-                    }} else {{
-                        _initialized = true;
-                        _value = value;
-                    }}
-                    _isNullOrEmpty = {config.UnderlyingTypeName}.IsNullOrEmpty(_value);
-                    {validationFieldAssignment}
-                }}
+        [System.Diagnostics.DebuggerStepThrough]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        private {config.TypeName}({config.UnderlyingTypeName}? value) {{
+            {inputNormalization}
+            if (value == default) {{
+                _initialized = false;
+                _value = {config.UnderlyingTypeName}.Empty;
+            }} else {{
+                _initialized = true;
+                _value = value;
+            }}
+            _isNullOrEmpty = {config.UnderlyingTypeName}.IsNullOrEmpty(_value);
+            {validationFieldAssignment}
+        }}
 
-                public static {config.TypeName} From({config.UnderlyingTypeName}? value) {{
-                    if (value is null) {{
-                        throw new System.InvalidOperationException(""Cannot create an instance of {config.TypeName} from null."");
-                    }}
+        public static {config.TypeName} From({config.UnderlyingTypeName}? value) {{
+            if (value is null) {{
+                throw new System.InvalidOperationException(""Cannot create an instance of {config.TypeName} from null."");
+            }}
 
-                    {inputNormalization}
+            {inputNormalization}
 
-                    var vo = new {config.TypeName}(value);
+            var vo = new {config.TypeName}(value);
 
-                    if (!vo.IsValid() && value is not null && !{config.TypeName}PreSetValueCache.{config.TypeName}PreSetValues.TryGetValue(value, out _)) {{
-                        throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
-                    }}
+            if (!vo.IsValid() && value is not null && !{config.TypeName}PreSetValueCache.{config.TypeName}PreSetValues.TryGetValue(value, out _)) {{
+                throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+            }}
 
-                    return vo;
-                }}
+            return vo;
+        }}
 
-                public static bool TryFrom({config.UnderlyingTypeName}? value, out {config.TypeName} result) {{
-                    if (value is null) {{
-                        result = new {config.TypeName}();
-                        return false;
-                    }}
+        public static bool TryFrom({config.UnderlyingTypeName}? value, out {config.TypeName} result) {{
+            if (value is null) {{
+                result = new {config.TypeName}();
+                return false;
+            }}
 
-                    result = string.IsNullOrEmpty(value) ? {config.EmptyValueName} : new {config.TypeName}(value);
-                    {tryFromValidation}
-                }}";
+            result = string.IsNullOrEmpty(value) ? {config.EmptyValueName} : new {config.TypeName}(value);
+            {tryFromValidation}
+        }}";
     }
 }

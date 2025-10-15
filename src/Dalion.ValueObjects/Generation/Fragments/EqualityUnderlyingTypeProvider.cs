@@ -17,18 +17,18 @@ internal class EqualityUnderlyingTypeProvider : IFragmentProvider
         }
 
         return config.UnderlyingType.SpecialType == SpecialType.System_String
-            ? GetForString(config)
-            : GetForValueType(config);
+            ? GetForString(config).Trim()
+            : GetForValueType(config).Trim();
     }
 
     private static string GetForValueType(AttributeConfiguration config)
     {
         return $@"
-                /// <inheritdoc />
-                public bool Equals({config.UnderlyingTypeName} other)
-                {{
-                    return EqualityComparer<{config.UnderlyingTypeName}>.Default.Equals(this._value, other);
-                }}";
+        /// <inheritdoc />
+        public bool Equals({config.UnderlyingTypeName} other)
+        {{
+            return EqualityComparer<{config.UnderlyingTypeName}>.Default.Equals(this._value, other);
+        }}";
     }
 
     private static string GetForString(AttributeConfiguration config)
@@ -39,17 +39,17 @@ internal class EqualityUnderlyingTypeProvider : IFragmentProvider
                 : "Ordinal";
 
         return $@"
-                /// <inheritdoc />
-                public bool Equals({config.UnderlyingTypeName}? other)
-                {{
-                    return {config.UnderlyingTypeName}.IsNullOrEmpty(other)
-                        ? this._isNullOrEmpty
-                        : {config.UnderlyingTypeName}.Equals(this._value, other, System.StringComparison.{stringComparison});
-                }}
-            
-                public bool Equals({config.UnderlyingTypeName}? underlyingValue, StringComparer comparer)
-                {{
-                    return comparer.Equals(this.Value, underlyingValue);
-                }}";
+        /// <inheritdoc />
+        public bool Equals({config.UnderlyingTypeName}? other)
+        {{
+            return {config.UnderlyingTypeName}.IsNullOrEmpty(other)
+                ? this._isNullOrEmpty
+                : {config.UnderlyingTypeName}.Equals(this._value, other, System.StringComparison.{stringComparison});
+        }}
+        
+        public bool Equals({config.UnderlyingTypeName}? underlyingValue, StringComparer comparer)
+        {{
+            return comparer.Equals(this.Value, underlyingValue);
+        }}";
     }
 }

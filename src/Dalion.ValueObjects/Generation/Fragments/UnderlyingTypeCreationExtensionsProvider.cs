@@ -18,28 +18,37 @@ internal class UnderlyingTypeCreationExtensionsProvider : IFragmentProvider
         var containingTypes =
             containingTypeNames == string.Empty ? string.Empty : containingTypeNames + ".";
 
-        var creationMethod =
-            config.UnderlyingType.SpecialType == SpecialType.System_String
-                ? $@"
-                 public static {config.Namespace}.{containingTypes}{config.TypeName} {config.TypeName}(this {config.UnderlyingTypeName}? value)
-                 {{
-                     return {config.Namespace}.{containingTypes}{config.TypeName}.From(value);
-                 }}"
-                : $@"
-                 public static {config.Namespace}.{containingTypes}{config.TypeName} {config.TypeName}(this {config.UnderlyingTypeName} value)
-                 {{
-                     return {config.Namespace}.{containingTypes}{config.TypeName}.From(value);
-                 }}";
+        var creationMethod = config.UnderlyingType.SpecialType == SpecialType.System_String
+            ? CreateForString(config, containingTypes).Trim()
+            : CreateForValueType(config, containingTypes).Trim();
 
         return $@"
-        #nullable enable
+#nullable enable
 
-        namespace {config.Namespace} {{
-            public static class {config.TypeName}UnderlyingTypeCreationExtensions
-            {{
-                {creationMethod}
-            }}
-        }}
-        ";
+namespace {config.Namespace} {{
+    public static class {config.TypeName}UnderlyingTypeCreationExtensions
+    {{
+        {creationMethod}
+    }}
+}}
+        ".Trim();
+    }
+
+    private static string CreateForString(AttributeConfiguration config, string containingTypes)
+    {
+        return $@"
+        public static {config.Namespace}.{containingTypes}{config.TypeName} {config.TypeName}(this {config.UnderlyingTypeName}? value)
+        {{
+            return {config.Namespace}.{containingTypes}{config.TypeName}.From(value);
+        }}";
+    }
+
+    private static string CreateForValueType(AttributeConfiguration config, string containingTypes)
+    {
+        return $@"
+        public static {config.Namespace}.{containingTypes}{config.TypeName} {config.TypeName}(this {config.UnderlyingTypeName} value)
+        {{
+            return {config.Namespace}.{containingTypes}{config.TypeName}.From(value);
+        }}";
     }
 }

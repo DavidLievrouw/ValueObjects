@@ -20,16 +20,16 @@ internal class FluentValidationExtensionsProvider : IFragmentProvider
                 config.FluentValidationExtensionsGeneration
                 & FluentValidationExtensionsGeneration.GenerateMustBeInitialized
             ) == FluentValidationExtensionsGeneration.GenerateMustBeInitialized
-                ? $@"
-                public static FluentValidation.IRuleBuilderOptions<T, {containingTypes}{config.TypeName}> MustBeInitialized<T>(
-                    this FluentValidation.IRuleBuilderInitial<T, {containingTypes}{config.TypeName}> ruleBuilder
-                )
-                {{
-                    return ruleBuilder
-                        .Cascade(FluentValidation.CascadeMode.Stop)
-                        .Must(o => o.IsInitialized())
-                        .WithMessage($""{{nameof({containingTypes}{config.TypeName})}} must be initialized."");
-                }}"
+        ? $@"
+        public static FluentValidation.IRuleBuilderOptions<T, {containingTypes}{config.TypeName}> MustBeInitialized<T>(
+            this FluentValidation.IRuleBuilderInitial<T, {containingTypes}{config.TypeName}> ruleBuilder
+        )
+        {{
+            return ruleBuilder
+                .Cascade(FluentValidation.CascadeMode.Stop)
+                .Must(o => o.IsInitialized())
+                .WithMessage($""{{nameof({containingTypes}{config.TypeName})}} must be initialized."");
+        }}"
                 : string.Empty;
 
         var mustBeInitializedAndValid =
@@ -38,32 +38,32 @@ internal class FluentValidationExtensionsProvider : IFragmentProvider
                 & FluentValidationExtensionsGeneration.GenerateMustBeInitializedAndValid
             ) == FluentValidationExtensionsGeneration.GenerateMustBeInitializedAndValid
                 ? $@"
-                public static FluentValidation.IRuleBuilderOptions<T, {containingTypes}{config.TypeName}> MustBeInitializedAndValid<T>(
-                    this FluentValidation.IRuleBuilderInitial<T, {containingTypes}{config.TypeName}> ruleBuilder
-                )
-                {{
-                    return ruleBuilder
-                        .Cascade(FluentValidation.CascadeMode.Stop)
-                        .Must(o => o.IsInitialized())
-                        .WithMessage($""{{nameof({containingTypes}{config.TypeName})}} must be initialized."")
-                        .Must(o => o.IsValid())
-                        .WithMessage((_, p) => p.GetValidationErrorMessage());
-                }}"
+        public static FluentValidation.IRuleBuilderOptions<T, {containingTypes}{config.TypeName}> MustBeInitializedAndValid<T>(
+            this FluentValidation.IRuleBuilderInitial<T, {containingTypes}{config.TypeName}> ruleBuilder
+        )
+        {{
+            return ruleBuilder
+                .Cascade(FluentValidation.CascadeMode.Stop)
+                .Must(o => o.IsInitialized())
+                .WithMessage($""{{nameof({containingTypes}{config.TypeName})}} must be initialized."")
+                .Must(o => o.IsValid())
+                .WithMessage((_, p) => p.GetValidationErrorMessage());
+        }}"
                 : string.Empty;
 
         return $@"
-        #nullable enable
+#nullable enable
 
-        using FluentValidation;
+using FluentValidation;
 
-        namespace {config.Namespace} {{
-            public static class {config.TypeName}FluentValidationExtensions
-            {{
-                {mustBeInitialized}
-            
-                {mustBeInitializedAndValid}
-            }}
-        }}
-        ";
+namespace {config.Namespace} {{
+    public static class {config.TypeName}FluentValidationExtensions
+    {{
+        {mustBeInitialized.Trim()}
+    
+        {mustBeInitializedAndValid.Trim()}
+    }}
+}}
+        ".Trim();
     }
 }

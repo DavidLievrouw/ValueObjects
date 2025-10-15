@@ -17,17 +17,19 @@ internal class PreSetValueCacheProvider : IFragmentProvider
             )
             .ToList();
 
-        return $@"
-private static class {config.TypeName}PreSetValueCache {{
-    public static readonly Dictionary<{config.UnderlyingTypeName}, {config.TypeName}> {config.TypeName}PreSetValues = new();
-
-    static {config.TypeName}PreSetValueCache()
-    {{
-        {config.TypeName}PreSetValues[{config.TypeName}.{config.EmptyValueName}.Value] = {config.TypeName}.{config.EmptyValueName};
+        var code = $@"
+        private static class {config.TypeName}PreSetValueCache {{
+            public static readonly Dictionary<{config.UnderlyingTypeName}, {config.TypeName}> {config.TypeName}PreSetValues = new();
+        
+            static {config.TypeName}PreSetValueCache()
+            {{
+                {config.TypeName}PreSetValues[{config.TypeName}.{config.EmptyValueName}.Value] = {config.TypeName}.{config.EmptyValueName};
 {
-    string.Join("\n", preSetValues.Select(f => $"        {config.TypeName}PreSetValues[{config.TypeName}.{f.Name}.Value] = {config.TypeName}.{f.Name};"))
+            string.Join("\n", preSetValues.Select(f => $"                {config.TypeName}PreSetValues[{config.TypeName}.{f.Name}.Value] = {config.TypeName}.{f.Name};"))
 }
-    }}
-}}";
+            }}
+        }}";
+
+        return code.Trim();
     }
 }

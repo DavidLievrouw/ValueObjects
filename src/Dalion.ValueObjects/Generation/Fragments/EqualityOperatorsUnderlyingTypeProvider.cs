@@ -17,31 +17,31 @@ internal class EqualityOperatorsUnderlyingTypeProvider : IFragmentProvider
         }
 
         return config.UnderlyingType.SpecialType == SpecialType.System_String
-            ? GetForString(config)
-            : GetForValueType(config);
+            ? GetForString(config).Trim()
+            : GetForValueType(config).Trim();
     }
 
     private static string GetForValueType(AttributeConfiguration config)
     {
         return $@"
-    public static bool operator ==({config.TypeName} left, {config.UnderlyingTypeName} right) => left.Value.Equals(right);
+        public static bool operator ==({config.TypeName} left, {config.UnderlyingTypeName} right) => left.Value.Equals(right);
 
-    public static bool operator ==({config.UnderlyingTypeName} left, {config.TypeName} right) => right.Value.Equals(left);
+        public static bool operator ==({config.UnderlyingTypeName} left, {config.TypeName} right) => right.Value.Equals(left);
 
-    public static bool operator !=({config.UnderlyingTypeName} left, {config.TypeName} right) => !(left == right);
+        public static bool operator !=({config.UnderlyingTypeName} left, {config.TypeName} right) => !(left == right);
 
-    public static bool operator !=({config.TypeName} left, {config.UnderlyingTypeName} right) => !(left == right);";
+        public static bool operator !=({config.TypeName} left, {config.UnderlyingTypeName} right) => !(left == right);";
     }
 
     private static string GetForString(AttributeConfiguration config)
     {
         return $@"
-    public static bool operator ==({config.TypeName} left, {config.UnderlyingTypeName}? right) => left.Value.Equals(right);
+        public static bool operator ==({config.TypeName} left, {config.UnderlyingTypeName}? right) => left.Value.Equals(right);
 
-    public static bool operator ==({config.UnderlyingTypeName}? left, {config.TypeName} right) => right.Value.Equals(left);
+        public static bool operator ==({config.UnderlyingTypeName}? left, {config.TypeName} right) => right.Value.Equals(left);
 
-    public static bool operator !=({config.UnderlyingTypeName}? left, {config.TypeName} right) => !(left == right);
+        public static bool operator !=({config.UnderlyingTypeName}? left, {config.TypeName} right) => !(left == right);
 
-    public static bool operator !=({config.TypeName} left, {config.UnderlyingTypeName}? right) => !(left == right);";
+        public static bool operator !=({config.TypeName} left, {config.UnderlyingTypeName}? right) => !(left == right);";
     }
 }

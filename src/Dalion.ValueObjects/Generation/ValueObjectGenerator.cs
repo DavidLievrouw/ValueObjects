@@ -137,54 +137,56 @@ public class ValueObjectGenerator : IIncrementalGenerator
 
         var generatedType =
             $@"
-        #nullable enable
+#nullable enable
 
-        namespace {config.Namespace} {{
-            {containingTypes}
-            [System.Diagnostics.DebuggerDisplay(""{config.TypeName} {{Value}}"")]
-            [System.Text.Json.Serialization.JsonConverter(typeof({config.TypeName}SystemTextJsonConverter))]
-            [System.ComponentModel.TypeConverter(typeof({config.TypeName}TypeConverter))]
-            public partial record struct {config.TypeName} {interfaceImplementations} {{
-                private readonly {config.UnderlyingTypeName} _value;
-                private readonly bool _initialized;
+namespace {config.Namespace} {{
+    {containingTypes}
+    [System.Diagnostics.DebuggerDisplay(""{config.TypeName} {{Value}}"")]
+    [System.Text.Json.Serialization.JsonConverter(typeof({config.TypeName}SystemTextJsonConverter))]
+    [System.ComponentModel.TypeConverter(typeof({config.TypeName}TypeConverter))]
+    public partial record struct {config.TypeName} {interfaceImplementations} {{
+        private readonly {config.UnderlyingTypeName} _value;
+        private readonly bool _initialized;
 #pragma warning disable CS0414
-                private readonly bool _isNullOrEmpty;
+        private readonly bool _isNullOrEmpty;
 #pragma warning restore CS0414
-                private readonly Validation _validation;
-                private static readonly Type UnderlyingType = typeof({config.UnderlyingTypeName});
+        private readonly Validation _validation;
+        private static readonly Type UnderlyingType = typeof({config.UnderlyingTypeName});
 
-                public {config.UnderlyingTypeName} Value => _value;
+        public {config.UnderlyingTypeName} Value => _value;
 
-                {creation}
+        {creation}
 
-                public static {config.TypeName} {config.EmptyValueName} {{ get; }} = new {config.TypeName}({defaultValue});
+        public static {config.TypeName} {config.EmptyValueName} {{ get; }} = new {config.TypeName}({defaultValue});
 
-                public bool IsInitialized() => _initialized;
+        public bool IsInitialized() => _initialized;
 
-                {equality}
+        {equality}
 
-                {equalityUnderlyingType}
+        {equalityUnderlyingType}
 
-                {equalityOperators}
+        {equalityOperators}
 
-                {comparison}
+        {comparison}
 
-                {conversion}
+        {conversion}
 
-                {toStringOverrides}
+        {toStringOverrides}
 
-                {validationMembers}
-                {validationClass}
+        {validationMembers}
 
-                {parsable}
+        {validationClass}
 
-                {jsonConverter}
-                {typeConverter}
-                {preSetValueCache}
-            }}
-            {closingBraces}
-        }}
-        ";
+        {parsable}
+
+        {jsonConverter}
+
+        {typeConverter}
+
+        {preSetValueCache}
+    }}
+    {closingBraces}
+}}";
 
         context.AddSource($"{config.TypeName}.g.cs", generatedType);
     }
