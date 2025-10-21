@@ -1,6 +1,8 @@
 ﻿
 #nullable enable
 
+using System;
+
 namespace Dalion.ValueObjects.Samples {
     
     [System.Diagnostics.DebuggerDisplay("ResourceGroupName {Value}")]
@@ -142,7 +144,7 @@ namespace Dalion.ValueObjects.Samples {
         }
         
         /// <inheritdoc />
-        public bool Equals(ResourceGroupName? other, IEqualityComparer<ResourceGroupName> comparer)
+        public bool Equals(ResourceGroupName? other, System.Collections.Generic.IEqualityComparer<ResourceGroupName> comparer)
         {
             if (other is null) return false;
             return comparer.Equals(this, other.Value);
@@ -271,7 +273,7 @@ namespace Dalion.ValueObjects.Samples {
             public string ErrorMessage { get; }
             public bool IsSuccess => _isSuccess;
         
-            public Dictionary<object, object>? Data { get; private set; }
+            public System.Collections.Generic.Dictionary<object, object>? Data { get; private set; }
         
             public static Validation Invalid(string reason = "")
             {
@@ -285,7 +287,7 @@ namespace Dalion.ValueObjects.Samples {
         
             public Validation WithData(object key, object value)
             {
-                Data ??= new Dictionary<object, object>();
+                Data ??= new System.Collections.Generic.Dictionary<object, object>();
                 Data[key] = value;
                 return this;
             }
@@ -451,7 +453,7 @@ namespace Dalion.ValueObjects.Samples {
         }
 
         private static class ResourceGroupNamePreSetValueCache {
-            public static readonly Dictionary<System.String, ResourceGroupName> ResourceGroupNamePreSetValues = new();
+            public static readonly System.Collections.Generic.Dictionary<System.String, ResourceGroupName> ResourceGroupNamePreSetValues = new();
         
             static ResourceGroupNamePreSetValueCache()
             {

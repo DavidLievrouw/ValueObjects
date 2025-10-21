@@ -1,5 +1,7 @@
 ﻿#nullable enable
 
+using System;
+
 namespace Dalion.ValueObjects.Samples {
     /// <summary>
     ///     Extension methods to create <see cref="Celsius"/> value objects.

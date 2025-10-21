@@ -1,6 +1,8 @@
 ﻿
 #nullable enable
 
+using System;
+
 namespace Dalion.ValueObjects.Samples {
     
     [System.Diagnostics.DebuggerDisplay("Password {Value}")]
@@ -142,7 +144,7 @@ namespace Dalion.ValueObjects.Samples {
         }
         
         /// <inheritdoc />
-        public bool Equals(Password? other, IEqualityComparer<Password> comparer)
+        public bool Equals(Password? other, System.Collections.Generic.IEqualityComparer<Password> comparer)
         {
             if (other is null) return false;
             return comparer.Equals(this, other.Value);
@@ -208,7 +210,7 @@ namespace Dalion.ValueObjects.Samples {
             public string ErrorMessage { get; }
             public bool IsSuccess => _isSuccess;
         
-            public Dictionary<object, object>? Data { get; private set; }
+            public System.Collections.Generic.Dictionary<object, object>? Data { get; private set; }
         
             public static Validation Invalid(string reason = "")
             {
@@ -222,7 +224,7 @@ namespace Dalion.ValueObjects.Samples {
         
             public Validation WithData(object key, object value)
             {
-                Data ??= new Dictionary<object, object>();
+                Data ??= new System.Collections.Generic.Dictionary<object, object>();
                 Data[key] = value;
                 return this;
             }
@@ -332,7 +334,7 @@ namespace Dalion.ValueObjects.Samples {
         }
 
         private static class PasswordPreSetValueCache {
-            public static readonly Dictionary<System.String, Password> PasswordPreSetValues = new();
+            public static readonly System.Collections.Generic.Dictionary<System.String, Password> PasswordPreSetValues = new();
         
             static PasswordPreSetValueCache()
             {

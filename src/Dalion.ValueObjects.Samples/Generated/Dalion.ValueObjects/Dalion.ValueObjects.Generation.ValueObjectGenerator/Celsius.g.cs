@@ -1,6 +1,8 @@
 ﻿
 #nullable enable
 
+using System;
+
 namespace Dalion.ValueObjects.Samples {
     
     [System.Diagnostics.DebuggerDisplay("Celsius {Value}")]
@@ -108,7 +110,7 @@ namespace Dalion.ValueObjects.Samples {
                 return false;
             }
         
-            return EqualityComparer<System.Decimal>.Default.Equals(this._value, other.Value.Value);
+            return System.Collections.Generic.EqualityComparer<System.Decimal>.Default.Equals(this._value, other.Value.Value);
         }
 
         /// <inheritdoc />
@@ -124,11 +126,11 @@ namespace Dalion.ValueObjects.Samples {
                 return false;
             }
         
-            return EqualityComparer<System.Decimal>.Default.Equals(this._value, other.Value);
+            return System.Collections.Generic.EqualityComparer<System.Decimal>.Default.Equals(this._value, other.Value);
         }
         
         /// <inheritdoc />
-        public bool Equals(Celsius? other, IEqualityComparer<Celsius> comparer)
+        public bool Equals(Celsius? other, System.Collections.Generic.IEqualityComparer<Celsius> comparer)
         {
             if (other is null) return false;
             return comparer.Equals(this, other.Value);
@@ -137,13 +139,13 @@ namespace Dalion.ValueObjects.Samples {
         /// <inheritdoc />
         public override int GetHashCode() {
             if (!IsInitialized()) return 0;
-            return EqualityComparer<System.Decimal>.Default.GetHashCode(this._value);
+            return System.Collections.Generic.EqualityComparer<System.Decimal>.Default.GetHashCode(this._value);
         }
 
         /// <inheritdoc />
         public bool Equals(System.Decimal other)
         {
-            return EqualityComparer<System.Decimal>.Default.Equals(this._value, other);
+            return System.Collections.Generic.EqualityComparer<System.Decimal>.Default.Equals(this._value, other);
         }
 
         /// <summary>
@@ -255,7 +257,7 @@ namespace Dalion.ValueObjects.Samples {
             public string ErrorMessage { get; }
             public bool IsSuccess => _isSuccess;
         
-            public Dictionary<object, object>? Data { get; private set; }
+            public System.Collections.Generic.Dictionary<object, object>? Data { get; private set; }
         
             public static Validation Invalid(string reason = "")
             {
@@ -269,7 +271,7 @@ namespace Dalion.ValueObjects.Samples {
         
             public Validation WithData(object key, object value)
             {
-                Data ??= new Dictionary<object, object>();
+                Data ??= new System.Collections.Generic.Dictionary<object, object>();
                 Data[key] = value;
                 return this;
             }
@@ -468,7 +470,7 @@ namespace Dalion.ValueObjects.Samples {
         }
 
         private static class CelsiusPreSetValueCache {
-            public static readonly Dictionary<System.Decimal, Celsius> CelsiusPreSetValues = new();
+            public static readonly System.Collections.Generic.Dictionary<System.Decimal, Celsius> CelsiusPreSetValues = new();
         
             static CelsiusPreSetValueCache()
             {

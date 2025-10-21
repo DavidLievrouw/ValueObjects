@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System;
 using FluentValidation;
 
 namespace Dalion.ValueObjects.Samples {

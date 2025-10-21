@@ -1,6 +1,8 @@
 ﻿
 #nullable enable
 
+using System;
+
 namespace Dalion.ValueObjects.Samples {
     
     [System.Diagnostics.DebuggerDisplay("PlayerLevel {Value}")]
@@ -108,7 +110,7 @@ namespace Dalion.ValueObjects.Samples {
                 return false;
             }
         
-            return EqualityComparer<System.Int32>.Default.Equals(this._value, other.Value.Value);
+            return System.Collections.Generic.EqualityComparer<System.Int32>.Default.Equals(this._value, other.Value.Value);
         }
 
         /// <inheritdoc />
@@ -124,11 +126,11 @@ namespace Dalion.ValueObjects.Samples {
                 return false;
             }
         
-            return EqualityComparer<System.Int32>.Default.Equals(this._value, other.Value);
+            return System.Collections.Generic.EqualityComparer<System.Int32>.Default.Equals(this._value, other.Value);
         }
         
         /// <inheritdoc />
-        public bool Equals(PlayerLevel? other, IEqualityComparer<PlayerLevel> comparer)
+        public bool Equals(PlayerLevel? other, System.Collections.Generic.IEqualityComparer<PlayerLevel> comparer)
         {
             if (other is null) return false;
             return comparer.Equals(this, other.Value);
@@ -137,7 +139,7 @@ namespace Dalion.ValueObjects.Samples {
         /// <inheritdoc />
         public override int GetHashCode() {
             if (!IsInitialized()) return 0;
-            return EqualityComparer<System.Int32>.Default.GetHashCode(this._value);
+            return System.Collections.Generic.EqualityComparer<System.Int32>.Default.GetHashCode(this._value);
         }
 
         
@@ -192,7 +194,7 @@ namespace Dalion.ValueObjects.Samples {
             public string ErrorMessage { get; }
             public bool IsSuccess => _isSuccess;
         
-            public Dictionary<object, object>? Data { get; private set; }
+            public System.Collections.Generic.Dictionary<object, object>? Data { get; private set; }
         
             public static Validation Invalid(string reason = "")
             {
@@ -206,7 +208,7 @@ namespace Dalion.ValueObjects.Samples {
         
             public Validation WithData(object key, object value)
             {
-                Data ??= new Dictionary<object, object>();
+                Data ??= new System.Collections.Generic.Dictionary<object, object>();
                 Data[key] = value;
                 return this;
             }
@@ -316,7 +318,7 @@ namespace Dalion.ValueObjects.Samples {
         }
 
         private static class PlayerLevelPreSetValueCache {
-            public static readonly Dictionary<System.Int32, PlayerLevel> PlayerLevelPreSetValues = new();
+            public static readonly System.Collections.Generic.Dictionary<System.Int32, PlayerLevel> PlayerLevelPreSetValues = new();
         
             static PlayerLevelPreSetValueCache()
             {
