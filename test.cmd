@@ -16,6 +16,12 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
+dotnet test %SRCDIR%\%PRODUCT%.SnapshotTests\%PRODUCT%.SnapshotTests.csproj
+if errorlevel 1 (
+   echo One or more tests failed.
+   exit /b %errorlevel%
+)
+
 if "%1" == "nopause" goto end
 pause
 :end
