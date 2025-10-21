@@ -12,10 +12,12 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
     <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnableRoslynAnalyzersPackaging>true</EnableRoslynAnalyzersPackaging>
   </PropertyGroup>
   <PropertyGroup>
     <DocumentationFile>.\bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
+  <Import Project="..\InitVersion.targets" Condition="Exists('..\InitVersion.targets')" />
   <PropertyGroup>
     <PackageId>Dalion.ValueObjects</PackageId>
     <Product>Dalion.ValueObjects</Product>
@@ -32,19 +34,18 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <GenerateNuspecDependsOn>InitVersion</GenerateNuspecDependsOn>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <Copyright>Copyright (c) $([System.DateTime]::Now.ToString(yyyy)), David Lievrouw</Copyright>
     <ContinuousIntegrationBuild Condition="'$(CIBuild)'=='true'">true</ContinuousIntegrationBuild>
+    <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
-  <Import Project="..\InitVersion.targets" Condition="Exists('..\InitVersion.targets')" />
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="[3.11.0,)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="[4.14.0,)" />
     <PackageReference
       Include="Microsoft.SourceLink.GitHub"
       Version="[8.0.0,)"
@@ -63,5 +64,17 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ValueObjectAttribute.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(OutputPath)$(AssemblyName).dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false"
+          Condition="Exists('$(OutputPath)$(AssemblyName).dll')" />
+    <None Include="$(OutputPath)$(AssemblyName).pdb"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false"
+          Condition="Exists('$(OutputPath)$(AssemblyName).pdb')" />
   </ItemGroup>
 </Project>

@@ -1,31 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <VersionSource Condition="Exists('$(MSBuildThisFileDirectory)../version.txt')">$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)../version.txt').Trim())</VersionSource>
+    <VersionSource Condition="!Exists('$(MSBuildThisFileDirectory)../version.txt') and Exists('$(MSBuildThisFileDirectory)version.txt')"> $([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)version.txt').Trim())</VersionSource>
+    <Version Condition="'$(Version)'==''">$(VersionSource)</Version>
+    <PackageVersion Condition="'$(PackageVersion)'==''">$(VersionSource)</PackageVersion>
+    <BuildCounter Condition="'$(BuildCounter)'==''">0</BuildCounter>
+    <ProductVersion Condition="'$(ProductVersion)'=='' And $(VersionSource.IndexOf('-')) &gt; -1">$(VersionSource.Substring(0, $(VersionSource.IndexOf('-')))).$(BuildCounter)</ProductVersion>
+    <ProductVersion Condition="'$(ProductVersion)'=='' And $(VersionSource.IndexOf('-')) &lt; 0">$(VersionSource).$(BuildCounter)</ProductVersion>
+    <Version>$(VersionSource)</Version>
+    <AssemblyVersion>$(ProductVersion)</AssemblyVersion>
+    <FileVersion>$(ProductVersion)</FileVersion>
+    <InformationalVersion>$(ProductVersion)</InformationalVersion>
+    <PackageVersion>$(VersionSource)</PackageVersion>
+  </PropertyGroup>
   <Target Name="InitVersion" BeforeTargets="BeforeBuild">
-    <ReadLinesFromFile
-      File="$(MSBuildThisFileDirectory)../version.txt"
-      Condition="Exists('$(MSBuildThisFileDirectory)../version.txt')"
-    >
-      <Output TaskParameter="Lines" PropertyName="PackageVersion" />
-    </ReadLinesFromFile>
-    <ReadLinesFromFile
-      File="$(MSBuildThisFileDirectory)version.txt"
-      Condition="Exists('$(MSBuildThisFileDirectory)version.txt')"
-    >
-      <Output TaskParameter="Lines" PropertyName="PackageVersion" />
-    </ReadLinesFromFile>
-    <PropertyGroup>
-      <BuildCounter Condition="'$(BuildCounter)'==''">0</BuildCounter>
-      <ProductVersion Condition="'$(ProductVersion)'=='' And $(PackageVersion.IndexOf('-')) &gt; -1"
-        >$(PackageVersion.Substring(0, $(PackageVersion.IndexOf('-')))).$(BuildCounter)</ProductVersion
-      >
-      <ProductVersion Condition="'$(ProductVersion)'=='' And $(PackageVersion.IndexOf('-')) &lt; 0"
-        >$(PackageVersion).$(BuildCounter)</ProductVersion
-      >
-      <Version>$(PackageVersion)</Version>
-      <AssemblyVersion>$(ProductVersion)</AssemblyVersion>
-      <FileVersion>$(ProductVersion)</FileVersion>
-      <InformationalVersion>$(ProductVersion)</InformationalVersion>
-    </PropertyGroup>
     <Message
       Text="The $(Product) package version for $(TargetFramework) is '$(PackageVersion)'."
       Importance="High"
