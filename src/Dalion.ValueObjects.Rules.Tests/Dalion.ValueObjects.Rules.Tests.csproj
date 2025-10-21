@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <IsTestProject>true</IsTestProject>
     <RootNamespace>Dalion.ValueObjects.Rules</RootNamespace>
+    <NoWarn>$(NoWarn);NU1701;</NoWarn>
   </PropertyGroup>
   <Import Project="..\InitVersion.targets" Condition="Exists('..\InitVersion.targets')" />
   <ItemGroup>
