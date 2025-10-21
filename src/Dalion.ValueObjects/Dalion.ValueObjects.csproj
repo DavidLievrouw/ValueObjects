@@ -27,6 +27,7 @@
     <Authors>Dalion</Authors>
     <Owners>Dalion</Owners>
     <PackageTags>value objects valueobjects dalion</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/DavidLievrouw/ValueObjects</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DavidLievrouw/ValueObjects</RepositoryUrl>
@@ -66,13 +67,17 @@
     <EmbeddedResource Include="ValueObjectAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(OutputPath)$(AssemblyName).dll"
-          Pack="true"
-          PackagePath="analyzers/dotnet/cs"
-          Visible="false"/>
-    <None Include="$(OutputPath)$(AssemblyName).pdb"
-          Pack="true"
-          PackagePath="analyzers/dotnet/cs"
-          Visible="false"/>
+    <None
+      Include="$(OutputPath)$(AssemblyName).dll"
+      Pack="true"
+      PackagePath="analyzers/dotnet/cs"
+      Visible="false"
+    />
+    <None
+      Include="$(OutputPath)$(AssemblyName).pdb"
+      Pack="true"
+      PackagePath="analyzers/dotnet/cs"
+      Visible="false"
+    />
   </ItemGroup>
 </Project>
