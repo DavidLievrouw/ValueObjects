@@ -3,7 +3,7 @@ using Dalion.ValueObjects.Generation;
 
 namespace Dalion.ValueObjects.SnapshotTests;
 
-public abstract class SnapshotTestsBase
+public abstract partial class SnapshotTestsBase
 {
     private static readonly string Namespace = typeof(SnapshotTestsBase).Namespace! + ".Samples";
     private readonly string _typeName;
@@ -29,13 +29,16 @@ public abstract class SnapshotTestsBase
             {
                 v.ScrubLinesWithReplace(line =>
                 {
+                    var trimmedLine = line.Trim();
                     if (
-                        line.StartsWith(
+                        trimmedLine.StartsWith(
                             "[GeneratedCodeAttribute(\"System.Text.RegularExpressions.Generator\","
-                        )
+                        ) ||
+                        trimmedLine.StartsWith(
+                            "[global::System.CodeDom.Compiler.GeneratedCodeAttribute(\"System.Text.RegularExpressions.Generator\",")
                     )
                     {
-                        return Regex.Replace(line, @"\d+\.\d+\.\d+\.\d+", "<version>");
+                        return VersionNumberRegex().Replace(line, "<version>");
                     }
 
                     return line;
@@ -43,4 +46,7 @@ public abstract class SnapshotTestsBase
             })
             .Run();
     }
+
+    [GeneratedRegex(@"\d+\.\d+\.\d+\.\d+")]
+    private static partial Regex VersionNumberRegex();
 }
