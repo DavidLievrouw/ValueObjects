@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference
       Include="Dalion.ValueObjects"
-      Version="1.0.0-beta01"
+      Version="1.0.0-beta03"
       ReferenceOutputAssembly="false"
       OutputItemType="Analyzer"
     />
