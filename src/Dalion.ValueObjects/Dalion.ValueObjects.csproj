@@ -69,12 +69,10 @@
     <None Include="$(OutputPath)$(AssemblyName).dll"
           Pack="true"
           PackagePath="analyzers/dotnet/cs"
-          Visible="false"
-          Condition="Exists('$(OutputPath)$(AssemblyName).dll')" />
+          Visible="false"/>
     <None Include="$(OutputPath)$(AssemblyName).pdb"
           Pack="true"
           PackagePath="analyzers/dotnet/cs"
-          Visible="false"
-          Condition="Exists('$(OutputPath)$(AssemblyName).pdb')" />
+          Visible="false"/>
   </ItemGroup>
 </Project>
