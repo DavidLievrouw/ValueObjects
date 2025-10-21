@@ -19,7 +19,7 @@ internal class ValidationClassProvider : IFragmentProvider
             public string ErrorMessage { get; }
             public bool IsSuccess => _isSuccess;
         
-            public Dictionary<object, object>? Data { get; private set; }
+            public System.Collections.Generic.Dictionary<object, object>? Data { get; private set; }
         
             public static Validation Invalid(string reason = """")
             {
@@ -33,7 +33,7 @@ internal class ValidationClassProvider : IFragmentProvider
         
             public Validation WithData(object key, object value)
             {
-                Data ??= new Dictionary<object, object>();
+                Data ??= new System.Collections.Generic.Dictionary<object, object>();
                 Data[key] = value;
                 return this;
             }

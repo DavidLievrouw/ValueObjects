@@ -60,6 +60,7 @@ internal class FluentValidationExtensionsProvider : IFragmentProvider
         return $@"
 #nullable enable
 
+using System;
 using FluentValidation;
 
 namespace {config.Namespace} {{

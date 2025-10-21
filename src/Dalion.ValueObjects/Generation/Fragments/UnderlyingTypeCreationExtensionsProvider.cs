@@ -25,6 +25,8 @@ internal class UnderlyingTypeCreationExtensionsProvider : IFragmentProvider
         return $@"
 #nullable enable
 
+using System;
+
 namespace {config.Namespace} {{
     /// <summary>
     ///     Extension methods to create <see cref=""{containingTypes}{config.TypeName}""/> value objects.

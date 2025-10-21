@@ -19,7 +19,7 @@ internal class PreSetValueCacheProvider : IFragmentProvider
 
         var code = $@"
         private static class {config.TypeName}PreSetValueCache {{
-            public static readonly Dictionary<{config.UnderlyingTypeName}, {config.TypeName}> {config.TypeName}PreSetValues = new();
+            public static readonly System.Collections.Generic.Dictionary<{config.UnderlyingTypeName}, {config.TypeName}> {config.TypeName}PreSetValues = new();
         
             static {config.TypeName}PreSetValueCache()
             {{

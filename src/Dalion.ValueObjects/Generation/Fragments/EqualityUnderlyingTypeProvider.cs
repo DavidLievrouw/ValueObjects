@@ -27,7 +27,7 @@ internal class EqualityUnderlyingTypeProvider : IFragmentProvider
         /// <inheritdoc />
         public bool Equals({config.UnderlyingTypeName} other)
         {{
-            return EqualityComparer<{config.UnderlyingTypeName}>.Default.Equals(this._value, other);
+            return System.Collections.Generic.EqualityComparer<{config.UnderlyingTypeName}>.Default.Equals(this._value, other);
         }}";
     }
 

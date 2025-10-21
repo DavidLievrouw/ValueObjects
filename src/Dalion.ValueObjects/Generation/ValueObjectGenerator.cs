@@ -139,6 +139,8 @@ public class ValueObjectGenerator : IIncrementalGenerator
             $@"
 #nullable enable
 
+using System;
+
 namespace {config.Namespace} {{
     {containingTypes}
     [System.Diagnostics.DebuggerDisplay(""{config.TypeName} {{Value}}"")]

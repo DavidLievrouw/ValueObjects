@@ -29,7 +29,7 @@ internal class EqualityProvider : IFragmentProvider
                 return false;
             }}
         
-            return EqualityComparer<{config.UnderlyingTypeName}>.Default.Equals(this._value, other.Value.Value);
+            return System.Collections.Generic.EqualityComparer<{config.UnderlyingTypeName}>.Default.Equals(this._value, other.Value.Value);
         }}
 
         /// <inheritdoc />
@@ -45,11 +45,11 @@ internal class EqualityProvider : IFragmentProvider
                 return false;
             }}
         
-            return EqualityComparer<{config.UnderlyingTypeName}>.Default.Equals(this._value, other.Value);
+            return System.Collections.Generic.EqualityComparer<{config.UnderlyingTypeName}>.Default.Equals(this._value, other.Value);
         }}
         
         /// <inheritdoc />
-        public bool Equals({config.TypeName}? other, IEqualityComparer<{config.TypeName}> comparer)
+        public bool Equals({config.TypeName}? other, System.Collections.Generic.IEqualityComparer<{config.TypeName}> comparer)
         {{
             if (other is null) return false;
             return comparer.Equals(this, other.Value);
@@ -58,7 +58,7 @@ internal class EqualityProvider : IFragmentProvider
         /// <inheritdoc />
         public override int GetHashCode() {{
             if (!IsInitialized()) return 0;
-            return EqualityComparer<{config.UnderlyingTypeName}>.Default.GetHashCode(this._value);
+            return System.Collections.Generic.EqualityComparer<{config.UnderlyingTypeName}>.Default.GetHashCode(this._value);
         }}";
     }
 
@@ -109,7 +109,7 @@ internal class EqualityProvider : IFragmentProvider
         }}
         
         /// <inheritdoc />
-        public bool Equals({config.TypeName}? other, IEqualityComparer<{config.TypeName}> comparer)
+        public bool Equals({config.TypeName}? other, System.Collections.Generic.IEqualityComparer<{config.TypeName}> comparer)
         {{
             if (other is null) return false;
             return comparer.Equals(this, other.Value);
