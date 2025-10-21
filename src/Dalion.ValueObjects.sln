@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dalion.ValueObjects.Samples
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dalion.ValueObjects.Rules.Tests", "Dalion.ValueObjects.Rules.Tests\Dalion.ValueObjects.Rules.Tests.csproj", "{53C21946-705F-41B3-982F-BD2E8488F254}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dalion.ValueObjects.SnapshotTests", "Dalion.ValueObjects.SnapshotTests\Dalion.ValueObjects.SnapshotTests.csproj", "{35953154-0B4F-41B5-810B-F1F7550801E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{53C21946-705F-41B3-982F-BD2E8488F254}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53C21946-705F-41B3-982F-BD2E8488F254}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53C21946-705F-41B3-982F-BD2E8488F254}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35953154-0B4F-41B5-810B-F1F7550801E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35953154-0B4F-41B5-810B-F1F7550801E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35953154-0B4F-41B5-810B-F1F7550801E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35953154-0B4F-41B5-810B-F1F7550801E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

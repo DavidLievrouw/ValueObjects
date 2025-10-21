@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>Dalion.ValueObjects.SnapshotTests</RootNamespace>
+  </PropertyGroup>
+  <Import Project="..\InitVersion.targets" Condition="Exists('..\InitVersion.targets')" />
+  <ItemGroup>
+    <PackageReference Include="FakeItEasy" Version="8.3.0" />
+    <PackageReference Include="FluentValidation" Version="12.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.14.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Verify.XunitV3" Version="31.0.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit.v3" Version="3.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference
+      Include="..\Dalion.ValueObjects\Dalion.ValueObjects.csproj"
+      ReferenceOutputAssembly="true"
+      OutputItemType="Analyzer"
+    />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\Dalion.ValueObjects.Samples\*.cs">
+      <Link>Samples\%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>
