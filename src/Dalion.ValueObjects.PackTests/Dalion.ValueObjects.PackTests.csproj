@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference
+      Include="Dalion.ValueObjects"
+      Version="1.0.0-beta01"
+      ReferenceOutputAssembly="false"
+      OutputItemType="Analyzer"
+    />
+    <PackageReference Include="FluentValidation" Version="12.0.0" />
+  </ItemGroup>
+</Project>
