@@ -1,4 +1,5 @@
-﻿using Dalion.ValueObjects.Generation;
+﻿using System.Text.RegularExpressions;
+using Dalion.ValueObjects.Generation;
 
 namespace Dalion.ValueObjects.SnapshotTests;
 
@@ -22,6 +23,24 @@ public abstract class SnapshotTestsBase
     {
         var source = GetType().Assembly.GetEmbeddedResourceString($"{Namespace}.{_typeName}.cs")!;
 
-        return new SnapshotRunner<ValueObjectGenerator>().WithSource(source).Run();
+        return new SnapshotRunner<ValueObjectGenerator>()
+            .WithSource(source)
+            .CustomizeSettings(v =>
+            {
+                v.ScrubLinesWithReplace(line =>
+                {
+                    if (
+                        line.StartsWith(
+                            "[GeneratedCodeAttribute(\"System.Text.RegularExpressions.Generator\","
+                        )
+                    )
+                    {
+                        return Regex.Replace(line, @"\d+\.\d+\.\d+\.\d+", "<version>");
+                    }
+
+                    return line;
+                });
+            })
+            .Run();
     }
 }

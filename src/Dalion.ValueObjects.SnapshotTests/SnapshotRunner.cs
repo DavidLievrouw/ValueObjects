@@ -19,6 +19,8 @@ public class SnapshotRunner<T>
     private readonly string _path;
 
     private string? _source;
+    
+    private Action<VerifySettings>? _customizesSettings;
 
     public SnapshotRunner([CallerFilePath] string caller = "")
     {
@@ -38,12 +40,24 @@ public class SnapshotRunner<T>
         return this;
     }
 
+    public SnapshotRunner<T> CustomizeSettings(Action<VerifySettings> settings)
+    {
+        _customizesSettings = settings;
+        return this;
+    }
+
     public async Task Run()
     {
         _ = _source ?? throw new InvalidOperationException("No source!");
 
         VerifySettings? verifySettings = null;
 
+        if (_customizesSettings is not null)
+        {
+            verifySettings = new();
+            _customizesSettings(verifySettings);
+        }
+        
         var (diagnostics, syntaxTrees) = await GetGeneratedOutput();
         Assert.True(
             diagnostics.IsEmpty,
