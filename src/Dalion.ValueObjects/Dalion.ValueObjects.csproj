@@ -20,6 +20,8 @@
   <Import Project="..\InitVersion.targets" Condition="Exists('..\InitVersion.targets')" />
   <PropertyGroup>
     <PackageId>Dalion.ValueObjects</PackageId>
+    <PackageIcon>dalion128.png</PackageIcon>
+    <PackageIconUrl>https://dalion.eu/dalion128.png</PackageIconUrl>
     <Product>Dalion.ValueObjects</Product>
     <Title>Dalion.ValueObjects</Title>
     <Description>Code-generator to fix your Primitive Obsession.</Description>
@@ -36,7 +38,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <PackageReadmeFile>readme.nuget.md</PackageReadmeFile>
     <Copyright>Copyright (c) $([System.DateTime]::Now.ToString(yyyy)), David Lievrouw</Copyright>
     <ContinuousIntegrationBuild Condition="'$(CIBuild)'=='true'">true</ContinuousIntegrationBuild>
     <EnablePackageValidation>true</EnablePackageValidation>
@@ -59,7 +61,7 @@
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)/../../readme.md" Pack="true" PackagePath="\" />
+    <None Include="$(MSBuildThisFileDirectory)/../../readme.nuget.md" Pack="true" PackagePath="\" />
     <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
     <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
   </ItemGroup>
@@ -79,5 +81,9 @@
       PackagePath="analyzers/dotnet/cs"
       Visible="false"
     />
+    <None Include="..\..\dalion128.png">
+      <PackagePath>\</PackagePath>
+      <Pack>true</Pack>
+    </None>
   </ItemGroup>
 </Project>
