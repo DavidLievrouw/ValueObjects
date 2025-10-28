@@ -30,7 +30,7 @@ namespace Dalion.ValueObjects.Samples
         /// ○ Match if at the end of the string or if before an ending newline.<br/>
         /// </code>
         /// </remarks>
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "9.0.12.41916")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "9.0.12.47515")]
         private static partial global::System.Text.RegularExpressions.Regex ValidPassword() => global::System.Text.RegularExpressions.Generated.ValidPassword_0.Instance;
     }
 }
@@ -51,7 +51,7 @@ namespace Dalion.ValueObjects.Samples
         /// ○ Match if at the end of the string or if before an ending newline.<br/>
         /// </code>
         /// </remarks>
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "9.0.12.41916")]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "9.0.12.47515")]
         private static partial global::System.Text.RegularExpressions.Regex ValidResourceGroupName() => global::System.Text.RegularExpressions.Generated.ValidResourceGroupName_1.Instance;
     }
 }
@@ -69,7 +69,7 @@ namespace System.Text.RegularExpressions.Generated
     using System.Threading;
 
     /// <summary>Custom <see cref="Regex"/>-derived type for the ValidPassword method.</summary>
-    [GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "9.0.12.41916")]
+    [GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "9.0.12.47515")]
     file sealed class ValidPassword_0 : Regex
     {
         /// <summary>Cached, thread-safe singleton instance.</summary>
@@ -434,7 +434,7 @@ namespace System.Text.RegularExpressions.Generated
     }
     
     /// <summary>Custom <see cref="Regex"/>-derived type for the ValidResourceGroupName method.</summary>
-    [GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "9.0.12.41916")]
+    [GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "9.0.12.47515")]
     file sealed class ValidResourceGroupName_1 : Regex
     {
         /// <summary>Cached, thread-safe singleton instance.</summary>
@@ -583,7 +583,7 @@ namespace System.Text.RegularExpressions.Generated
     }
     
     /// <summary>Helper methods used by generated <see cref="Regex"/>-derived implementations.</summary>
-    [GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "9.0.12.41916")]
+    [GeneratedCodeAttribute("System.Text.RegularExpressions.Generator", "9.0.12.47515")]
     file static class Utilities
     {
         /// <summary>Default timeout value set in <see cref="AppContext"/>, or <see cref="Regex.InfiniteMatchTimeout"/> if none was set.</summary>
