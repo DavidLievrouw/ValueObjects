@@ -1,4 +1,4 @@
-﻿namespace Dalion.ValueObjects.PackTests;
+﻿namespace ValueObjectsConsumer;
 
 /// <summary>
 ///     An identifier of a subscription.
