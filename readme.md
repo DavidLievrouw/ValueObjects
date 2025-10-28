@@ -30,7 +30,6 @@ Then, create a `readonly partial record struct` and annotate it with the `[Value
 
 ```csharp
 using System;
-using Dalion.ValueObjects;
 
 [ValueObject<Guid>]
 public readonly partial record struct CustomerId;

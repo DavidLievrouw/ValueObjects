@@ -29,8 +29,7 @@ Add the [Dalion.ValueObjects](https://www.nuget.org/packages/Dalion.ValueObjects
 Then, create a `readonly partial record struct` and annotate it with the `[ValueObject<T>]` attribute:
 
 ```csharp
-using System;
-using Dalion.ValueObjects;
+using System;~~~~
 
 [ValueObject<Guid>]
 public readonly partial record struct CustomerId;
