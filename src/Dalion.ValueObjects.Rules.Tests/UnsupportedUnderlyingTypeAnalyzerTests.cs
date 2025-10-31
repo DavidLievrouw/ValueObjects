@@ -21,8 +21,6 @@ public class UnsupportedUnderlyingTypeAnalyzerTests : RuleTests
     [InlineData("System.Decimal")]
     [InlineData("byte")]
     [InlineData("System.Byte")]
-    [InlineData("sbyte")]
-    [InlineData("System.SByte")]
     [InlineData("short")]
     [InlineData("System.Int16")]
     [InlineData("char")]

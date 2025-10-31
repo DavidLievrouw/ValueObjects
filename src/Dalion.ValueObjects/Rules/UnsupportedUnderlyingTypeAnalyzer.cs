@@ -61,7 +61,6 @@ public class UnsupportedUnderlyingTypeAnalyzer : DiagnosticAnalyzer
         }
 
         var attributeData = namedTypeSymbol.TryGetValueObjectAttributes().First();
-        var config = AttributeConfiguration.FromAttributeData(attributeData, namedTypeSymbol);
 
         TypeSyntax? typeArgSyntax = null;
         Location? location = null;
@@ -108,22 +107,23 @@ public class UnsupportedUnderlyingTypeAnalyzer : DiagnosticAnalyzer
                 or SpecialType.System_Int16
                 or SpecialType.System_Int32
                 or SpecialType.System_Int64
-                or SpecialType.System_SByte
                 or SpecialType.System_Single
                 or SpecialType.System_String
-                or SpecialType.System_UInt16
-                or SpecialType.System_UInt32
-                or SpecialType.System_UInt64
                 or SpecialType.System_DateTime
         )
         {
             return true;
         }
-
+        
         if (
             typeSymbol is INamedTypeSymbol namedTypeSymbol
             && namedTypeSymbol.ContainingNamespace?.ToDisplayString() == "System"
-            && namedTypeSymbol.Name is "Guid" or "TimeSpan" or "TimeOnly" or "DateTimeOffset" or "DateOnly"
+            && namedTypeSymbol.Name
+                is "Guid"
+                    or "TimeSpan"
+                    or "TimeOnly"
+                    or "DateTimeOffset"
+                    or "DateOnly"
         )
         {
             return true;
