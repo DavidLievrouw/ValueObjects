@@ -65,11 +65,9 @@ namespace Dalion.ValueObjects.Samples {
                 throw new System.ArgumentException("Cannot create an instance of Password from null.");
             }
 
-            
-
             var vo = new Password(value);
 
-            if (!vo.IsValid() && value is not null && !PasswordPreSetValueCache.PasswordPreSetValues.TryGetValue(value, out _)) {
+            if (!vo.IsValid() && vo.Value is not null && !PasswordPreSetValueCache.PasswordPreSetValues.TryGetValue(vo.Value, out _)) {
                 throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }
 

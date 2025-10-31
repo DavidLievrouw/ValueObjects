@@ -312,11 +312,9 @@ namespace Dalion.ValueObjects.Samples {
                 return None;
             }
 
-            
-
             var vo = new Birthday(value);
 
-            if (!vo.IsValid() && !BirthdayPreSetValueCache.BirthdayPreSetValues.TryGetValue(value, out _)) {
+            if (!vo.IsValid() && !BirthdayPreSetValueCache.BirthdayPreSetValues.TryGetValue(vo.Value, out _)) {
                 throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }
 

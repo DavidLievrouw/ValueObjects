@@ -312,11 +312,9 @@ namespace Dalion.ValueObjects.Samples {
                 return Unspecified;
             }
 
-            
-
             var vo = new PlayerLevel(value);
 
-            if (!vo.IsValid() && !PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(value, out _)) {
+            if (!vo.IsValid() && !PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(vo.Value, out _)) {
                 throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }
 

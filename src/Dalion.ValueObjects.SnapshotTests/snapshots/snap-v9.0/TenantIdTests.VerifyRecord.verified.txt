@@ -312,11 +312,9 @@ namespace Dalion.ValueObjects.Samples {
                 return Empty;
             }
 
-            
-
             var vo = new TenantId(value);
 
-            if (!vo.IsValid() && !TenantIdPreSetValueCache.TenantIdPreSetValues.TryGetValue(value, out _)) {
+            if (!vo.IsValid() && !TenantIdPreSetValueCache.TenantIdPreSetValues.TryGetValue(vo.Value, out _)) {
                 throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }
 

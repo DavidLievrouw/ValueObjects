@@ -312,11 +312,9 @@ namespace Dalion.ValueObjects.Samples {
                 return Zero;
             }
 
-            
-
             var vo = new Celsius(value);
 
-            if (!vo.IsValid() && !CelsiusPreSetValueCache.CelsiusPreSetValues.TryGetValue(value, out _)) {
+            if (!vo.IsValid() && !CelsiusPreSetValueCache.CelsiusPreSetValues.TryGetValue(vo.Value, out _)) {
                 throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }
 

@@ -317,11 +317,9 @@ namespace Dalion.ValueObjects.Samples {
                 throw new System.ArgumentException("Cannot create an instance of ResourceGroupName from null.");
             }
 
-            value = NormalizeInput(value);
-
             var vo = new ResourceGroupName(value);
 
-            if (!vo.IsValid() && value is not null && !ResourceGroupNamePreSetValueCache.ResourceGroupNamePreSetValues.TryGetValue(value, out _)) {
+            if (!vo.IsValid() && vo.Value is not null && !ResourceGroupNamePreSetValueCache.ResourceGroupNamePreSetValues.TryGetValue(vo.Value, out _)) {
                 throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }
 

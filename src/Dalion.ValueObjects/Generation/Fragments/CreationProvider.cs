@@ -120,11 +120,9 @@ internal class CreationProvider : IFragmentProvider
                 return {config.EmptyValueName};
             }}
 
-            {inputNormalization}
-
             var vo = new {config.TypeName}(value);
 
-            if (!vo.IsValid() && !{config.TypeName}PreSetValueCache.{config.TypeName}PreSetValues.TryGetValue(value, out _)) {{
+            if (!vo.IsValid() && !{config.TypeName}PreSetValueCache.{config.TypeName}PreSetValues.TryGetValue(vo.Value, out _)) {{
                 throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }}
 
@@ -195,11 +193,9 @@ internal class CreationProvider : IFragmentProvider
                 throw new System.ArgumentException(""Cannot create an instance of {config.TypeName} from null."");
             }}
 
-            {inputNormalization}
-
             var vo = new {config.TypeName}(value);
 
-            if (!vo.IsValid() && value is not null && !{config.TypeName}PreSetValueCache.{config.TypeName}PreSetValues.TryGetValue(value, out _)) {{
+            if (!vo.IsValid() && vo.Value is not null && !{config.TypeName}PreSetValueCache.{config.TypeName}PreSetValues.TryGetValue(vo.Value, out _)) {{
                 throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }}
 
