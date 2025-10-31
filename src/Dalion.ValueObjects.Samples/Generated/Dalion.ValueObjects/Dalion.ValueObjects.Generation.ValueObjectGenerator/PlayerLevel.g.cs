@@ -65,7 +65,7 @@ namespace Dalion.ValueObjects.Samples {
             var vo = new PlayerLevel(value);
 
             if (!vo.IsValid() && !PlayerLevelPreSetValueCache.PlayerLevelPreSetValues.TryGetValue(value, out _)) {
-                throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }
 
             return vo;

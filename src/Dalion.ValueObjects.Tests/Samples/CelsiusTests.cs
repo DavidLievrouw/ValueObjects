@@ -71,7 +71,7 @@ public partial class CelsiusTests
             var dec = (decimal)invalid;
             Action act = () => Celsius.From(dec);
 
-            Assert.Throws<InvalidOperationException>(act);
+            Assert.Throws<ArgumentException>(act);
         }
     }
 
@@ -812,7 +812,7 @@ public partial class CelsiusTests
 
                 Action act = () => Celsius.Parse(str, CultureInfo.InvariantCulture);
 
-                Assert.Throws<InvalidOperationException>(act);
+                Assert.Throws<ArgumentException>(act);
             }
 
             [Fact]
@@ -958,7 +958,7 @@ public partial class CelsiusTests
                     Celsius.Parse(str, CultureInfo.InvariantCulture);
                 };
 
-                Assert.Throws<InvalidOperationException>(act);
+                Assert.Throws<ArgumentException>(act);
             }
 
             [Fact]
@@ -1106,7 +1106,7 @@ public partial class CelsiusTests
                     Celsius.Parse(str, CultureInfo.InvariantCulture);
                 };
 
-                Assert.Throws<InvalidOperationException>(act);
+                Assert.Throws<ArgumentException>(act);
             }
 
             [Fact]
@@ -1245,7 +1245,7 @@ public partial class CelsiusTests
         {
             Action act = () => (-300m).Celsius(); // lower than absolute zero
             
-            Assert.Throws<InvalidOperationException>(act);
+            Assert.Throws<ArgumentException>(act);
         }
 
         [Fact]

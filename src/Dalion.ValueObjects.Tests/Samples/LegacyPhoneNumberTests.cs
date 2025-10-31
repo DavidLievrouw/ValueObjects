@@ -35,7 +35,7 @@ public partial class LegacyPhoneNumberTests
         {
             Action act = () => LegacyPhoneNumber.From(null);
 
-            Assert.Throws<InvalidOperationException>(act);
+            Assert.Throws<ArgumentException>(act);
         }
 
         [Fact]
@@ -623,7 +623,7 @@ public partial class LegacyPhoneNumberTests
             Action act = () => ((string)null).LegacyPhoneNumber();
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
-            Assert.Throws<InvalidOperationException>(act);
+            Assert.Throws<ArgumentException>(act);
         }
 
         [Fact]

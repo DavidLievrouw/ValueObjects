@@ -60,7 +60,7 @@ public partial class PlayerLevelTests
         {
             Action act = () => PlayerLevel.From(invalid);
 
-            Assert.Throws<InvalidOperationException>(act);
+            Assert.Throws<ArgumentException>(act);
         }
     }
 

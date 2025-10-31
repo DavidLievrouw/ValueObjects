@@ -62,7 +62,7 @@ namespace Dalion.ValueObjects.Samples {
         /// <returns>A new <see cref="LegacyPhoneNumber"/>.</returns>
         public static LegacyPhoneNumber From(System.String? value) {
             if (value is null) {
-                throw new System.InvalidOperationException("Cannot create an instance of LegacyPhoneNumber from null.");
+                throw new System.ArgumentException("Cannot create an instance of LegacyPhoneNumber from null.");
             }
 
             
@@ -70,7 +70,7 @@ namespace Dalion.ValueObjects.Samples {
             var vo = new LegacyPhoneNumber(value);
 
             if (!vo.IsValid() && value is not null && !LegacyPhoneNumberPreSetValueCache.LegacyPhoneNumberPreSetValues.TryGetValue(value, out _)) {
-                throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }
 
             return vo;

@@ -62,7 +62,7 @@ namespace Dalion.ValueObjects.Samples {
         /// <returns>A new <see cref="Password"/>.</returns>
         public static Password From(System.String? value) {
             if (value is null) {
-                throw new System.InvalidOperationException("Cannot create an instance of Password from null.");
+                throw new System.ArgumentException("Cannot create an instance of Password from null.");
             }
 
             
@@ -70,7 +70,7 @@ namespace Dalion.ValueObjects.Samples {
             var vo = new Password(value);
 
             if (!vo.IsValid() && value is not null && !PasswordPreSetValueCache.PasswordPreSetValues.TryGetValue(value, out _)) {
-                throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }
 
             return vo;

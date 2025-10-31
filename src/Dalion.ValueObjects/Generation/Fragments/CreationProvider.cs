@@ -125,7 +125,7 @@ internal class CreationProvider : IFragmentProvider
             var vo = new {config.TypeName}(value);
 
             if (!vo.IsValid() && !{config.TypeName}PreSetValueCache.{config.TypeName}PreSetValues.TryGetValue(value, out _)) {{
-                throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }}
 
             return vo;
@@ -192,7 +192,7 @@ internal class CreationProvider : IFragmentProvider
         /// <returns>A new <see cref=""{config.TypeName}""/>.</returns>
         public static {config.TypeName} From({config.UnderlyingTypeName}? value) {{
             if (value is null) {{
-                throw new System.InvalidOperationException(""Cannot create an instance of {config.TypeName} from null."");
+                throw new System.ArgumentException(""Cannot create an instance of {config.TypeName} from null."");
             }}
 
             {inputNormalization}
@@ -200,7 +200,7 @@ internal class CreationProvider : IFragmentProvider
             var vo = new {config.TypeName}(value);
 
             if (!vo.IsValid() && value is not null && !{config.TypeName}PreSetValueCache.{config.TypeName}PreSetValues.TryGetValue(value, out _)) {{
-                throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }}
 
             return vo;

@@ -66,7 +66,7 @@ public partial class BirthdayTests
         {
             Action act = () => Birthday.From(new DateOnly(4000, 1, 1));
 
-            Assert.Throws<InvalidOperationException>(act);
+            Assert.Throws<ArgumentException>(act);
         }
     }
 
@@ -803,7 +803,7 @@ public partial class BirthdayTests
 
                 Action act = () => Birthday.Parse(str, CultureInfo.InvariantCulture);
 
-                Assert.Throws<InvalidOperationException>(act);
+                Assert.Throws<ArgumentException>(act);
             }
 
             [Fact]
@@ -914,7 +914,7 @@ public partial class BirthdayTests
                     Birthday.Parse(str, CultureInfo.InvariantCulture);
                 };
 
-                Assert.Throws<InvalidOperationException>(act);
+                Assert.Throws<ArgumentException>(act);
             }
 
             [Fact]
@@ -1058,7 +1058,7 @@ public partial class BirthdayTests
                     Birthday.Parse(str, CultureInfo.InvariantCulture);
                 };
 
-                Assert.Throws<InvalidOperationException>(act);
+                Assert.Throws<ArgumentException>(act);
             }
 
             [Fact]

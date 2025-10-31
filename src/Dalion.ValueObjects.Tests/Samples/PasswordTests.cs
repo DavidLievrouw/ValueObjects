@@ -30,7 +30,7 @@ public partial class PasswordTests
         {
             Action act = () => Password.From(null);
 
-            Assert.Throws<InvalidOperationException>(act);
+            Assert.Throws<ArgumentException>(act);
         }
 
         [Fact]
@@ -57,7 +57,7 @@ public partial class PasswordTests
         {
             Action act = () => Password.From(invalid);
 
-            Assert.Throws<InvalidOperationException>(act);
+            Assert.Throws<ArgumentException>(act);
         }
     }
 

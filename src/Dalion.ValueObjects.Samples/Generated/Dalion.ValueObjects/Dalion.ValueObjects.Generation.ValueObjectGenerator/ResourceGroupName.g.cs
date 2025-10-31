@@ -62,7 +62,7 @@ namespace Dalion.ValueObjects.Samples {
         /// <returns>A new <see cref="ResourceGroupName"/>.</returns>
         public static ResourceGroupName From(System.String? value) {
             if (value is null) {
-                throw new System.InvalidOperationException("Cannot create an instance of ResourceGroupName from null.");
+                throw new System.ArgumentException("Cannot create an instance of ResourceGroupName from null.");
             }
 
             value = NormalizeInput(value);
@@ -70,7 +70,7 @@ namespace Dalion.ValueObjects.Samples {
             var vo = new ResourceGroupName(value);
 
             if (!vo.IsValid() && value is not null && !ResourceGroupNamePreSetValueCache.ResourceGroupNamePreSetValues.TryGetValue(value, out _)) {
-                throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }
 
             return vo;

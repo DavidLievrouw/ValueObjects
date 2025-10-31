@@ -35,7 +35,7 @@ public partial class ResourceGroupNameTests
         {
             Action act = () => ResourceGroupName.From(null);
 
-            Assert.Throws<InvalidOperationException>(act);
+            Assert.Throws<ArgumentException>(act);
         }
 
         [Fact]
@@ -62,7 +62,7 @@ public partial class ResourceGroupNameTests
         {
             Action act = () => ResourceGroupName.From(invalid);
 
-            Assert.Throws<InvalidOperationException>(act);
+            Assert.Throws<ArgumentException>(act);
         }
     }
 
@@ -785,7 +785,7 @@ public partial class ResourceGroupNameTests
 
                 Action act = () => ResourceGroupName.Parse(str, CultureInfo.InvariantCulture);
 
-                Assert.Throws<InvalidOperationException>(act);
+                Assert.Throws<ArgumentException>(act);
             }
 
             [Fact]
@@ -798,7 +798,7 @@ public partial class ResourceGroupNameTests
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
-                Assert.Throws<InvalidOperationException>(act);
+                Assert.Throws<ArgumentException>(act);
             }
 
             [Fact]
@@ -900,7 +900,7 @@ public partial class ResourceGroupNameTests
                     ResourceGroupName.Parse(str, CultureInfo.InvariantCulture);
                 };
 
-                Assert.Throws<InvalidOperationException>(act);
+                Assert.Throws<ArgumentException>(act);
             }
 
             [Fact]
@@ -984,7 +984,7 @@ public partial class ResourceGroupNameTests
                     ResourceGroupName.Parse(str, CultureInfo.InvariantCulture);
                 };
 
-                Assert.Throws<InvalidOperationException>(act);
+                Assert.Throws<ArgumentException>(act);
             }
 
             [Fact]

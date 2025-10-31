@@ -65,7 +65,7 @@ namespace Dalion.ValueObjects.Samples {
             var vo = new Celsius(value);
 
             if (!vo.IsValid() && !CelsiusPreSetValueCache.CelsiusPreSetValues.TryGetValue(value, out _)) {
-                throw new System.InvalidOperationException(vo.GetValidationErrorMessage());
+                throw new System.ArgumentException(vo.GetValidationErrorMessage());
             }
 
             return vo;
