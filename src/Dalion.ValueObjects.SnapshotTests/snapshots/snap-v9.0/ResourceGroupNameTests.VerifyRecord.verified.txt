@@ -294,7 +294,7 @@ namespace Dalion.ValueObjects.Samples {
         [System.Diagnostics.DebuggerStepThrough]
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         private ResourceGroupName(System.String? value) {
-            value = NormalizeInput(value);
+            value = Normalize(value);
             if (value == default) {
                 _initialized = false;
                 _value = System.String.Empty;

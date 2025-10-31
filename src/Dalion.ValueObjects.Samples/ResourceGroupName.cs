@@ -37,7 +37,7 @@ public readonly partial record struct ResourceGroupName
         return Validation.Ok;
     }
 
-    private static string? NormalizeInput(string? input)
+    private static string? Normalize(string? input)
     {
         return input?.ToLowerInvariant().Trim();
     }

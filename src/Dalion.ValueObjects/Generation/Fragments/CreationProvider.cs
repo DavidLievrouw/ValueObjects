@@ -39,7 +39,7 @@ internal class CreationProvider : IFragmentProvider
         var normalizeMethod = target
             .SyntaxInformation.Members.OfType<MethodDeclarationSyntax>()
             .FirstOrDefault(member =>
-                member.Identifier.Text == "NormalizeInput"
+                member.Identifier.Text == "Normalize"
                 && member.Modifiers.Any(SyntaxKind.PrivateKeyword)
                 && member.Modifiers.Any(SyntaxKind.StaticKeyword)
                 && member.ParameterList.Parameters.Count == 1
@@ -58,7 +58,7 @@ internal class CreationProvider : IFragmentProvider
                     )
                 )
             );
-        var inputNormalization = normalizeMethod == null ? "" : "value = NormalizeInput(value);";
+        var inputNormalization = normalizeMethod == null ? "" : "value = Normalize(value);";
 
         return config.UnderlyingType.SpecialType == SpecialType.System_String
             ? GetForString(

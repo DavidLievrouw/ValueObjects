@@ -117,7 +117,7 @@ public partial class ResourceGroupNameTests
         }
     }
 
-    public class NormalizeInput : ResourceGroupNameTests
+    public class Normalize : ResourceGroupNameTests
     {
         [Theory]
         [InlineData("Casing", "casing")]
