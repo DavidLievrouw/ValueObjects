@@ -11,6 +11,8 @@ A C# code generator to cure [Primitive Obsession](https://refactoring.guru/smell
 
 ValueObjects is a .NET Source Generator and analyzer. It turns your primitives (ints, decimals etc.) into [value objects](https://en.wikipedia.org/wiki/Value_object) that represent domain concepts (`CustomerId`, `AccountBalance`, etc.).
 
+All generated code is compatible with C# 11.0 or higher and .NET 8.0 or higher.
+
 ## Installation and usage
 
 Add the [Dalion.ValueObjects](https://www.nuget.org/packages/Dalion.ValueObjects/) NuGet package to your project.
@@ -60,9 +62,11 @@ It makes it possible to enable the following for the type, using arguments in th
 
 This library also enables multiple roslyn analyzers that validate correct usage of the `[ValueObject<T>]` attribute and the annotated types.
 
-You can examine the generated code in the [generated sample code files](/DavidLievrouw/ValueObjects/tree/main/src/Dalion.ValueObjects.Samples/Generated/Dalion.ValueObjects/Dalion.ValueObjects.Generation.ValueObjectGenerator). The behavior of the generated types is documented by [unit tests](https://github.com/DavidLievrouw/ValueObjects/tree/main/src/Dalion.ValueObjects.Tests/Samples).
+You can examine the generated code in the [generated samp~~~~le code files](/DavidLievrouw/ValueObjects/tree/main/src/Dalion.ValueObjects.Samples/Generated/Dalion.ValueObjects/Dalion.ValueObjects.Generation.ValueObjectGenerator). The behavior of the generated types is documented by [unit tests](https://github.com/DavidLievrouw/ValueObjects/tree/main/src/Dalion.ValueObjects.Tests/Samples).
 
 Similarly, the behavior of the roslyn analyzers is documented by [unit tests](https://github.com/DavidLievrouw/ValueObjects/tree/main/src/Dalion.ValueObjects.Rules.Tests).
+
+All generated code is compatible with C# 11.0 or higher and .NET 8.0 or higher.
 
 See the [Wiki](https://github.com/DavidLievrouw/ValueObjects/wiki) for more detailed information, such as getting started, tutorials, and how-tos.
 
