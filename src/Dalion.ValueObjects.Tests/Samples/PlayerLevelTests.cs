@@ -47,7 +47,7 @@ public partial class PlayerLevelTests
         public void CanCreatePreSetInstance(int preSet)
         {
             var actual = PlayerLevel.From(preSet);
-            
+
             Assert.Equal(PlayerLevel.Unspecified, actual);
             Assert.True(actual.IsInitialized());
             Assert.False(actual.IsValid());
@@ -93,7 +93,7 @@ public partial class PlayerLevelTests
         public void CanCreatePreSetInstance(int preSet)
         {
             var success = PlayerLevel.TryFrom(preSet, out var actual);
-            
+
             Assert.True(success);
             Assert.Equal(PlayerLevel.Unspecified, actual);
             Assert.True(actual.IsInitialized());
@@ -271,7 +271,7 @@ public partial class PlayerLevelTests
 
             Assert.Equal(value.ToString(CultureInfo.InvariantCulture), actual);
         }
-        
+
         [Fact]
         public void HasIFormattableSupport()
         {
@@ -310,7 +310,7 @@ public partial class PlayerLevelTests
             var invalid = "0"; // Unspecified
 
             var deserialized = JsonSerializer.Deserialize<PlayerLevel>(invalid);
-            
+
             Assert.Equal(PlayerLevel.Unspecified, deserialized);
             Assert.True(deserialized.IsInitialized());
             Assert.False(deserialized.IsValid());
@@ -463,6 +463,18 @@ public partial class PlayerLevelTests
         }
 
         [Fact]
+        public void CanConvertFromString()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(PlayerLevel));
+            Assert.True(converter.CanConvertFrom(typeof(string)));
+
+            const string str = "3";
+            var actual = converter.ConvertFrom(str);
+
+            Assert.Equal(PlayerLevel.From(3), actual);
+        }
+
+        [Fact]
         public void CannotConvertFromUnsupportedType()
         {
             var converter = TypeDescriptor.GetConverter(typeof(PlayerLevel));
@@ -484,6 +496,19 @@ public partial class PlayerLevelTests
             var actual = converter.ConvertTo(sut, typeof(int));
 
             Assert.Equal(backingValue, actual);
+        }
+
+        [Fact]
+        public void CanConvertToString()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(PlayerLevel));
+            Assert.True(converter.CanConvertTo(typeof(string)));
+
+            var backingValue = 3;
+            var sut = PlayerLevel.From(backingValue);
+            var actual = converter.ConvertTo(sut, typeof(string));
+
+            Assert.Equal("3", actual);
         }
 
         [Fact]

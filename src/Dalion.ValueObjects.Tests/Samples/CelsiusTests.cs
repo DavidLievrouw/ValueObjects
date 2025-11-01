@@ -534,6 +534,18 @@ public partial class CelsiusTests
 
             Assert.Equal(Celsius.From(backingValue), actual);
         }
+        
+        [Fact]
+        public void CanConvertFromString()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(Celsius));
+            Assert.True(converter.CanConvertFrom(typeof(string)));
+
+            var str = "24.2";
+            var actual = converter.ConvertFrom(str);
+
+            Assert.Equal(Celsius.From(24.2m), actual);
+        }
 
         [Fact]
         public void CannotConvertFromUnsupportedType()
@@ -557,6 +569,19 @@ public partial class CelsiusTests
             var actual = converter.ConvertTo(sut, typeof(decimal));
 
             Assert.Equal(backingValue, actual);
+        }
+
+        [Fact]
+        public void CanConvertToString()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(Celsius));
+            Assert.True(converter.CanConvertTo(typeof(string)));
+
+            var backingValue = 24.2m;
+            var sut = Celsius.From(backingValue);
+            var actual = converter.ConvertTo(sut, typeof(string));
+
+            Assert.Equal("24.2", actual);
         }
 
         [Fact]

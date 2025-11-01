@@ -407,6 +407,18 @@ public partial class TenantIdTests
 
             Assert.Equal(TenantId.From(backingValue), actual);
         }
+        
+        [Fact]
+        public void CanConvertFromString()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(TenantId));
+            Assert.True(converter.CanConvertFrom(typeof(string)));
+
+            var backingValue = Guid.NewGuid();
+            var actual = converter.ConvertFrom(backingValue.ToString());
+
+            Assert.Equal(TenantId.From(backingValue), actual);
+        }
 
         [Fact]
         public void CannotConvertFromUnsupportedType()
@@ -430,6 +442,19 @@ public partial class TenantIdTests
             var actual = converter.ConvertTo(sut, typeof(Guid));
 
             Assert.Equal(backingValue, actual);
+        }
+
+        [Fact]
+        public void CanConvertToString()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(TenantId));
+            Assert.True(converter.CanConvertTo(typeof(string)));
+
+            var backingValue = Guid.NewGuid();
+            var sut = TenantId.From(backingValue);
+            var actual = converter.ConvertTo(sut, typeof(string));
+
+            Assert.Equal(backingValue.ToString(), actual);
         }
 
         [Fact]
