@@ -275,21 +275,36 @@ namespace Dalion.ValueObjects.Samples {
         {
             public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
             {
-                return sourceType == UnderlyingType;
+                return sourceType == UnderlyingType || sourceType == typeof(string);
             }
             
             public override object? ConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object value)
             {
-                if (value != null && !CanConvertFrom(context, value.GetType()))
+                if (value == null) return Empty;
+        
+                if (value.GetType() == UnderlyingType)
                 {
-                    throw new NotSupportedException($"Cannot convert from type '{value?.GetType()}'.");
+                    var underlyingValue = GetUnderlyingValue(value);
+                    return underlyingValue == default ? Empty : From((System.Guid)underlyingValue);
                 }
         
-                var underlyingValue = GetUnderlyingValue(value);
-        
-                return underlyingValue == default ? Empty : From((System.Guid)underlyingValue);
+                if (value is string s)
+                {
+                    if (string.IsNullOrWhiteSpace(s)) return Empty;
+                    object underlyingValue;
+                    if (UnderlyingType == typeof(Guid)) {
+                        underlyingValue = Guid.Parse(s);
+                    } else if (UnderlyingType == typeof(DateOnly)) {
+                        underlyingValue = DateOnly.Parse(s, culture ?? System.Globalization.CultureInfo.InvariantCulture);
+                    } else {
+                        underlyingValue = Convert.ChangeType(s, UnderlyingType, culture ?? System.Globalization.CultureInfo.InvariantCulture);
+                    }
+                    return From((System.Guid)underlyingValue);
+                }
+    
+                throw new NotSupportedException($@"Cannot convert from type '{value?.GetType()}'.");
             }
-        
+
             private object? GetUnderlyingValue(object? value) {{
                 if (value == null) {{
                     return default(System.Guid);
@@ -308,22 +323,34 @@ namespace Dalion.ValueObjects.Samples {
             
             public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
             {
-                return destinationType == UnderlyingType;
+                return destinationType == UnderlyingType || destinationType == typeof(string);
             }
             
             public override object? ConvertTo(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object? value, Type destinationType)
             {
-                if (!CanConvertTo(context, destinationType))
+                if (destinationType == UnderlyingType)
                 {
-                    throw new NotSupportedException($"Cannot convert to type '{destinationType}'.");
+                    if (value is TenantId vo)
+                    {
+                        return vo.Value;
+                    }
+                    return base.ConvertTo(context, culture ?? System.Globalization.CultureInfo.InvariantCulture, value, destinationType);
                 }
-        
-                if (value is TenantId vo)
+
+                if (destinationType == typeof(string))
                 {
-                    return vo.Value;
+                    if (value is TenantId vo)
+                    {
+                        return vo.ToString(culture ?? System.Globalization.CultureInfo.InvariantCulture);
+                    }
+                    if (value is System.IFormattable f)
+                    {
+                        return f.ToString(format: null, formatProvider: culture ?? System.Globalization.CultureInfo.InvariantCulture);
+                    }
+                    return value?.ToString();
                 }
-        
-                return base.ConvertTo(context, culture, value, destinationType);
+
+                throw new NotSupportedException($@"Cannot convert to type '{destinationType}'.");
             }
         }
 

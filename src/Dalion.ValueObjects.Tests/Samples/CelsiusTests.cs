@@ -541,7 +541,8 @@ public partial class CelsiusTests
             var converter = TypeDescriptor.GetConverter(typeof(Celsius));
             Assert.True(converter.CanConvertFrom(typeof(string)));
 
-            var str = "24.2";
+            var backingValue = 24.2m;
+            var str = backingValue.ToString(CultureInfo.CurrentCulture);
             var actual = converter.ConvertFrom(str);
 
             Assert.Equal(Celsius.From(24.2m), actual);

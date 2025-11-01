@@ -478,9 +478,9 @@ public partial class PlayerLevelTests
         public void CannotConvertFromUnsupportedType()
         {
             var converter = TypeDescriptor.GetConverter(typeof(PlayerLevel));
-            Assert.False(converter.CanConvertFrom(typeof(string)));
+            Assert.False(converter.CanConvertFrom(typeof(DateTime)));
 
-            Action act = () => converter.ConvertFrom("abc");
+            Action act = () => converter.ConvertFrom(new DateTime(2025, 11, 1));
 
             Assert.Throws<NotSupportedException>(act);
         }
@@ -515,11 +515,11 @@ public partial class PlayerLevelTests
         public void CannotConvertToUnsupportedType()
         {
             var converter = TypeDescriptor.GetConverter(typeof(PlayerLevel));
-            Assert.False(converter.CanConvertTo(typeof(string)));
+            Assert.False(converter.CanConvertTo(typeof(DateTime)));
 
             var backingValue = 3;
             var sut = PlayerLevel.From(backingValue);
-            Action act = () => converter.ConvertTo(sut, typeof(string));
+            Action act = () => converter.ConvertTo(sut, typeof(DateTime));
 
             Assert.Throws<NotSupportedException>(act);
         }
