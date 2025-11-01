@@ -1,3 +1,5 @@
+![ValueObjects](ValueObjects.png)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Nuget](https://img.shields.io/nuget/v/Dalion.ValueObjects)](https://www.nuget.org/packages/Dalion.ValueObjects/)
 [![Build status](https://ci.appveyor.com/api/projects/status/nrvheog39e1xy4ge?svg=true)](https://ci.appveyor.com/project/DavidLievrouw/valueobjects)
