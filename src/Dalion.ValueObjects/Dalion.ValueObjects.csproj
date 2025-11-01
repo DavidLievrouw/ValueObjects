@@ -20,8 +20,8 @@
   <Import Project="..\InitVersion.targets" Condition="Exists('..\InitVersion.targets')" />
   <PropertyGroup>
     <PackageId>Dalion.ValueObjects</PackageId>
-    <PackageIcon>dalion128.png</PackageIcon>
-    <PackageIconUrl>https://dalion.eu/dalion128.png</PackageIconUrl>
+    <PackageIcon>ValueObjects256.png</PackageIcon>
+    <PackageIconUrl>https://dalion.eu/ValueObjects256.png</PackageIconUrl>
     <Product>Dalion.ValueObjects</Product>
     <Title>Dalion.ValueObjects</Title>
     <Description>Code-generator to fix your Primitive Obsession.</Description>
@@ -81,7 +81,7 @@
       PackagePath="analyzers/dotnet/cs"
       Visible="false"
     />
-    <None Include="..\..\dalion128.png">
+    <None Include="..\..\ValueObjects256.png">
       <PackagePath>\</PackagePath>
       <Pack>true</Pack>
     </None>
