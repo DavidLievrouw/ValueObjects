@@ -264,56 +264,77 @@ namespace Dalion.ValueObjects.Samples {
         {
             public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
             {
-                return sourceType == UnderlyingType || sourceType == typeof(string);
+                return sourceType is not null && (sourceType.IsAssignableFrom(UnderlyingType) || sourceType == typeof(string));
             }
             
             public override object? ConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object value)
             {
-                if (value == null) return Unspecified;
-        
-                if (value.GetType() == UnderlyingType)
+                if (value is PlayerLevel vo)
                 {
-                    var underlyingValue = GetUnderlyingValue(value);
-                    return underlyingValue == default ? Unspecified : From((System.Int32)underlyingValue);
+                    return vo;
+                }
+
+                if (value == default) 
+                {
+                    return Unspecified;
+                }
+        
+                if (value is System.Int32 correctlyTypedValue)
+                {
+                    return correctlyTypedValue == default 
+                        ? Unspecified 
+                        : From(correctlyTypedValue);
                 }
         
                 if (value is string s)
                 {
                     var underlyingValue = System.Int32.Parse(s, culture ?? System.Globalization.CultureInfo.InvariantCulture);
-                    return underlyingValue == default ? Unspecified : From((System.Int32)underlyingValue);
+                    return underlyingValue == default 
+                        ? Unspecified 
+                        : From((System.Int32)underlyingValue);
                 }
     
                 throw new NotSupportedException($@"Cannot convert from type '{value?.GetType()}'.");
             }
-
-            private object? GetUnderlyingValue(object? value) {
-                if (value == null) {
-                    return default(System.Int32);
-                }
-        
-                if (value is System.Int32 v) {
-                    return v;
-                }
-                
-                if (Type.GetTypeCode(typeof(System.Int32)) == TypeCode.Object) {
-                    throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'System.Int32'.");
-                }
-                
-                return Convert.ChangeType(value, typeof(System.Int32));
-            }
             
             public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
             {
-                return destinationType == UnderlyingType || destinationType == typeof(string);
+                return destinationType is not null && (destinationType.IsAssignableFrom(UnderlyingType) || destinationType == typeof(string));
             }
             
             public override object? ConvertTo(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object? value, Type destinationType)
             {
-                if (destinationType == UnderlyingType)
+                if (destinationType.IsAssignableFrom(typeof(PlayerLevel)))
+                {
+                    if (value is PlayerLevel vo)
+                    {
+                        return vo;
+                    }
+                    if (value is System.Int32 correctlyTypedValue)
+                    {
+                        return From(correctlyTypedValue);
+                    }
+                    if (value is string s)
+                    {
+                        var underlyingValue = System.Int32.Parse(s, culture ?? System.Globalization.CultureInfo.InvariantCulture);
+                        return From(underlyingValue);
+                    }
+                }
+
+                if (destinationType.IsAssignableFrom(UnderlyingType))
                 {
                     if (value is PlayerLevel vo)
                     {
                         return vo.Value;
+                    }
+                    if (value is System.Int32 correctlyTypedValue)
+                    {
+                        return correctlyTypedValue;
+                    }
+                    if (value is string s)
+                    {
+                        var underlyingValue = System.Int32.Parse(s, culture ?? System.Globalization.CultureInfo.InvariantCulture);
+                        return underlyingValue;
                     }
                     return base.ConvertTo(context, culture ?? System.Globalization.CultureInfo.InvariantCulture, value, destinationType);
                 }

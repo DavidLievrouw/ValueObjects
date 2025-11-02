@@ -528,56 +528,77 @@ namespace Dalion.ValueObjects.Samples {
         {
             public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
             {
-                return sourceType == UnderlyingType || sourceType == typeof(string);
+                return sourceType is not null && (sourceType.IsAssignableFrom(UnderlyingType) || sourceType == typeof(string));
             }
             
             public override object? ConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object value)
             {
-                if (value == null) return Empty;
-        
-                if (value.GetType() == UnderlyingType)
+                if (value is TenantId vo)
                 {
-                    var underlyingValue = GetUnderlyingValue(value);
-                    return underlyingValue == default ? Empty : From((System.Guid)underlyingValue);
+                    return vo;
+                }
+
+                if (value == default) 
+                {
+                    return Empty;
+                }
+        
+                if (value is System.Guid correctlyTypedValue)
+                {
+                    return correctlyTypedValue == default 
+                        ? Empty 
+                        : From(correctlyTypedValue);
                 }
         
                 if (value is string s)
                 {
                     var underlyingValue = System.Guid.Parse(s, culture ?? System.Globalization.CultureInfo.InvariantCulture);
-                    return underlyingValue == default ? Empty : From((System.Guid)underlyingValue);
+                    return underlyingValue == default 
+                        ? Empty 
+                        : From((System.Guid)underlyingValue);
                 }
     
                 throw new NotSupportedException($@"Cannot convert from type '{value?.GetType()}'.");
             }
-
-            private object? GetUnderlyingValue(object? value) {
-                if (value == null) {
-                    return default(System.Guid);
-                }
-        
-                if (value is System.Guid v) {
-                    return v;
-                }
-                
-                if (Type.GetTypeCode(typeof(System.Guid)) == TypeCode.Object) {
-                    throw new NotSupportedException($"Cannot convert value of type '{value?.GetType()}' to 'System.Guid'.");
-                }
-                
-                return Convert.ChangeType(value, typeof(System.Guid));
-            }
             
             public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
             {
-                return destinationType == UnderlyingType || destinationType == typeof(string);
+                return destinationType is not null && (destinationType.IsAssignableFrom(UnderlyingType) || destinationType == typeof(string));
             }
             
             public override object? ConvertTo(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object? value, Type destinationType)
             {
-                if (destinationType == UnderlyingType)
+                if (destinationType.IsAssignableFrom(typeof(TenantId)))
+                {
+                    if (value is TenantId vo)
+                    {
+                        return vo;
+                    }
+                    if (value is System.Guid correctlyTypedValue)
+                    {
+                        return From(correctlyTypedValue);
+                    }
+                    if (value is string s)
+                    {
+                        var underlyingValue = System.Guid.Parse(s, culture ?? System.Globalization.CultureInfo.InvariantCulture);
+                        return From(underlyingValue);
+                    }
+                }
+
+                if (destinationType.IsAssignableFrom(UnderlyingType))
                 {
                     if (value is TenantId vo)
                     {
                         return vo.Value;
+                    }
+                    if (value is System.Guid correctlyTypedValue)
+                    {
+                        return correctlyTypedValue;
+                    }
+                    if (value is string s)
+                    {
+                        var underlyingValue = System.Guid.Parse(s, culture ?? System.Globalization.CultureInfo.InvariantCulture);
+                        return underlyingValue;
                     }
                     return base.ConvertTo(context, culture ?? System.Globalization.CultureInfo.InvariantCulture, value, destinationType);
                 }
