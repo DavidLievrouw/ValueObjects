@@ -271,6 +271,7 @@ namespace Dalion.ValueObjects.Samples {
             }
         }
 
+        
         private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
         {
             public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
@@ -290,25 +291,17 @@ namespace Dalion.ValueObjects.Samples {
         
                 if (value is string s)
                 {
-                    if (string.IsNullOrWhiteSpace(s)) return Empty;
-                    object underlyingValue;
-                    if (UnderlyingType == typeof(Guid)) {
-                        underlyingValue = Guid.Parse(s);
-                    } else if (UnderlyingType == typeof(DateOnly)) {
-                        underlyingValue = DateOnly.Parse(s, culture ?? System.Globalization.CultureInfo.InvariantCulture);
-                    } else {
-                        underlyingValue = Convert.ChangeType(s, UnderlyingType, culture ?? System.Globalization.CultureInfo.InvariantCulture);
-                    }
-                    return From((System.Guid)underlyingValue);
+                    var underlyingValue = System.Guid.Parse(s, culture ?? System.Globalization.CultureInfo.InvariantCulture);
+                    return underlyingValue == default ? Empty : From((System.Guid)underlyingValue);
                 }
     
                 throw new NotSupportedException($@"Cannot convert from type '{value?.GetType()}'.");
             }
 
-            private object? GetUnderlyingValue(object? value) {{
-                if (value == null) {{
+            private object? GetUnderlyingValue(object? value) {
+                if (value == null) {
                     return default(System.Guid);
-                }}
+                }
         
                 if (value is System.Guid v) {
                     return v;
@@ -319,7 +312,7 @@ namespace Dalion.ValueObjects.Samples {
                 }
                 
                 return Convert.ChangeType(value, typeof(System.Guid));
-            }}
+            }
             
             public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
             {
@@ -353,6 +346,7 @@ namespace Dalion.ValueObjects.Samples {
                 throw new NotSupportedException($@"Cannot convert to type '{destinationType}'.");
             }
         }
+
 
         private static class TenantIdPreSetValueCache {
             public static readonly System.Collections.Generic.Dictionary<System.Guid, TenantId> TenantIdPreSetValues = new();
