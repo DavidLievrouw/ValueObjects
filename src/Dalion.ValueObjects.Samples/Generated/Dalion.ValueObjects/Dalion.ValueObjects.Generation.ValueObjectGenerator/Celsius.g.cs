@@ -411,7 +411,6 @@ namespace Dalion.ValueObjects.Samples {
             }
         }
 
-        
         private class CelsiusTypeConverter : System.ComponentModel.TypeConverter
         {
             public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
@@ -507,7 +506,6 @@ namespace Dalion.ValueObjects.Samples {
                 throw new NotSupportedException($@"Cannot convert to type '{destinationType}'.");
             }
         }
-
 
         private static class CelsiusPreSetValueCache {
             public static readonly System.Collections.Generic.Dictionary<System.Decimal, Celsius> CelsiusPreSetValues = new();

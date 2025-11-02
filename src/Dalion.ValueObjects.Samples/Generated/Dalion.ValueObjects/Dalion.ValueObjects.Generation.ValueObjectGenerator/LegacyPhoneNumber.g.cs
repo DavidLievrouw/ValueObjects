@@ -285,7 +285,6 @@ namespace Dalion.ValueObjects.Samples {
             }
         }
 
-        
         private class LegacyPhoneNumberTypeConverter : System.ComponentModel.TypeConverter
         {
             public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
@@ -381,7 +380,6 @@ namespace Dalion.ValueObjects.Samples {
                 throw new NotSupportedException($@"Cannot convert to type '{destinationType}'.");
             }
         }
-
 
         private static class LegacyPhoneNumberPreSetValueCache {
             public static readonly System.Collections.Generic.Dictionary<System.String, LegacyPhoneNumber> LegacyPhoneNumberPreSetValues = new();

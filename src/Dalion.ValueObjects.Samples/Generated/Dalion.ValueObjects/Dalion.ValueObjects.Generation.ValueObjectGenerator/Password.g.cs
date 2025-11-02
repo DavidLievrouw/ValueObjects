@@ -275,7 +275,6 @@ namespace Dalion.ValueObjects.Samples {
             }
         }
 
-        
         private class PasswordTypeConverter : System.ComponentModel.TypeConverter
         {
             public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
@@ -371,7 +370,6 @@ namespace Dalion.ValueObjects.Samples {
                 throw new NotSupportedException($@"Cannot convert to type '{destinationType}'.");
             }
         }
-
 
         private static class PasswordPreSetValueCache {
             public static readonly System.Collections.Generic.Dictionary<System.String, Password> PasswordPreSetValues = new();

@@ -259,7 +259,6 @@ namespace Dalion.ValueObjects.Samples {
             }
         }
 
-        
         private class PlayerLevelTypeConverter : System.ComponentModel.TypeConverter
         {
             public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
@@ -355,7 +354,6 @@ namespace Dalion.ValueObjects.Samples {
                 throw new NotSupportedException($@"Cannot convert to type '{destinationType}'.");
             }
         }
-
 
         private static class PlayerLevelPreSetValueCache {
             public static readonly System.Collections.Generic.Dictionary<System.Int32, PlayerLevel> PlayerLevelPreSetValues = new();

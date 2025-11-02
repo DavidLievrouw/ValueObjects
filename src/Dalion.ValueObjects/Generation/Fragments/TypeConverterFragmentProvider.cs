@@ -122,6 +122,6 @@ internal class TypeConverterFragmentProvider : IFragmentProvider
                 throw new NotSupportedException($@""Cannot convert to type '{{destinationType}}'."");
             }}
         }}
-";
+".Trim();
     }
 }

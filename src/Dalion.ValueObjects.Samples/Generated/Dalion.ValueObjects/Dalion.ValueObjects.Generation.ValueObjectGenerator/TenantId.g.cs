@@ -271,7 +271,6 @@ namespace Dalion.ValueObjects.Samples {
             }
         }
 
-        
         private class TenantIdTypeConverter : System.ComponentModel.TypeConverter
         {
             public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
@@ -367,7 +366,6 @@ namespace Dalion.ValueObjects.Samples {
                 throw new NotSupportedException($@"Cannot convert to type '{destinationType}'.");
             }
         }
-
 
         private static class TenantIdPreSetValueCache {
             public static readonly System.Collections.Generic.Dictionary<System.Guid, TenantId> TenantIdPreSetValues = new();
