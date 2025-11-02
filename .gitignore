@@ -365,4 +365,4 @@ FodyWeavers.xsd
 .idea
 
 # Verify tests
-*.VerifyRecord.received.txt
+*.VerifyRecord.*received.txt

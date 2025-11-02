@@ -9,17 +9,17 @@ public class SnapshotRunner<T>
     where T : IIncrementalGenerator, new()
 {
     private const string AssemblyName = "GeneratedValueObjects";
-    
+
     private const LanguageVersion LanguageVersion = Microsoft
         .CodeAnalysis
         .CSharp
         .LanguageVersion
         .CSharp11;
-    
+
     private readonly string _path;
 
     private string? _source;
-    
+
     private Action<VerifySettings>? _customizesSettings;
 
     public SnapshotRunner([CallerFilePath] string caller = "")
@@ -35,7 +35,7 @@ public class SnapshotRunner<T>
         {
             source = "using System;\n" + source;
         }
-        
+
         _source = source;
         return this;
     }
@@ -57,7 +57,7 @@ public class SnapshotRunner<T>
             verifySettings = new();
             _customizesSettings(verifySettings);
         }
-        
+
         var (diagnostics, syntaxTrees) = await GetGeneratedOutput();
         Assert.True(
             diagnostics.IsEmpty,
@@ -86,6 +86,12 @@ public class SnapshotRunner<T>
 
     public static string GetSnapshotDirectoryName()
     {
+#if NET8_0
+        return "snap-v8.0";
+#elif NET9_0
         return "snap-v9.0";
+#else
+        throw new NotSupportedException("Unsupported target framework.");
+#endif
     }
 }
