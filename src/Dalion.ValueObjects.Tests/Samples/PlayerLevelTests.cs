@@ -473,6 +473,18 @@ public partial class PlayerLevelTests
 
             Assert.Equal(PlayerLevel.From(3), actual);
         }
+        
+        [Fact]
+        public void CanConvertFromValueObject()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(PlayerLevel));
+            Assert.True(converter.CanConvertFrom(typeof(PlayerLevel)));
+
+            var backingValue = 3;
+            var actual = converter.ConvertFrom(PlayerLevel.From(backingValue));
+
+            Assert.Equal(PlayerLevel.From(backingValue), actual);
+        }
 
         [Fact]
         public void CannotConvertFromUnsupportedType()
@@ -509,6 +521,30 @@ public partial class PlayerLevelTests
             var actual = converter.ConvertTo(sut, typeof(string));
 
             Assert.Equal("3", actual);
+        }
+
+        [Fact]
+        public void CanConvertToValueObjectFromBackingValue()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(PlayerLevel));
+            Assert.True(converter.CanConvertTo(typeof(PlayerLevel)));
+
+            var backingValue = 3;
+            var actual = converter.ConvertTo(backingValue, typeof(PlayerLevel));
+
+            Assert.Equal(PlayerLevel.From(backingValue), actual);
+        }
+
+        [Fact]
+        public void CanConvertToValueObjectFromString()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(PlayerLevel));
+            Assert.True(converter.CanConvertTo(typeof(PlayerLevel)));
+
+            var str = "3";
+            var actual = converter.ConvertTo(str, typeof(PlayerLevel));
+
+            Assert.Equal(PlayerLevel.From(3), actual);
         }
 
         [Fact]

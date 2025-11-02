@@ -473,6 +473,18 @@ public partial class LegacyPhoneNumberTests
         }
 
         [Fact]
+        public void CanConvertFromValueObject()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(LegacyPhoneNumber));
+            Assert.True(converter.CanConvertFrom(typeof(LegacyPhoneNumber)));
+
+            var backingValue = "+44 1.5458.55.44.8";
+            var actual = converter.ConvertFrom(LegacyPhoneNumber.From(backingValue));
+
+            Assert.Equal(LegacyPhoneNumber.From(backingValue), actual);
+        }
+
+        [Fact]
         public void CannotConvertFromUnsupportedType()
         {
             var converter = TypeDescriptor.GetConverter(typeof(LegacyPhoneNumber));
@@ -493,6 +505,18 @@ public partial class LegacyPhoneNumberTests
             var actual = converter.ConvertTo(sut, typeof(string));
 
             Assert.Equal("+44 1.5458.55.44.8", actual);
+        }
+
+        [Fact]
+        public void CanConvertToValueObjectFromBackingValue()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(LegacyPhoneNumber));
+            Assert.True(converter.CanConvertTo(typeof(LegacyPhoneNumber)));
+
+            var backingValue = "+44 1.5458.55.44.8";
+            var actual = converter.ConvertTo(LegacyPhoneNumber.From(backingValue), typeof(LegacyPhoneNumber));
+
+            Assert.Equal(LegacyPhoneNumber.From(backingValue), actual);
         }
 
         [Fact]

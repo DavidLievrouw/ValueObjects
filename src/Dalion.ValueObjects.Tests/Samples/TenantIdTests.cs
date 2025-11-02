@@ -409,6 +409,18 @@ public partial class TenantIdTests
         }
         
         [Fact]
+        public void CanConvertFromValueObject()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(TenantId));
+            Assert.True(converter.CanConvertFrom(typeof(TenantId)));
+
+            var backingValue = Guid.NewGuid();
+            var actual = converter.ConvertFrom(TenantId.From(backingValue));
+
+            Assert.Equal(TenantId.From(backingValue), actual);
+        }
+        
+        [Fact]
         public void CanConvertFromString()
         {
             var converter = TypeDescriptor.GetConverter(typeof(TenantId));
@@ -455,6 +467,31 @@ public partial class TenantIdTests
             var actual = converter.ConvertTo(sut, typeof(string));
 
             Assert.Equal(backingValue.ToString(), actual);
+        }
+
+        [Fact]
+        public void CanConvertToValueObjectFromBackingValue()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(TenantId));
+            Assert.True(converter.CanConvertTo(typeof(TenantId)));
+
+            var backingValue = Guid.NewGuid();
+            var actual = converter.ConvertTo(backingValue, typeof(TenantId));
+
+            Assert.Equal(TenantId.From(backingValue), actual);
+        }
+
+        [Fact]
+        public void CanConvertToValueObjectFromString()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(TenantId));
+            Assert.True(converter.CanConvertTo(typeof(TenantId)));
+
+            var backingValue = Guid.NewGuid();
+            var str = backingValue.ToString();
+            var actual = converter.ConvertTo(str, typeof(TenantId));
+
+            Assert.Equal(TenantId.From(backingValue), actual);
         }
 
         [Fact]

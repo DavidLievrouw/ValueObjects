@@ -543,6 +543,18 @@ public partial class ResourceGroupNameTests
         }
 
         [Fact]
+        public void CanConvertFromValueObject()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(ResourceGroupName));
+            Assert.True(converter.CanConvertFrom(typeof(ResourceGroupName)));
+
+            var backingValue = "test-resource-group-name";
+            var actual = converter.ConvertFrom(ResourceGroupName.From(backingValue));
+
+            Assert.Equal(ResourceGroupName.From(backingValue), actual);
+        }
+
+        [Fact]
         public void CannotConvertFromUnsupportedType()
         {
             var converter = TypeDescriptor.GetConverter(typeof(ResourceGroupName));
@@ -563,6 +575,18 @@ public partial class ResourceGroupNameTests
             var actual = converter.ConvertTo(sut, typeof(string));
 
             Assert.Equal("test-resource-group-name", actual);
+        }
+
+        [Fact]
+        public void CanConvertToValueObjectFromBackingValue()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(ResourceGroupName));
+            Assert.True(converter.CanConvertTo(typeof(ResourceGroupName)));
+
+            var backingValue = "test-resource-group-name";
+            var actual = converter.ConvertTo(ResourceGroupName.From(backingValue), typeof(ResourceGroupName));
+
+            Assert.Equal(ResourceGroupName.From(backingValue), actual);
         }
 
         [Fact]

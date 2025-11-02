@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel;
+using System.Text.Json;
 using Xunit;
 
 namespace Dalion.ValueObjects.Samples;
@@ -428,7 +429,7 @@ public partial class PasswordTests
         [Fact]
         public void CanConvertFromUnderlyingType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Password));
+            var converter = TypeDescriptor.GetConverter(typeof(Password));
             Assert.True(converter.CanConvertFrom(typeof(string)));
 
             var actual = converter.ConvertFrom("test-Pwd2");
@@ -437,9 +438,21 @@ public partial class PasswordTests
         }
 
         [Fact]
+        public void CanConvertFromValueObject()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(Password));
+            Assert.True(converter.CanConvertFrom(typeof(Password)));
+
+            var backingValue = "test-Pwd2";
+            var actual = converter.ConvertFrom(Password.From(backingValue));
+
+            Assert.Equal(Password.From(backingValue), actual);
+        }
+
+        [Fact]
         public void CannotConvertFromUnsupportedType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Password));
+            var converter = TypeDescriptor.GetConverter(typeof(Password));
             Assert.False(converter.CanConvertFrom(typeof(int)));
 
             Action act = () => converter.ConvertFrom(5);
@@ -450,7 +463,7 @@ public partial class PasswordTests
         [Fact]
         public void CanConvertToUnderlyingType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Password));
+            var converter = TypeDescriptor.GetConverter(typeof(Password));
             Assert.True(converter.CanConvertTo(typeof(string)));
 
             var sut = Password.From("test-Pwd2");
@@ -460,9 +473,21 @@ public partial class PasswordTests
         }
 
         [Fact]
+        public void CanConvertToValueObjectFromBackingValue()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(Password));
+            Assert.True(converter.CanConvertTo(typeof(Password)));
+
+            var backingValue = "test-Pwd2";
+            var actual = converter.ConvertTo(Password.From(backingValue), typeof(Password));
+
+            Assert.Equal(Password.From(backingValue), actual);
+        }
+
+        [Fact]
         public void CannotConvertToUnsupportedType()
         {
-            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Password));
+            var converter = TypeDescriptor.GetConverter(typeof(Password));
             Assert.False(converter.CanConvertTo(typeof(int)));
 
             var sut = Password.From("test-Pwd2");

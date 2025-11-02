@@ -513,6 +513,30 @@ public partial class BirthdayTests
 
             Assert.Equal(Birthday.From(backingValue), actual);
         }
+        
+        [Fact]
+        public void CanConvertFromValueObject()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(Birthday));
+            Assert.True(converter.CanConvertFrom(typeof(Birthday)));
+
+            var backingValue = new DateOnly(2020, 3, 12);
+            var actual = converter.ConvertFrom(Birthday.From(backingValue));
+
+            Assert.Equal(Birthday.From(backingValue), actual);
+        }
+        
+        [Fact]
+        public void CanConvertFromString()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(Birthday));
+            Assert.True(converter.CanConvertFrom(typeof(string)));
+
+            var backingValue = "2020-03-12";
+            var actual = converter.ConvertFrom(backingValue);
+
+            Assert.Equal(Birthday.From(new DateOnly(2020, 3, 12)), actual);
+        }
 
         [Fact]
         public void CannotConvertFromUnsupportedType()
@@ -536,6 +560,43 @@ public partial class BirthdayTests
             var actual = converter.ConvertTo(sut, typeof(DateOnly));
 
             Assert.Equal(backingValue, actual);
+        }
+
+        [Fact]
+        public void CanConvertToValueObjectFromBackingValue()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(Birthday));
+            Assert.True(converter.CanConvertTo(typeof(Birthday)));
+
+            var backingValue = new DateOnly(2020, 3, 12);
+            var actual = converter.ConvertTo(backingValue, typeof(Birthday));
+
+            Assert.Equal(Birthday.From(backingValue), actual);
+        }
+
+        [Fact]
+        public void CanConvertToValueObjectFromString()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(Birthday));
+            Assert.True(converter.CanConvertTo(typeof(Birthday)));
+
+            var str = "2020-03-12";
+            var actual = converter.ConvertTo(str, typeof(Birthday));
+
+            Assert.Equal(Birthday.From(new DateOnly(2020, 3, 12)), actual);
+        }
+
+        [Fact]
+        public void CanConvertToString()
+        {
+            var converter = TypeDescriptor.GetConverter(typeof(Birthday));
+            Assert.True(converter.CanConvertTo(typeof(string)));
+
+            var backingValue = new DateOnly(2020, 3, 12);
+            var sut = Birthday.From(backingValue);
+            var actual = converter.ConvertTo(sut, typeof(string));
+
+            Assert.Equal("2020-03-12", actual);
         }
 
         [Fact]

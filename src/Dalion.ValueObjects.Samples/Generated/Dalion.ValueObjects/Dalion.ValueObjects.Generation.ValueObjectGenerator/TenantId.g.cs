@@ -276,7 +276,7 @@ namespace Dalion.ValueObjects.Samples {
         {
             public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
             {
-                return sourceType is not null && (sourceType.IsAssignableFrom(UnderlyingType) || sourceType == typeof(string));
+                return sourceType is not null && (sourceType.IsAssignableFrom(typeof(TenantId)) || sourceType.IsAssignableFrom(UnderlyingType) || sourceType == typeof(string));
             }
             
             public override object? ConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object value)
@@ -311,7 +311,7 @@ namespace Dalion.ValueObjects.Samples {
             
             public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
             {
-                return destinationType is not null && (destinationType.IsAssignableFrom(UnderlyingType) || destinationType == typeof(string));
+                return destinationType is not null && (destinationType.IsAssignableFrom(typeof(TenantId)) || destinationType.IsAssignableFrom(UnderlyingType) || destinationType == typeof(string));
             }
             
             public override object? ConvertTo(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object? value, Type destinationType)

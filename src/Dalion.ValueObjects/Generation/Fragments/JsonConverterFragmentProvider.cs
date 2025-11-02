@@ -8,7 +8,6 @@ internal class JsonConverterFragmentProvider : IFragmentProvider
     {
         var typeName = config.TypeName;
         var valueTypeName = config.UnderlyingTypeName;
-        var emptyValueName = config.EmptyValueName;
 
         string readCode;
         string writeCode;

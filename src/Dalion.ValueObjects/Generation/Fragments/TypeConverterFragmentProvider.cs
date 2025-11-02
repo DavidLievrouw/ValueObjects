@@ -1,25 +1,37 @@
-﻿namespace Dalion.ValueObjects.Generation.Fragments;
+﻿using Microsoft.CodeAnalysis;
+
+namespace Dalion.ValueObjects.Generation.Fragments;
 
 internal class TypeConverterFragmentProvider : IFragmentProvider
 {
     public string ProvideFragment(AttributeConfiguration config, GenerationTarget target)
     {
         var getUnderlyingValue =
-            config.UnderlyingType.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_String
+            config.UnderlyingType.SpecialType == SpecialType.System_String
                 ? "var underlyingValue = s;"
                 : $"var underlyingValue = {config.UnderlyingTypeName}.Parse(s, culture ?? System.Globalization.CultureInfo.InvariantCulture);";
 
-        var getUnderlyingStringValue =
-            config.UnderlyingType.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_String
-                ? "return vo.Value;"
-                : "return vo.ToString(culture ?? System.Globalization.CultureInfo.InvariantCulture);";
-        
+        string getUnderlyingStringValue;
+        if (config.UnderlyingType.SpecialType == SpecialType.System_String)
+        {
+            getUnderlyingStringValue = "return vo.Value;";
+        }
+        else if (config.UnderlyingType.Name == "DateOnly")
+        {
+            getUnderlyingStringValue = "return vo.Value.ToString(\"yyyy-MM-dd\");";
+        }
+        else
+        {
+            getUnderlyingStringValue =
+                "return vo.ToString(culture ?? System.Globalization.CultureInfo.InvariantCulture);";
+        }
+
         return $@"
         private class {config.TypeName}TypeConverter : System.ComponentModel.TypeConverter
         {{
             public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, Type sourceType)
             {{
-                return sourceType is not null && (sourceType.IsAssignableFrom(UnderlyingType) || sourceType == typeof(string));
+                return sourceType is not null && (sourceType.IsAssignableFrom(typeof({config.TypeName})) || sourceType.IsAssignableFrom(UnderlyingType) || sourceType == typeof(string));
             }}
             
             public override object? ConvertFrom(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object value)
@@ -54,7 +66,7 @@ internal class TypeConverterFragmentProvider : IFragmentProvider
             
             public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext? context, Type? destinationType)
             {{
-                return destinationType is not null && (destinationType.IsAssignableFrom(UnderlyingType) || destinationType == typeof(string));
+                return destinationType is not null && (destinationType.IsAssignableFrom(typeof({config.TypeName})) || destinationType.IsAssignableFrom(UnderlyingType) || destinationType == typeof(string));
             }}
             
             public override object? ConvertTo(System.ComponentModel.ITypeDescriptorContext? context, System.Globalization.CultureInfo? culture, object? value, Type destinationType)
