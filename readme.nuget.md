@@ -70,27 +70,8 @@ All generated code is compatible with C# 11.0 or higher and .NET 8.0 or higher.
 
 See the [Wiki](https://github.com/DavidLievrouw/ValueObjects/wiki) for more detailed information, such as getting started, tutorials, and how-tos.
 
-## Give a Star! :star:
-If you like or are using this project please give it a star. Thanks!
-
 ## Motivation
 
 Creating value objects is a repetitive task. This project aims to reduce the amount of boilerplate code that needs to be written, by generating it.
 
 Inspired by the awesome [Vogen](https://github.com/SteveDunn/Vogen) project.
-
-### Limitations Overcome
-
-This library addresses several limitations found in similar solutions, such as [Vogen](https://github.com/SteveDunn/Vogen) or [StronglyTypedId](https://github.com/andrewlock/StronglyTypedId):
-
-- **No Run-Time Dependency:**  
-  Unlike e.g. [Vogen](https://github.com/SteveDunn/Vogen), which requires an assembly at run-time (e.g. `Vogen.SharedTypes.dll`), all necessary types are generated alongside your value objects\. There are no additional run-time dependencies\. All required types are generated at compile-time and generated code is self-contained\.
-
-- **Automatic Generation of Pre-Set Values:**  
-  Every value object automatically gets an `Empty` or `Default` (configurable) pre-set value, reducing boilerplate and ensuring consistency\.
-
-### Fundamental Differences in Approach
-
-This library takes a distinct approach to [value objects](https://en.wikipedia.org/wiki/Value_object), with perspectives and assumptions that are incompatible with those of [Vogen](https://github.com/SteveDunn/Vogen) or [StronglyTypedId](https://github.com/andrewlock/StronglyTypedId).
-
-These assumptions and approaches reflect our perspective on [value objects](https://en.wikipedia.org/wiki/Value_object), which may differ from others. For us, they make this library more practical and usable in real-world projects.
