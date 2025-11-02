@@ -467,9 +467,13 @@ public partial class LegacyPhoneNumberTests
             var converter = TypeDescriptor.GetConverter(typeof(LegacyPhoneNumber));
             Assert.True(converter.CanConvertFrom(typeof(string)));
 
-            var actual = converter.ConvertFrom("+44 1.5458.55.44.8");
-
-            Assert.Equal(LegacyPhoneNumber.From("+44 1.5458.55.44.8"), actual);
+            var backingValue = "+44 1.5458.55.44.8";
+            
+            var actual = converter.ConvertFrom(backingValue);
+            Assert.Equal(LegacyPhoneNumber.From(backingValue), actual);
+            
+            var actual2 = converter.ConvertFromString(backingValue);
+            Assert.Equal(actual, actual2);
         }
 
         [Fact]
@@ -502,9 +506,12 @@ public partial class LegacyPhoneNumberTests
             Assert.True(converter.CanConvertTo(typeof(string)));
 
             var sut = LegacyPhoneNumber.From("+44 1.5458.55.44.8");
+            
             var actual = converter.ConvertTo(sut, typeof(string));
-
             Assert.Equal("+44 1.5458.55.44.8", actual);
+            
+            var actual2 = converter.ConvertToString(sut);
+            Assert.Equal(actual, actual2);
         }
 
         [Fact]

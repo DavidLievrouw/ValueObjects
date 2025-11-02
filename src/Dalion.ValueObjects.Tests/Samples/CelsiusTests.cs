@@ -554,10 +554,13 @@ public partial class CelsiusTests
             Assert.True(converter.CanConvertFrom(typeof(string)));
 
             var backingValue = 24.2m;
-            var str = backingValue.ToString(CultureInfo.CurrentCulture);
-            var actual = converter.ConvertFrom(str);
+            var str = backingValue.ToString(CultureInfo.InvariantCulture);
+            var actual = converter.ConvertFrom(context: null, value: str, culture: CultureInfo.InvariantCulture);
 
             Assert.Equal(Celsius.From(24.2m), actual);
+            
+            var actual2 = converter.ConvertFromString(context: null, text: str, culture: CultureInfo.InvariantCulture);
+            Assert.Equal(actual, actual2);
         }
 
         [Fact]
@@ -619,6 +622,9 @@ public partial class CelsiusTests
             var actual = converter.ConvertTo(sut, typeof(string));
 
             Assert.Equal("24.2", actual);
+            
+            var actual2 = converter.ConvertToString(context: null, value: sut, culture: CultureInfo.InvariantCulture);
+            Assert.Equal(actual, actual2);
         }
 
         [Fact]

@@ -537,9 +537,13 @@ public partial class ResourceGroupNameTests
             var converter = TypeDescriptor.GetConverter(typeof(ResourceGroupName));
             Assert.True(converter.CanConvertFrom(typeof(string)));
 
-            var actual = converter.ConvertFrom("test-resource-group-name");
-
-            Assert.Equal(ResourceGroupName.From("test-resource-group-name"), actual);
+            var backingValue = "test-resource-group-name";
+            
+            var actual = converter.ConvertFrom(backingValue);
+            Assert.Equal(ResourceGroupName.From(backingValue), actual);
+            
+            var actual2 = converter.ConvertFromString(backingValue);
+            Assert.Equal(actual, actual2);
         }
 
         [Fact]
@@ -575,6 +579,9 @@ public partial class ResourceGroupNameTests
             var actual = converter.ConvertTo(sut, typeof(string));
 
             Assert.Equal("test-resource-group-name", actual);
+            
+            var actual2 = converter.ConvertToString(sut);
+            Assert.Equal(actual, actual2);
         }
 
         [Fact]

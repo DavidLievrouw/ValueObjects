@@ -532,10 +532,13 @@ public partial class BirthdayTests
             var converter = TypeDescriptor.GetConverter(typeof(Birthday));
             Assert.True(converter.CanConvertFrom(typeof(string)));
 
-            var backingValue = "2020-03-12";
-            var actual = converter.ConvertFrom(backingValue);
+            var str = "2020-03-12";
+            var actual = converter.ConvertFrom(str);
 
             Assert.Equal(Birthday.From(new DateOnly(2020, 3, 12)), actual);
+            
+            var actual2 = converter.ConvertFromString(context: null, text: str, culture: CultureInfo.InvariantCulture);
+            Assert.Equal(actual, actual2);
         }
 
         [Fact]
@@ -597,6 +600,9 @@ public partial class BirthdayTests
             var actual = converter.ConvertTo(sut, typeof(string));
 
             Assert.Equal("2020-03-12", actual);
+            
+            var actual2 = converter.ConvertToString(context: null, value: sut, culture: CultureInfo.InvariantCulture);
+            Assert.Equal(actual, actual2);
         }
 
         [Fact]

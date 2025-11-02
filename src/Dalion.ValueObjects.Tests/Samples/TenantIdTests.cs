@@ -427,9 +427,13 @@ public partial class TenantIdTests
             Assert.True(converter.CanConvertFrom(typeof(string)));
 
             var backingValue = Guid.NewGuid();
-            var actual = converter.ConvertFrom(backingValue.ToString());
+            var str = backingValue.ToString();
+            var actual = converter.ConvertFrom(str);
 
             Assert.Equal(TenantId.From(backingValue), actual);
+            
+            var actual2 = converter.ConvertFromString(context: null, text: str, culture: CultureInfo.InvariantCulture);
+            Assert.Equal(actual, actual2);
         }
 
         [Fact]
@@ -464,9 +468,12 @@ public partial class TenantIdTests
 
             var backingValue = Guid.NewGuid();
             var sut = TenantId.From(backingValue);
+            
             var actual = converter.ConvertTo(sut, typeof(string));
-
             Assert.Equal(backingValue.ToString(), actual);
+            
+            var actual2 = converter.ConvertToString(context: null, value: sut, culture: CultureInfo.InvariantCulture);
+            Assert.Equal(actual, actual2);
         }
 
         [Fact]

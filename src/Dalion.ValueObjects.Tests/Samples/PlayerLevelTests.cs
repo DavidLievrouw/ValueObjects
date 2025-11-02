@@ -472,6 +472,9 @@ public partial class PlayerLevelTests
             var actual = converter.ConvertFrom(str);
 
             Assert.Equal(PlayerLevel.From(3), actual);
+            
+            var actual2 = converter.ConvertFromString(context: null, text: str, culture: CultureInfo.InvariantCulture);
+            Assert.Equal(actual, actual2);
         }
         
         [Fact]
@@ -521,6 +524,9 @@ public partial class PlayerLevelTests
             var actual = converter.ConvertTo(sut, typeof(string));
 
             Assert.Equal("3", actual);
+            
+            var actual2 = converter.ConvertToString(context: null, value: sut, culture: CultureInfo.InvariantCulture);
+            Assert.Equal(actual, actual2);
         }
 
         [Fact]

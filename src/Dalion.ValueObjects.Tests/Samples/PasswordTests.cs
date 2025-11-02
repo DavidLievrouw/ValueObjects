@@ -432,9 +432,13 @@ public partial class PasswordTests
             var converter = TypeDescriptor.GetConverter(typeof(Password));
             Assert.True(converter.CanConvertFrom(typeof(string)));
 
-            var actual = converter.ConvertFrom("test-Pwd2");
-
-            Assert.Equal(Password.From("test-Pwd2"), actual);
+            var backingValue = "test-Pwd2";
+            
+            var actual = converter.ConvertFrom(backingValue);
+            Assert.Equal(Password.From(backingValue), actual);
+            
+            var actual2 = converter.ConvertFromString(backingValue);
+            Assert.Equal(actual, actual2);
         }
 
         [Fact]
@@ -470,6 +474,9 @@ public partial class PasswordTests
             var actual = converter.ConvertTo(sut, typeof(string));
 
             Assert.Equal("test-Pwd2", actual);
+            
+            var actual2 = converter.ConvertToString(sut);
+            Assert.Equal(actual, actual2);
         }
 
         [Fact]
