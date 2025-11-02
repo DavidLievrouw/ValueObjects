@@ -16,7 +16,13 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-dotnet test %SRCDIR%\%PRODUCT%.SnapshotTests\%PRODUCT%.SnapshotTests.csproj
+dotnet test %SRCDIR%\%PRODUCT%.SnapshotTests\%PRODUCT%.SnapshotTests.csproj -f net8.0
+if errorlevel 1 (
+   echo One or more tests failed.
+   exit /b %errorlevel%
+)
+
+dotnet test %SRCDIR%\%PRODUCT%.SnapshotTests\%PRODUCT%.SnapshotTests.csproj -f net9.0
 if errorlevel 1 (
    echo One or more tests failed.
    exit /b %errorlevel%
