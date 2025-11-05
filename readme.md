@@ -47,14 +47,14 @@ This enables the following for the type:
 - Ability to normalize the underlying primitive value upon creation
 - `String` representation based on the underlying primitive value
 - `System.Text.Json` Serialization and deserialization support
-- `TypeConverter` support for conversion to and from the underlying primitive value
+- `TypeConverter` support (see [Type Conversion in .NET](https://learn.microsoft.com/en-us/dotnet/standard/base-types/type-conversion#the-typeconverter-class))
 - Ability to check if an instance is initialized and valid, and to retrieve validation error messages
 - Ability to define pre-set values as `public static readonly` fields (even if they are considered to be invalid)
 - Implementation of `IComparable` and `IComparable<T>`
 - Implementation of `IFormattable` for formatting support
 - Implementation of `IParsable<T>` for parsing support
 - Implementation of `ISpanParsable<T>` for span parsing support, and `IUtf8SpanParsable<T>` for UTF8 span parsing support (if the underlying type supports it)
-- Generation of a static property `Default` (name is configurable) that represents the default value for the value object type
+- Generation of a static property `Empty` (name is configurable) that represents the default value for the value object type
 
 It makes it possible to enable the following for the type, using arguments in the attribute to configure behavior:
 
