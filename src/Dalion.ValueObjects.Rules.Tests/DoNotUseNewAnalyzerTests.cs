@@ -4,7 +4,7 @@ namespace Dalion.ValueObjects.Rules;
 
 public class DoNotUseNewAnalyzerTests : RuleTests
 {
-#if !DOTNET10_OR_GREATER // Waiting for package Microsoft.CodeAnalysis.CSharp.Analyzer.Testing to be compatible with .NET 10
+#if !NET10_0_OR_GREATER // Waiting for package Microsoft.CodeAnalysis.CSharp.Analyzer.Testing to be compatible with .NET 10
     [Fact]
     public async Task ProhibitsNewingUp()
     {
@@ -44,7 +44,7 @@ public readonly partial record struct Fahrenheit {{
 ");
     }
 
-#if !DOTNET10_OR_GREATER // Waiting for package Microsoft.CodeAnalysis.CSharp.Analyzer.Testing to be compatible with .NET 10
+#if !NET10_0_OR_GREATER // Waiting for package Microsoft.CodeAnalysis.CSharp.Analyzer.Testing to be compatible with .NET 10
     [Fact]
     public async Task AllowsCreationUsingFrom()
     {
