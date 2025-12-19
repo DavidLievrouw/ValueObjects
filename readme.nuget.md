@@ -21,7 +21,7 @@ Add the [Dalion.ValueObjects](https://www.nuget.org/packages/Dalion.ValueObjects
 <ItemGroup>
   <PackageReference
     Include="Dalion.ValueObjects"
-    Version="[1.0.0,)"
+    Version="[1.1.0,)"
     ReferenceOutputAssembly="false"
     OutputItemType="Analyzer"
   />
