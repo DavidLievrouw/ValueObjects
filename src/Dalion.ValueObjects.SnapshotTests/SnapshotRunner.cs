@@ -90,6 +90,8 @@ public class SnapshotRunner<T>
         return "snap-v8.0";
 #elif NET9_0
         return "snap-v9.0";
+#elif NET10_0
+        return "snap-v10.0";
 #else
         throw new NotSupportedException("Unsupported target framework.");
 #endif
