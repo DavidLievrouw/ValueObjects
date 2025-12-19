@@ -7,13 +7,37 @@ SET DIR=%~dp0%
 SET SRCDIR=%DIR%\src
 SET PRODUCT=Dalion.ValueObjects
 
-dotnet test %SRCDIR%\%PRODUCT%.Tests\%PRODUCT%.Tests.csproj
+dotnet test %SRCDIR%\%PRODUCT%.Tests\%PRODUCT%.Tests.csproj -f net8.0
 if errorlevel 1 (
    echo One or more tests failed.
    exit /b %errorlevel%
 )
 
-dotnet test %SRCDIR%\%PRODUCT%.Rules.Tests\%PRODUCT%.Rules.Tests.csproj
+dotnet test %SRCDIR%\%PRODUCT%.Tests\%PRODUCT%.Tests.csproj -f net9.0
+if errorlevel 1 (
+   echo One or more tests failed.
+   exit /b %errorlevel%
+)
+
+dotnet test %SRCDIR%\%PRODUCT%.Tests\%PRODUCT%.Tests.csproj -f net10.0
+if errorlevel 1 (
+   echo One or more tests failed.
+   exit /b %errorlevel%
+)
+
+dotnet test %SRCDIR%\%PRODUCT%.Rules.Tests\%PRODUCT%.Rules.Tests.csproj -f net8.0
+if errorlevel 1 (
+   echo One or more tests failed.
+   exit /b %errorlevel%
+)
+
+dotnet test %SRCDIR%\%PRODUCT%.Rules.Tests\%PRODUCT%.Rules.Tests.csproj -f net9.0
+if errorlevel 1 (
+   echo One or more tests failed.
+   exit /b %errorlevel%
+)
+
+dotnet test %SRCDIR%\%PRODUCT%.Rules.Tests\%PRODUCT%.Rules.Tests.csproj -f net10.0
 if errorlevel 1 (
    echo One or more tests failed.
    exit /b %errorlevel%
@@ -26,6 +50,12 @@ if errorlevel 1 (
 )
 
 dotnet test %SRCDIR%\%PRODUCT%.SnapshotTests\%PRODUCT%.SnapshotTests.csproj -f net9.0
+if errorlevel 1 (
+   echo One or more tests failed.
+   exit /b %errorlevel%
+)
+
+dotnet test %SRCDIR%\%PRODUCT%.SnapshotTests\%PRODUCT%.SnapshotTests.csproj -f net10.0
 if errorlevel 1 (
    echo One or more tests failed.
    exit /b %errorlevel%
